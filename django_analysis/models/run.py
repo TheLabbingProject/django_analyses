@@ -3,5 +3,7 @@ from django_extensions.db.models import TimeStampedModel
 
 
 class Run(TimeStampedModel):
-    analysis = models.ForeignKey("django_analysis.Analysis", on_delete=models.CASCADE)
+    analysis_version = models.ForeignKey(
+        "django_analysis.AnalysisVersion", on_delete=models.PROTECT
+    )
 
