@@ -1,18 +1,28 @@
 from django.db import models
+from django.db.models import Count
 from django_analysis.models.analysis import Analysis
+from django_analysis.models.input.definitions.input_definition import InputDefinition
 
 
 class InputSpecificationManager(models.Manager):
     def from_dict(self, analysis: Analysis, specification: dict) -> tuple:
-        instance = self.model(analysis)
-        for key, value in specification.items():
-            input_type = value["type"]
-            kwargs = {key: value for key, value in value.items() if key != "type"}
-            input_definition, _ = input_type.objects.get_or_create(key=key, **kwargs)
-            instance.input_definitions.add(input_definition)
+        input_definitions = []
+        for key, definition in specification.items():
+            input_type_model = definition.pop("type")
+            input_type_instance, _ = input_type_model.objects.get_or_create(
+                key=key, **definition
+            )
+            input_definitions += [input_type_instance]
+        instance = self.annotate(
+            input_definitions__count=Count("input_definitions")
+        ).filter(
+            analysis=analysis,
+            input_definitions__in=input_definitions,
+            input_definitions__count=len(input_definitions),
+        )
         print(instance)
         # TODO: Fix unique creation
-        return instance
+        return instance, input_definitions
 
 
 class InputSpecification(models.Model):
