@@ -1,28 +1,27 @@
 from django.db import models
-from django.db.models import Count
-from django_analysis.models.analysis import Analysis
+from django.db.models import Count, QuerySet
 from django_analysis.models.input.definitions.input_definition import InputDefinition
 
 
 class InputSpecificationManager(models.Manager):
-    def from_dict(self, analysis: Analysis, specification: dict) -> tuple:
-        input_definitions = []
-        for key, definition in specification.items():
-            input_type_model = definition.pop("type")
-            input_type_instance, _ = input_type_model.objects.get_or_create(
-                key=key, **definition
-            )
-            input_definitions += [input_type_instance]
-        instance = self.annotate(
-            input_definitions__count=Count("input_definitions")
-        ).filter(
-            analysis=analysis,
-            input_definitions__in=input_definitions,
-            input_definitions__count=len(input_definitions),
+    def filter_by_definitions(self, analysis, definitions: list) -> QuerySet:
+        possibly_same = self.filter(
+            analysis=analysis, input_definitions__in=definitions
         )
-        print(instance)
-        # TODO: Fix unique creation
-        return instance, input_definitions
+        return possibly_same.annotate(
+            input_definitions__count=Count("input_definitions")
+        ).filter(input_definitions__count=len(definitions))
+
+    def from_dict(self, analysis, specification: dict) -> tuple:
+        input_definitions = InputDefinition.objects.from_specification_dict(
+            specification
+        )
+        existing_specification = self.filter_by_definitions(analysis, input_definitions)
+        if not existing_specification:
+            new_specification = self.create(analysis=analysis)
+            new_specification.input_definitions.set(input_definitions)
+            return new_specification, True
+        return existing_specification[0], False
 
 
 class InputSpecification(models.Model):

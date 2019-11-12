@@ -1,6 +1,7 @@
 from django.contrib.postgres.fields import ArrayField
 from django.db import models
 from django_analysis.models.input.definitions.input_definition import InputDefinition
+from django_analysis.models.input.types.string_input import StringInput
 
 
 class StringInputDefinition(InputDefinition):
@@ -10,3 +11,5 @@ class StringInputDefinition(InputDefinition):
     choices = ArrayField(
         models.CharField(max_length=255, blank=True, null=True), blank=True, null=True
     )
+
+    INPUT_CLASS = StringInput

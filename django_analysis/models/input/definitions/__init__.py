@@ -13,4 +13,6 @@ from django_analysis.models.input.definitions.file_input_definition import (
 from django_analysis.models.input.definitions.boolean_input_definition import (
     BooleanInputDefinition,
 )
-
+from django_analysis.models.input.definitions.list_input_definition import (
+    ListInputDefinition,
+)

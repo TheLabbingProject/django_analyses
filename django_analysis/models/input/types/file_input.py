@@ -4,7 +4,12 @@ from django_analysis.models.input.input import Input
 
 
 class FileInput(Input):
+    value = models.FilePathField(settings.MEDIA_ROOT)
     definition = models.ForeignKey(
-        "django_analysis.FileInputDefinition", on_delete=models.PROTECT
+        "django_analysis.FileInputDefinition",
+        on_delete=models.PROTECT,
+        related_name="input_set",
     )
-    path = models.FilePathField(settings.MEDIA_ROOT)
+
+    def validate(self) -> None:
+        pass

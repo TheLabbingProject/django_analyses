@@ -1,7 +1,7 @@
 from django.db import models
-from django_analysis.analyses import model_to_analysis
+from django_analysis.models.input_specification import InputSpecification
+from django_analysis.models.output_specification import OutputSpecification
 from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
-from model_utils.managers import InheritanceManager
 
 
 class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
@@ -10,7 +10,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         on_delete=models.CASCADE,
         blank=True,
         null=True,
-        related_name="analysis_version_set",
+        related_name="version_set",
     )
     input_specification = models.ForeignKey(
         "django_analysis.InputSpecification",
@@ -19,18 +19,16 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         null=True,
         related_name="analysis_version_set",
     )
-
-    objects = InheritanceManager()
+    output_specification = models.ForeignKey(
+        "django_analysis.OutputSpecification",
+        on_delete=models.PROTECT,
+        blank=True,
+        null=True,
+        related_name="analysis_version_set",
+    )
 
     def __str__(self) -> str:
         return f"{self.analysis.title} v{self.title}"
 
-    def get_class(self) -> object:
-        return self.definition["class"]
-
     def run(self, *args, **kwargs):
         raise NotImplementedError
-
-    @property
-    def definition(self) -> dict:
-        return model_to_analysis[self.analysis.title][self.title]

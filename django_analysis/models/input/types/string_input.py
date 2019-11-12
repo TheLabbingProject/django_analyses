@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from django_analysis.models.input.input import Input
 
@@ -5,7 +6,9 @@ from django_analysis.models.input.input import Input
 class StringInput(Input):
     value = models.CharField(max_length=1000)
     definition = models.ForeignKey(
-        "django_analysis.StringInputDefinition", on_delete=models.PROTECT
+        "django_analysis.StringInputDefinition",
+        on_delete=models.PROTECT,
+        related_name="input_set",
     )
 
     def validate_min_length(self) -> bool:
@@ -14,7 +17,7 @@ class StringInput(Input):
 
     def raise_min_length_error(self) -> None:
         min_length = self.definition.min_length
-        raise ValueError(f"{self.key} must be {min_length} characters or longer!")
+        raise ValidationError(f"{self.key} must be {min_length} characters or longer!")
 
     def validate_max_length(self) -> bool:
         max_length = self.definition.max_length
@@ -22,7 +25,7 @@ class StringInput(Input):
 
     def raise_max_length_error(self) -> None:
         max_length = self.definition.max_length
-        raise ValueError(f"{self.key} must be {max_length} characters or shorter!")
+        raise ValidationError(f"{self.key} must be {max_length} characters or shorter!")
 
     def validate_from_choices(self) -> bool:
         choices = self.definition.choices
@@ -30,7 +33,9 @@ class StringInput(Input):
 
     def raise_invalid_choice_error(self) -> None:
         choices = self.definition.choices
-        raise ValueError(f"{self.key} must be one of the following choices: {choices}!")
+        raise ValidationError(
+            f"{self.key} must be one of the following choices: {choices}!"
+        )
 
     def validate(self) -> None:
         if not self.valid_min_length:
