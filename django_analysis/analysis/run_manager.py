@@ -8,12 +8,10 @@ class RunManager:
     def __init__(self):
         self.definitions_manager = DefinitionsManager()
 
-    def get_input_definitions(self, run: Run, **kwargs) -> QuerySet:
-        raw_definitions = run.analysis_version.input_specification.input_definitions
-        return raw_definitions.filter(key__in=kwargs).select_subclasses()
-
     def create_input_instances(self, run: Run, **kwargs) -> list:
-        input_definitions = self.get_input_definitions(run, **kwargs)
+        input_definitions = run.analysis_version.get_input_definitions_for_kwargs(
+            **kwargs
+        )
         inputs = []
         for key, value in kwargs.items():
             input_definition = input_definitions.get(key=key)
@@ -23,14 +21,41 @@ class RunManager:
             inputs.append(input_instance)
         return inputs
 
+    def create_output_instances(self, run: Run, **results) -> list:
+        output_definitions = run.analysis_version.get_output_definitions_for_results(
+            **results
+        )
+        outputs = []
+        for key, value in results.items():
+            output_definition = output_definitions.get(key=key)
+            output_instance = output_definition.OUTPUT_CLASS.objects.create(
+                value=value, definition=output_definition, run=run
+            )
+            outputs.append(output_instance)
+        return outputs
+
+    def get_complete_configuration(
+        self, analysis_version: AnalysisVersion, **kwargs
+    ) -> dict:
+        configuration = (
+            analysis_version.input_specification.get_default_input_configurations()
+        )
+        configuration.update(kwargs)
+        return configuration
+
     def get_existing_run(self, analysis_version: AnalysisVersion, **kwargs) -> Run:
         runs = Run.objects.filter(analysis_version=analysis_version)
-        matching = [run for run in runs if run.input_configuration == kwargs]
+        configuration = self.get_complete_configuration(analysis_version, **kwargs)
+        matching = [run for run in runs if run.input_configuration == configuration]
         return matching[0] if matching else None
 
-    def initialize_analysis(self, analysis_version: AnalysisVersion, **kwargs) -> Run:
+    def create_run(self, analysis_version: AnalysisVersion, **kwargs) -> Run:
         run = Run.objects.create(analysis_version=analysis_version)
         self.create_input_instances(run, **kwargs)
-        analysis_class = self.definitions_manager.get_analysis_class(analysis_version)
-        return analysis_class(**kwargs)
+        results = self.definitions_manager.run_analysis(analysis_version, **kwargs)
+        self.create_output_instances(run, **results)
+        return run
 
+    def run(self, analysis_version: AnalysisVersion, **kwargs) -> Run:
+        existing_run = self.get_existing_run(analysis_version, **kwargs)
+        return existing_run or self.create_run(analysis_version, **kwargs)

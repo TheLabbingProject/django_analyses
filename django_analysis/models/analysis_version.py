@@ -1,6 +1,4 @@
 from django.db import models
-from django_analysis.models.input_specification import InputSpecification
-from django_analysis.models.output_specification import OutputSpecification
 from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
 
 
@@ -32,3 +30,9 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
 
     def run(self, *args, **kwargs):
         raise NotImplementedError
+
+    def get_input_definitions_for_kwargs(self, **kwargs) -> models.QuerySet:
+        return self.input_specification.get_definitions_for_kwargs(**kwargs)
+
+    def get_output_definitions_for_results(self, **results) -> models.QuerySet:
+        return self.output_specification.get_definitions_for_results(**results)

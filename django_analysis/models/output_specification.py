@@ -31,3 +31,6 @@ class OutputSpecification(models.Model):
     output_definitions = models.ManyToManyField("django_analysis.OutputDefinition")
 
     objects = OutputSpecificationManager()
+
+    def get_definitions_for_results(self, **results) -> QuerySet:
+        return self.output_definitions.filter(key__in=results).select_subclasses()

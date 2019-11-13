@@ -29,3 +29,13 @@ class InputSpecification(models.Model):
     input_definitions = models.ManyToManyField("django_analysis.InputDefinition")
 
     objects = InputSpecificationManager()
+
+    def get_default_input_configurations(self) -> dict:
+        return {
+            definition.key: definition.default
+            for definition in self.input_definitions.select_subclasses()
+            if definition.default is not None
+        }
+
+    def get_definitions_for_kwargs(self, **kwargs) -> QuerySet:
+        return self.input_definitions.filter(key__in=kwargs).select_subclasses()

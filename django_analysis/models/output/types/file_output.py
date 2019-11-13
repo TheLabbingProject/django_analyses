@@ -4,9 +4,13 @@ from django_analysis.models.output.output import Output
 
 
 class FileOutput(Output):
-    value = models.FilePathField(settings.MEDIA_ROOT)
+    value = models.FilePathField(settings.MEDIA_ROOT, blank=True, null=True)
     definition = models.ForeignKey(
         "django_analysis.FileOutputDefinition",
         on_delete=models.PROTECT,
         related_name="output_set",
     )
+
+    def validate(self) -> None:
+        pass
+

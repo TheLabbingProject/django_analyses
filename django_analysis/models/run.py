@@ -11,10 +11,14 @@ class Run(TimeStampedModel):
         ordering = ("-created",)
 
     def get_input_configuration(self) -> dict:
-        return {
+        input_specification = self.analysis_version.input_specification
+        defaults = input_specification.get_default_input_configurations()
+        configuration = {
             inpt.definition.key: inpt.value
             for inpt in self.input_set.select_subclasses()
         }
+        defaults.update(configuration)
+        return defaults
 
     @property
     def input_configuration(self) -> dict:

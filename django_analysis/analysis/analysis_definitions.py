@@ -8,8 +8,9 @@ analysis_definitions = {
     "BET": {
         "6.0.0": {
             "class": BET,
-            "input_specification": BET_INPUT_SPECIFICATION,
-            "output_specification": BET_OUTPUT_SPECIFICATION,
+            "input": BET_INPUT_SPECIFICATION,
+            "output": BET_OUTPUT_SPECIFICATION,
+            "nested_results": "outputs.get_traitsfree",
         }
     }
 }
