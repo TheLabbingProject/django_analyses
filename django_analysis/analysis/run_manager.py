@@ -1,12 +1,27 @@
-from django.db.models import QuerySet
-from django_analysis.analysis.definitions_manager import DefinitionsManager
+from django_analysis.analysis.interfaces import interfaces
 from django_analysis.models.analysis_version import AnalysisVersion
 from django_analysis.models.run import Run
 
 
 class RunManager:
-    def __init__(self):
-        self.definitions_manager = DefinitionsManager()
+    def get_interface(self, analysis_version: AnalysisVersion):
+        try:
+            return interfaces[analysis_version.analysis.title][analysis_version.title]
+        except AttributeError:
+            return ValueError(f"No interface detected for {analysis_version}!")
+
+    def run_interface(self, analysis_version: AnalysisVersion, **kwargs):
+        interface = self.get_interface(analysis_version)
+        instance = interface(**kwargs)
+        run_method = getattr(instance, analysis_version.run_method_key)
+        return run_method()
+
+    def get_nested_results(self, analysis_version: AnalysisVersion, results) -> dict:
+        nested_definition = analysis_version.nested_results_attribute
+        nested_definition = nested_definition.split(".") if nested_definition else []
+        for nested_attribute in nested_definition:
+            results = getattr(results, nested_attribute)
+        return results if isinstance(results, dict) else results()
 
     def create_input_instances(self, run: Run, **kwargs) -> list:
         input_definitions = run.analysis_version.get_input_definitions_for_kwargs(
@@ -52,7 +67,8 @@ class RunManager:
     def create_run(self, analysis_version: AnalysisVersion, **kwargs) -> Run:
         run = Run.objects.create(analysis_version=analysis_version)
         self.create_input_instances(run, **kwargs)
-        results = self.definitions_manager.run_analysis(analysis_version, **kwargs)
+        raw_results = self.run_interface(analysis_version, **kwargs)
+        results = self.get_nested_results(analysis_version, raw_results)
         self.create_output_instances(run, **results)
         return run
 

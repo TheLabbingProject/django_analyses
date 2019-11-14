@@ -9,6 +9,3 @@ class BooleanInput(Input):
         on_delete=models.PROTECT,
         related_name="input_set",
     )
-
-    def validate(self) -> None:
-        pass

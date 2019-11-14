@@ -10,7 +10,3 @@ class FileOutput(Output):
         on_delete=models.PROTECT,
         related_name="output_set",
     )
-
-    def validate(self) -> None:
-        pass
-

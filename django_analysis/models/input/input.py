@@ -13,8 +13,8 @@ class Input(models.Model):
     def __str__(self) -> str:
         return str(self.value)
 
-    def validate(self):
-        raise NotImplementedError
+    def validate(self) -> None:
+        pass
 
     def save(self, *args, **kwargs):
         self.validate()
