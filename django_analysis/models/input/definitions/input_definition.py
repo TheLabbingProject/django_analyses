@@ -1,5 +1,6 @@
 from copy import deepcopy
 from django.db import models
+from django_analysis.models.input.input import Input
 from model_utils.managers import InheritanceManager
 
 
@@ -28,3 +29,6 @@ class InputDefinition(models.Model):
 
     def __str__(self) -> str:
         return self.key
+
+    def create_input_instance(self, **kwargs) -> Input:
+        return self.INPUT_CLASS.objects.create(**kwargs)

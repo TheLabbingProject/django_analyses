@@ -1,5 +1,6 @@
 from copy import deepcopy
 from django.db import models
+from django_analysis.models.output.output import Output
 from model_utils.managers import InheritanceManager
 
 
@@ -26,3 +27,6 @@ class OutputDefinition(models.Model):
 
     def __str__(self) -> str:
         return self.key
+
+    def create_output_instance(self, **kwargs) -> Output:
+        return self.OUTPUT_CLASS.objects.create(**kwargs)

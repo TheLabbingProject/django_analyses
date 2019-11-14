@@ -39,3 +39,7 @@ class InputSpecification(models.Model):
 
     def get_definitions_for_kwargs(self, **kwargs) -> QuerySet:
         return self.input_definitions.filter(key__in=kwargs).select_subclasses()
+
+    @property
+    def default_configuration(self) -> dict:
+        return self.get_default_input_configurations()

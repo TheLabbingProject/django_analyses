@@ -3,7 +3,9 @@ from model_utils.managers import InheritanceManager
 
 
 class Output(models.Model):
-    run = models.ForeignKey("django_analysis.Run", on_delete=models.CASCADE)
+    run = models.ForeignKey(
+        "django_analysis.Run", on_delete=models.CASCADE, related_name="base_output_set"
+    )
 
     value = None
     definition = None

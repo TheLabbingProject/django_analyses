@@ -1,4 +1,5 @@
 from django.db import models
+from django_analysis.analysis.interfaces import interfaces
 from django_analysis.models.input_specification import InputSpecification
 from django_analysis.models.output_specification import OutputSpecification
 from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
@@ -63,11 +64,43 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
     def __str__(self) -> str:
         return f"{self.analysis.title} v{self.title}"
 
-    def run(self, *args, **kwargs):
-        raise NotImplementedError
+    def get_interface(self):
+        try:
+            return interfaces[self.analysis.title][self.title]
+        except AttributeError:
+            return ValueError(f"No interface detected for {self}!")
+
+    def run_interface(self, **kwargs):
+        interface = self.get_interface()
+        instance = interface(**kwargs)
+        run_method = getattr(instance, self.run_method_key)
+        return run_method()
+
+    def extract_results(self, results) -> dict:
+        for nested_attribute in self.nested_results_parts:
+            results = getattr(results, nested_attribute)
+        return results if isinstance(results, dict) else results()
+
+    def run(self, **kwargs) -> dict:
+        raw_results = self.run_interface(**kwargs)
+        return self.extract_results(raw_results)
+
+    def update_input_with_defaults(self, **kwargs) -> dict:
+        configuration = self.input_specification.default_configuration.copy()
+        configuration.update(kwargs)
+        return configuration
 
     def get_input_definitions_for_kwargs(self, **kwargs) -> models.QuerySet:
         return self.input_specification.get_definitions_for_kwargs(**kwargs)
 
     def get_output_definitions_for_results(self, **results) -> models.QuerySet:
         return self.output_specification.get_definitions_for_results(**results)
+
+    @property
+    def nested_results_parts(self) -> list:
+        return (
+            self.nested_results_attribute.split(".")
+            if self.nested_results_attribute
+            else []
+        )
+
