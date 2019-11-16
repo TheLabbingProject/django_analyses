@@ -14,6 +14,7 @@ BET_INPUT_SPECIFICATION = {
         "type": FileInputDefinition,
         "required": True,
         "description": "A NIfTI format file to skullstrip.",
+        "is_configuration": False,
     },
     "out_file": {
         "type": StringInputDefinition,

@@ -32,5 +32,12 @@ class OutputSpecification(models.Model):
 
     objects = OutputSpecificationManager()
 
+    def __str__(self) -> str:
+        definitions = self.output_definitions.select_subclasses()
+        formatted_definitions = "\n\t".join(
+            [str(definition) for definition in definitions]
+        )
+        return f"\n[{self.analysis}]\n\t{formatted_definitions}\n"
+
     def get_definitions_for_results(self, **results) -> QuerySet:
         return self.output_definitions.filter(key__in=results).select_subclasses()

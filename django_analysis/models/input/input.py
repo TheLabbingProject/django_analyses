@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db import models
 from model_utils.managers import InheritanceManager
 
@@ -15,8 +16,12 @@ class Input(models.Model):
     def __str__(self) -> str:
         return str(self.value)
 
+    def raise_required_error(self):
+        raise ValidationError(f"{self.key} is required!")
+
     def validate(self) -> None:
-        pass
+        if self.definition.required and not self.value:
+            self.raise_required_error()
 
     def save(self, *args, **kwargs):
         self.validate()

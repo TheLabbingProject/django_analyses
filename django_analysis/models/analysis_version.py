@@ -1,7 +1,7 @@
 from django.db import models
 from django_analysis.analysis.interfaces import interfaces
-from django_analysis.models.input_specification import InputSpecification
-from django_analysis.models.output_specification import OutputSpecification
+from django_analysis.models.input.input_specification import InputSpecification
+from django_analysis.models.output.output_specification import OutputSpecification
 from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
 
 

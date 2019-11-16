@@ -30,6 +30,13 @@ class InputSpecification(models.Model):
 
     objects = InputSpecificationManager()
 
+    def __str__(self) -> str:
+        definitions = self.input_definitions.select_subclasses()
+        formatted_definitions = "\n\t".join(
+            [str(definition) for definition in definitions]
+        )
+        return f"\n[{self.analysis}]\n\t{formatted_definitions}\n"
+
     def get_default_input_configurations(self) -> dict:
         return {
             definition.key: definition.default

@@ -21,6 +21,7 @@ class InputDefinition(models.Model):
     key = models.CharField(max_length=50)
     required = models.BooleanField(default=False)
     description = models.TextField(blank=True, null=True)
+    is_configuration = models.BooleanField(default=True)
     default = None
 
     objects = InputDefinitionManager()
