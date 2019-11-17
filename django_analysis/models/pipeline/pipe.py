@@ -19,4 +19,3 @@ class Pipe(models.Model):
     destination_port = models.ForeignKey(
         "django_analysis.InputDefinition", on_delete=models.PROTECT
     )
-
