@@ -1,5 +1,6 @@
 from django.db import models
 from django_analysis.analysis.interfaces import interfaces
+from django_analysis.models.input.definitions.input_definition import InputDefinition
 from django_analysis.models.input.input_specification import InputSpecification
 from django_analysis.models.output.output_specification import OutputSpecification
 from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
@@ -95,6 +96,12 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
 
     def get_output_definitions_for_results(self, **results) -> models.QuerySet:
         return self.output_specification.get_definitions_for_results(**results)
+
+    def get_input_definition(self, key: str) -> InputDefinition:
+        input_definitions = (
+            self.input_specification.input_definitions.select_subclasses()
+        )
+        return input_definitions.get(key=key)
 
     @property
     def nested_results_parts(self) -> list:
