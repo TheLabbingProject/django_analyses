@@ -55,6 +55,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         return results if isinstance(results, dict) else results()
 
     def run(self, **kwargs) -> dict:
+        self.input_specification.validate_kwargs(**kwargs)
         raw_results = self.run_interface(**kwargs)
         return self.extract_results(raw_results)
 

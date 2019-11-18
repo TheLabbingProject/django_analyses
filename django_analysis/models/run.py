@@ -4,6 +4,9 @@ from django_analysis.models.managers.run import RunManager
 from django_extensions.db.models import TimeStampedModel
 
 
+# REQUIRED
+
+
 class Run(TimeStampedModel):
     analysis_version = models.ForeignKey(
         "django_analysis.AnalysisVersion", on_delete=models.PROTECT
@@ -27,12 +30,12 @@ class Run(TimeStampedModel):
         input_definition = self.analysis_version.input_definitions.get(key=key)
         return input_definition.create_input_instance(value=value, run=self)
 
+    def create_input_instances(self, **kwargs) -> list:
+        return [self.create_input_instance(key, value) for key, value in kwargs.items()]
+
     def create_output_instance(self, key: str, value) -> Input:
         output_definition = self.analysis_version.output_definitions.get(key=key)
         return output_definition.create_output_instance(value=value, run=self)
-
-    def create_input_instances(self, **kwargs) -> list:
-        return [self.create_input_instance(key, value) for key, value in kwargs.items()]
 
     def create_output_instances(self, **results) -> list:
         return [

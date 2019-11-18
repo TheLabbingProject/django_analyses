@@ -4,8 +4,6 @@ from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
 
 
 class Pipeline(TitleDescriptionModel, TimeStampedModel):
-    pass
-
     def get_node_set(self) -> QuerySet:
         source_node_ids = list(self.pipe_set.values_list("source", flat=True))
         destination_node_ids = list(self.pipe_set.values_list("destination", flat=True))

@@ -9,6 +9,13 @@ class Node(models.Model):
     )
     configuration = JSONField()
 
+    def save(self, *args, **kwargs):
+        self.validate()
+        super().save(*args, **kwargs)
+
+    def validate(self) -> None:
+        self.analysis_version.input_specification.validate_keys(**self.configuration)
+
     def run(self, inputs: dict) -> Run:
         run_configuration = self.configuration.copy()
         run_configuration.update(inputs)
