@@ -6,3 +6,11 @@ class ListElementTypes(ChoiceEnum):
     INT = "Integer"
     FLT = "Float"
     BLN = "Boolean"
+
+
+TYPES_DICT = {
+    ListElementTypes.STR: str,
+    ListElementTypes.INT: int,
+    ListElementTypes.FLT: float,
+    ListElementTypes.BLN: bool,
+}

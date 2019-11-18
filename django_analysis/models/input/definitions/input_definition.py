@@ -19,3 +19,10 @@ class InputDefinition(models.Model):
 
     def create_input_instance(self, **kwargs) -> Input:
         return self.INPUT_CLASS.objects.create(definition=self, **kwargs)
+
+    def validate(self) -> None:
+        pass
+
+    def save(self, *args, **kwargs):
+        self.validate()
+        super().save(*args, **kwargs)

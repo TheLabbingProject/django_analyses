@@ -19,10 +19,14 @@ class Input(models.Model):
     def raise_required_error(self):
         raise ValidationError(f"{self.key} is required!")
 
+    def pre_save(self) -> None:
+        pass
+
     def validate(self) -> None:
         if self.definition.required and not self.value:
             self.raise_required_error()
 
     def save(self, *args, **kwargs):
+        self.pre_save()
         self.validate()
         super().save(*args, **kwargs)

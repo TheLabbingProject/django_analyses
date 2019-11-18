@@ -1,16 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.postgres.fields import JSONField
-from django_analysis.models.input.utils import ListElementTypes
+from django_analysis.models.input.utils import ListElementTypes, TYPES_DICT
 from django_analysis.models.input.input import Input
-
-
-TYPES_DICT = {
-    ListElementTypes.STR: str,
-    ListElementTypes.INT: int,
-    ListElementTypes.FLT: float,
-    ListElementTypes.BLN: bool,
-}
 
 
 class ListInput(Input):

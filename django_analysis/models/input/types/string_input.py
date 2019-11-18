@@ -1,6 +1,8 @@
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django_analysis.models.input.input import Input
+from pathlib import Path
 
 
 class StringInput(Input):
@@ -37,6 +39,22 @@ class StringInput(Input):
             f"{self.key} must be one of the following choices: {choices}!"
         )
 
+    def fix_output_path(self) -> str:
+        if self.value:
+            if not Path(self.value).is_absolute():
+                path = self.default_output_directory / self.value
+        else:
+            if self.definition.default:
+                path = self.default_output_directory / self.definition.default
+            else:
+                path = self.default_output_directory / self.definition.key
+        path.mkdir(parents=True)
+        return str(path)
+
+    def pre_save(self) -> None:
+        if self.definition.is_output_path:
+            self.value = self.fix_output_path()
+
     def validate(self) -> None:
         if not self.valid_min_length:
             self.raise_min_length_error()
@@ -60,3 +78,7 @@ class StringInput(Input):
     @property
     def valid_choice(self) -> bool:
         return self.validate_from_choices()
+
+    @property
+    def default_output_directory(self) -> Path:
+        return Path(settings.ANALYSIS_BASE_PATH) / str(self.run.id)
