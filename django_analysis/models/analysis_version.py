@@ -1,35 +1,7 @@
 from django.db import models
-from django_analysis.analysis.interfaces import interfaces
-from django_analysis.models.input.definitions.input_definition import InputDefinition
-from django_analysis.models.input.input_specification import InputSpecification
-from django_analysis.models.output.output_specification import OutputSpecification
+from django.conf import settings
+from django_analysis.models.managers.analysis_version import AnalysisVersionManager
 from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
-
-
-class AnalysisVersionManager(models.Manager):
-    def from_dict(self, analysis, definition: dict):
-        input_specification, created_input_spec = InputSpecification.objects.from_dict(
-            analysis, definition["input"]
-        )
-        (
-            output_specification,
-            created_output_spec,
-        ) = OutputSpecification.objects.from_dict(analysis, definition["output"])
-        return self.get_or_create(
-            analysis=analysis,
-            title=definition.get("title", "1.0.0"),
-            description=definition.get("description"),
-            input_specification=input_specification,
-            output_specification=output_specification,
-            nested_results_attribute=definition.get("nested_results_attribute"),
-        )
-
-    def from_list(self, analysis, definitions: list) -> dict:
-        results = {}
-        for version_definition in definitions:
-            version, created = self.from_dict(analysis, version_definition)
-            results[version.title] = {"model": version, "created": created}
-        return results
 
 
 class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
@@ -67,7 +39,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
 
     def get_interface(self):
         try:
-            return interfaces[self.analysis.title][self.title]
+            return settings.ANALYSIS_INTERFACES[self.analysis.title][self.title]
         except AttributeError:
             return ValueError(f"No interface detected for {self}!")
 
@@ -91,18 +63,6 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         configuration.update(kwargs)
         return configuration
 
-    def get_input_definitions_for_kwargs(self, **kwargs) -> models.QuerySet:
-        return self.input_specification.get_definitions_for_kwargs(**kwargs)
-
-    def get_output_definitions_for_results(self, **results) -> models.QuerySet:
-        return self.output_specification.get_definitions_for_results(**results)
-
-    def get_input_definition(self, key: str) -> InputDefinition:
-        input_definitions = (
-            self.input_specification.input_definitions.select_subclasses()
-        )
-        return input_definitions.get(key=key)
-
     @property
     def nested_results_parts(self) -> list:
         return (
@@ -111,3 +71,10 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
             else []
         )
 
+    @property
+    def input_definitions(self) -> models.QuerySet:
+        return self.input_specification.input_definitions
+
+    @property
+    def output_definitions(self) -> models.QuerySet:
+        return self.output_specification.output_definitions

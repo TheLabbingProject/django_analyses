@@ -1,25 +1,7 @@
 from django.db import models
-from django_analysis.models.analysis_version import AnalysisVersion
+from django_analysis.models.input.input import Input
+from django_analysis.models.managers.run import RunManager
 from django_extensions.db.models import TimeStampedModel
-
-
-class RunManager(models.Manager):
-    def get_existing(self, analysis_version: AnalysisVersion, **kwargs):
-        runs = self.filter(analysis_version=analysis_version)
-        configuration = analysis_version.update_input_with_defaults(**kwargs)
-        matching = [run for run in runs if run.input_configuration == configuration]
-        return matching[0] if matching else None
-
-    def create_and_execute(self, analysis_version: AnalysisVersion, **kwargs):
-        run = self.create(analysis_version=analysis_version)
-        run.create_input_instances(**kwargs)
-        results = analysis_version.run(**kwargs)
-        run.create_output_instances(**results)
-        return run
-
-    def get_or_execute(self, analysis_version: AnalysisVersion, **kwargs):
-        existing = self.get_existing(analysis_version, **kwargs)
-        return existing or self.create_and_execute(analysis_version, **kwargs)
 
 
 class Run(TimeStampedModel):
@@ -41,31 +23,21 @@ class Run(TimeStampedModel):
         defaults.update(configuration)
         return defaults
 
+    def create_input_instance(self, key: str, value) -> Input:
+        input_definition = self.analysis_version.input_definitions.get(key=key)
+        return input_definition.create_input_instance(value=value, run=self)
+
+    def create_output_instance(self, key: str, value) -> Input:
+        output_definition = self.analysis_version.output_definitions.get(key=key)
+        return output_definition.create_output_instance(value=value, run=self)
+
     def create_input_instances(self, **kwargs) -> list:
-        input_definitions = self.analysis_version.get_input_definitions_for_kwargs(
-            **kwargs
-        )
-        inputs = []
-        for key, value in kwargs.items():
-            input_definition = input_definitions.get(key=key)
-            input_instance = input_definition.create_input_instance(
-                value=value, definition=input_definition, run=self
-            )
-            inputs.append(input_instance)
-        return inputs
+        return [self.create_input_instance(key, value) for key, value in kwargs.items()]
 
     def create_output_instances(self, **results) -> list:
-        output_definitions = self.analysis_version.get_output_definitions_for_results(
-            **results
-        )
-        outputs = []
-        for key, value in results.items():
-            output_definition = output_definitions.get(key=key)
-            output_instance = output_definition.create_output_instance(
-                value=value, definition=output_definition, run=self
-            )
-            outputs.append(output_instance)
-        return outputs
+        return [
+            self.create_output_instance(key, value) for key, value in results.items()
+        ]
 
     def get_input_set(self) -> models.QuerySet:
         return self.base_input_set.select_subclasses()

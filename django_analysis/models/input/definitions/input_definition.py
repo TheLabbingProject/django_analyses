@@ -1,20 +1,6 @@
-from copy import deepcopy
 from django.db import models
 from django_analysis.models.input.input import Input
-from model_utils.managers import InheritanceManager
-
-
-class InputDefinitionManager(InheritanceManager):
-    def from_specification_dict(self, specification: dict) -> list:
-        specification = deepcopy(specification)
-        input_definitions = []
-        for key, definition in specification.items():
-            input_type_model = definition.pop("type")
-            input_type_instance, _ = input_type_model.objects.get_or_create(
-                key=key, **definition
-            )
-            input_definitions.append(input_type_instance)
-        return input_definitions
+from django_analysis.models.managers.input_definition import InputDefinitionManager
 
 
 class InputDefinition(models.Model):
@@ -32,4 +18,4 @@ class InputDefinition(models.Model):
         return self.key
 
     def create_input_instance(self, **kwargs) -> Input:
-        return self.INPUT_CLASS.objects.create(**kwargs)
+        return self.INPUT_CLASS.objects.create(definition=self, **kwargs)

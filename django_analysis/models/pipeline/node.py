@@ -1,6 +1,5 @@
 from django.contrib.postgres.fields import JSONField
 from django.db import models
-from django_analysis.models.input.definitions.input_definition import InputDefinition
 from django_analysis.models.run import Run
 
 
@@ -23,11 +22,8 @@ class Node(models.Model):
         node_ids = self.pipe_source_set.values_list("destination", flat=True)
         return Node.objects.filter(id__in=list(node_ids))
 
-    def get_input_definition(self, key: str) -> InputDefinition:
-        return self.analysis_version.get_input_definition(key)
-
     def check_configuration_sameness(self, key: str, value) -> bool:
-        input_definition = self.get_input_definition(key=key)
+        input_definition = self.analysis_version.get_input_definition(key=key)
         is_same = value == self.configuration.get(key)
         is_default = (
             value == input_definition.default and self.configuration.get(key) is None
