@@ -4,6 +4,7 @@ from django_analysis.models.input.definitions.string_input_definition import (
 )
 from django_analysis.models.input.input import Input
 from django_analysis.models.managers.run import RunManager
+from django_analysis.models.output.output import Output
 from django_extensions.db.models import TimeStampedModel
 
 
@@ -42,7 +43,9 @@ class Run(TimeStampedModel):
     def create_missing_output_path_definitions(self, **kwargs) -> list:
         return [
             output_path_definition.create_input_instance(run=self)
-            for output_path_definition in self.get_missing_output_path_definitions()
+            for output_path_definition in self.get_missing_output_path_definitions(
+                **kwargs
+            )
         ]
 
     def create_input_instances(self, **kwargs) -> list:
@@ -52,7 +55,7 @@ class Run(TimeStampedModel):
         input_instances += self.create_missing_output_path_definitions(**kwargs)
         return input_instances
 
-    def create_output_instance(self, key: str, value) -> Input:
+    def create_output_instance(self, key: str, value) -> Output:
         output_definition = self.analysis_version.output_definitions.get(key=key)
         return output_definition.create_output_instance(value=value, run=self)
 

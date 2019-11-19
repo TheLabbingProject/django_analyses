@@ -48,7 +48,7 @@ class StringInput(Input):
                 path = self.default_output_directory / self.definition.default
             else:
                 path = self.default_output_directory / self.definition.key
-        path.mkdir(parents=True)
+        path.parent.mkdir(parents=True, exist_ok=True)
         return str(path)
 
     def pre_save(self) -> None:

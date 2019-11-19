@@ -30,3 +30,7 @@ class Input(models.Model):
         self.pre_save()
         self.validate()
         super().save(*args, **kwargs)
+
+    @property
+    def key(self) -> str:
+        return self.definition.key

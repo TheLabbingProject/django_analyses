@@ -33,8 +33,7 @@ class InputSpecification(models.Model):
                 raise ValidationError(_(f"Invalid input key: '{key}'!"))
 
     def validate_required(self, **kwargs) -> None:
-        required_keys = self.input_definitions.filter(required=True)
-        for key in required_keys:
+        for key in self.required_keys:
             if key not in kwargs:
                 raise ValidationError(_(f"Value for '{key}' must be provided!"))
 
@@ -49,3 +48,10 @@ class InputSpecification(models.Model):
     @property
     def input_definitions(self) -> models.QuerySet:
         return self.base_input_definitions.select_subclasses()
+
+    @property
+    def required_keys(self) -> list:
+        required_definitions = self.input_definitions.filter(required=True)
+        required_keys = required_definitions.values_list("key", flat=True)
+        return list(required_keys)
+

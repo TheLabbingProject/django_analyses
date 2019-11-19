@@ -11,8 +11,9 @@ class RunManager(models.Manager):
 
     def create_and_execute(self, analysis_version: AnalysisVersion, **kwargs):
         run = self.create(analysis_version=analysis_version)
-        run.create_input_instances(**kwargs)
-        results = analysis_version.run(**kwargs)
+        inputs_instances = run.create_input_instances(**kwargs)
+        updated_kwargs = {inpt.key: inpt.value for inpt in inputs_instances}
+        results = analysis_version.run(**updated_kwargs)
         run.create_output_instances(**results)
         return run
 
