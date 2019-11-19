@@ -6,6 +6,9 @@ class Analysis(TitleDescriptionModel, TimeStampedModel):
 
     objects = AnalysisManager()
 
+    class Meta:
+        verbose_name_plural = "Analyses"
+
     def __str__(self) -> str:
         return self.title
 

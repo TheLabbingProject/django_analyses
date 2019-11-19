@@ -64,10 +64,6 @@ class StringInput(Input):
             self.raise_invalid_choice_error()
 
     @property
-    def key(self) -> str:
-        return self.definition.key
-
-    @property
     def valid_min_length(self) -> bool:
         return self.validate_min_length()
 

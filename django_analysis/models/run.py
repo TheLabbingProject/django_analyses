@@ -27,6 +27,9 @@ class Run(TimeStampedModel):
         defaults.update(configuration)
         return defaults
 
+    def get_output_configuration(self) -> dict:
+        return {output.key: output.value for output in self.output_set}
+
     def create_input_instance(self, key: str, value) -> Input:
         input_definition = self.analysis_version.input_definitions.get(key=key)
         return input_definition.create_input_instance(value=value, run=self)
@@ -77,6 +80,10 @@ class Run(TimeStampedModel):
     @property
     def input_configuration(self) -> dict:
         return self.get_input_configuration()
+
+    @property
+    def output_configuration(self) -> dict:
+        return self.get_output_configuration()
 
     @property
     def input_set(self) -> models.QuerySet:

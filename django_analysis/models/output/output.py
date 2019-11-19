@@ -21,3 +21,7 @@ class Output(models.Model):
     def save(self, *args, **kwargs):
         self.validate()
         super().save(*args, **kwargs)
+
+    @property
+    def key(self) -> str:
+        return self.definition.key
