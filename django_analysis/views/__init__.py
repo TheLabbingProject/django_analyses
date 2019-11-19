@@ -1,0 +1,5 @@
+from django_analysis.views.analysis import AnalysisViewSet
+from django_analysis.views.analysis_version import AnalysisVersionViewSet
+from django_analysis.views.input_specification import InputSpecificationViewSet
+from django_analysis.views.output_specification import OutputSpecificationViewSet
+from django_analysis.views.run import RunViewSet
