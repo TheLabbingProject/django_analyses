@@ -6,9 +6,14 @@ app_name = "django_analysis"
 router = routers.DefaultRouter()
 router.register(r"analysis", views.AnalysisViewSet)
 router.register(r"analysis_version", views.AnalysisVersionViewSet)
-router.register(r"input_specification", views.InputSpecificationViewSet)
+router.register(r"input", views.InputViewSet, basename="input")
 router.register(
     r"input_definition", views.InputDefinitionViewSet, basename="inputdefinition"
+)
+router.register(r"input_specification", views.InputSpecificationViewSet)
+router.register(r"output", views.OutputViewSet, basename="output")
+router.register(
+    r"output_definition", views.OutputDefinitionViewSet, basename="outputdefinition"
 )
 router.register(r"output_specification", views.OutputSpecificationViewSet)
 router.register(r"run", views.RunViewSet)

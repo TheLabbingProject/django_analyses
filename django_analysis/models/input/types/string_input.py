@@ -2,6 +2,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django_analysis.models.input.input import Input
+from django_analysis.models.input.types.input_types import InputTypes
 from pathlib import Path
 
 
@@ -62,6 +63,9 @@ class StringInput(Input):
             self.raise_max_length_error()
         if not self.valid_choice:
             self.raise_invalid_choice_error()
+
+    def get_type(self) -> InputTypes:
+        return InputTypes.STR
 
     @property
     def valid_min_length(self) -> bool:

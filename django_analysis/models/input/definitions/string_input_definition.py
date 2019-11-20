@@ -26,5 +26,5 @@ class StringInputDefinition(InputDefinition):
             if self.default not in self.choices:
                 self.raise_default_not_in_choices_error()
 
-    def get_input_type(self) -> InputDefinitions:
+    def get_type(self) -> InputDefinitions:
         return InputDefinitions.STR

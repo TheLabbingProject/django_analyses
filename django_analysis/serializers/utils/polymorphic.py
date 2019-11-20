@@ -26,16 +26,16 @@ class PolymorphicSerializer(serializers.Serializer):
 
         raise NotImplementedError
 
-    def get_input_type(self, instance) -> str:
+    def get_type(self, instance) -> str:
         input_type = (
-            instance.get_input_type()
-            if hasattr(instance, "get_input_type")
+            instance.get_type()
+            if hasattr(instance, "get_type")
             else instance.__class__.__name__
         )
         return input_type.value if isinstance(input_type, Enum) else input_type
 
     def to_representation(self, instance):
-        input_type = self.get_input_type(instance)
+        input_type = self.get_type(instance)
         serializer = self.get_serializer(input_type)
         data = serializer(instance, context=self.context).to_representation(instance)
         data["type"] = input_type

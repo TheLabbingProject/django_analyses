@@ -9,5 +9,5 @@ class BooleanInputDefinition(InputDefinition):
 
     INPUT_CLASS = BooleanInput
 
-    def get_input_type(self) -> InputDefinitions:
+    def get_type(self) -> InputDefinitions:
         return InputDefinitions.BLN

@@ -1,7 +1,6 @@
 from django_analysis.models.input.definitions.integer_input_definition import (
     IntegerInputDefinition,
 )
-
 from rest_framework import serializers
 
 

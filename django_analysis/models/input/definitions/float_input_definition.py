@@ -11,5 +11,5 @@ class FloatInputDefinition(InputDefinition):
 
     INPUT_CLASS = FloatInput
 
-    def get_input_type(self) -> InputDefinitions:
+    def get_type(self) -> InputDefinitions:
         return InputDefinitions.FLT

@@ -59,5 +59,5 @@ class ListInputDefinition(InputDefinition):
         if self.default:
             self.validate_default_value()
 
-    def get_input_type(self) -> InputDefinitions:
+    def get_type(self) -> InputDefinitions:
         return InputDefinitions.LST

@@ -1,8 +1,9 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.postgres.fields import JSONField
-from django_analysis.models.input.utils import ListElementTypes, TYPES_DICT
 from django_analysis.models.input.input import Input
+from django_analysis.models.input.types.input_types import InputTypes
+from django_analysis.models.input.utils import ListElementTypes, TYPES_DICT
 
 
 class ListInput(Input):
@@ -46,6 +47,9 @@ class ListInput(Input):
             self.raise_min_length_error()
         if not self.valid_max_length:
             self.raise_max_length_error()
+
+    def get_type(self) -> InputTypes:
+        return InputTypes.LST
 
     @property
     def expected_type_definition(self) -> ListElementTypes:

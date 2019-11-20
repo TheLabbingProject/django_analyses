@@ -30,6 +30,3 @@ class InputDefinition(models.Model):
     def save(self, *args, **kwargs):
         self.validate()
         super().save(*args, **kwargs)
-
-    # def get_input_type(self) -> InputDefinitions:
-    #     raise NotImplementedError

@@ -6,5 +6,5 @@ from django_analysis.models.input.definitions.input_definitions import InputDefi
 class FileInputDefinition(InputDefinition):
     INPUT_CLASS = FileInput
 
-    def get_input_type(self) -> InputDefinitions:
+    def get_type(self) -> InputDefinitions:
         return InputDefinitions.FIL

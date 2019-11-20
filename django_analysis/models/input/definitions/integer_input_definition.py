@@ -11,5 +11,5 @@ class IntegerInputDefinition(InputDefinition):
 
     INPUT_CLASS = IntegerInput
 
-    def get_input_type(self) -> InputDefinitions:
+    def get_type(self) -> InputDefinitions:
         return InputDefinitions.INT
