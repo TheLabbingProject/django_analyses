@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django_analysis.models.input.definitions.input_definition import InputDefinition
 from django_analysis.models.input.types.list_input import ListInput
 from django_analysis.models.input.utils import ListElementTypes, TYPES_DICT
+from django_analysis.models.input.definitions.input_definitions import InputDefinitions
 
 
 class ListInputDefinition(InputDefinition):
@@ -58,3 +59,5 @@ class ListInputDefinition(InputDefinition):
         if self.default:
             self.validate_default_value()
 
+    def get_input_type(self) -> InputDefinitions:
+        return InputDefinitions.LST

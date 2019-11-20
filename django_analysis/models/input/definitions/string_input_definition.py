@@ -4,6 +4,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_analysis.models.input.definitions.input_definition import InputDefinition
 from django_analysis.models.input.types.string_input import StringInput
+from django_analysis.models.input.definitions.input_definitions import InputDefinitions
 
 
 class StringInputDefinition(InputDefinition):
@@ -24,3 +25,6 @@ class StringInputDefinition(InputDefinition):
         if self.default and self.choices:
             if self.default not in self.choices:
                 self.raise_default_not_in_choices_error()
+
+    def get_input_type(self) -> InputDefinitions:
+        return InputDefinitions.STR
