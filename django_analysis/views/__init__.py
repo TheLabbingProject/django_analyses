@@ -1,5 +1,6 @@
 from django_analysis.views.analysis import AnalysisViewSet
 from django_analysis.views.analysis_version import AnalysisVersionViewSet
+from django_analysis.views.category import CategoryViewSet
 from django_analysis.views.input import InputViewSet
 from django_analysis.views.input_definition import InputDefinitionViewSet
 from django_analysis.views.input_specification import InputSpecificationViewSet

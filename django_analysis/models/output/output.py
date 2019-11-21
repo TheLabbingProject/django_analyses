@@ -25,3 +25,4 @@ class Output(models.Model):
     @property
     def key(self) -> str:
         return self.definition.key
+

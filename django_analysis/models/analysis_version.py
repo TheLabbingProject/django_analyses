@@ -32,7 +32,8 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
     objects = AnalysisVersionManager()
 
     class Meta:
-        unique_together = ("analysis", "title")
+        unique_together = "analysis", "title"
+        ordering = ("-title",)
 
     def __str__(self) -> str:
         return f"{self.analysis.title} v{self.title}"

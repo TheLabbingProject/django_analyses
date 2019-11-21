@@ -6,6 +6,13 @@ app_name = "django_analysis"
 router = routers.DefaultRouter()
 router.register(r"analysis", views.AnalysisViewSet)
 router.register(r"analysis_version", views.AnalysisVersionViewSet)
+router.register(r"category", views.CategoryViewSet)
+router.register(r"output_specification", views.OutputSpecificationViewSet)
+router.register(r"run", views.RunViewSet)
+
+# In viewsets of base models basename must be provided because of the `get_queryset`
+# method override. Since the `queryset` attribute is not provided the basename cannot
+# be infered.
 router.register(r"input", views.InputViewSet, basename="input")
 router.register(
     r"input_definition", views.InputDefinitionViewSet, basename="inputdefinition"
@@ -15,8 +22,7 @@ router.register(r"output", views.OutputViewSet, basename="output")
 router.register(
     r"output_definition", views.OutputDefinitionViewSet, basename="outputdefinition"
 )
-router.register(r"output_specification", views.OutputSpecificationViewSet)
-router.register(r"run", views.RunViewSet)
+
 
 urlpatterns = [path("analysis/", include(router.urls))]
 

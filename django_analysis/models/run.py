@@ -1,3 +1,4 @@
+from django.contrib.auth import get_user_model
 from django.db import models
 from django_analysis.models.input.definitions.string_input_definition import (
     StringInputDefinition,
@@ -11,6 +12,9 @@ from django_extensions.db.models import TimeStampedModel
 class Run(TimeStampedModel):
     analysis_version = models.ForeignKey(
         "django_analysis.AnalysisVersion", on_delete=models.PROTECT
+    )
+    user = models.ForeignKey(
+        get_user_model(), blank=True, null=True, on_delete=models.SET_NULL,
     )
 
     objects = RunManager()

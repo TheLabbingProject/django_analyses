@@ -4,6 +4,6 @@ from rest_framework import viewsets
 
 
 class AnalysisViewSet(viewsets.ModelViewSet):
-    queryset = Analysis.objects.order_by("title").all()
+    queryset = Analysis.objects.all()
     serializer_class = AnalysisSerializer
 
