@@ -4,9 +4,10 @@ from django.utils.translation import gettext_lazy as _
 from django_analysis.models.managers.input_specification import (
     InputSpecificationManager,
 )
+from django_extensions.db.models import TimeStampedModel
 
 
-class InputSpecification(models.Model):
+class InputSpecification(TimeStampedModel):
     analysis = models.ForeignKey("django_analysis.Analysis", on_delete=models.CASCADE)
     base_input_definitions = models.ManyToManyField("django_analysis.InputDefinition")
 

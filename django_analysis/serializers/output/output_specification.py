@@ -13,5 +13,5 @@ class OutputSpecificationSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = OutputSpecification
-        fields = ("id", "analysis", "url")
+        fields = "id", "analysis", "url", "created", "modified"
 
