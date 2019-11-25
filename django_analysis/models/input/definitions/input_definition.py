@@ -2,10 +2,6 @@ from django.db import models
 from django_analysis.models.input.input import Input
 from django_analysis.models.managers.input_definition import InputDefinitionManager
 
-# from django_analysis.serializers.input.definitions.input_definitions import (
-#     InputDefinitions,
-# )
-
 
 class InputDefinition(models.Model):
     key = models.CharField(max_length=50)
@@ -17,6 +13,9 @@ class InputDefinition(models.Model):
     objects = InputDefinitionManager()
 
     INPUT_CLASS = None
+
+    class Meta:
+        ordering = "key",
 
     def __str__(self) -> str:
         return self.key
