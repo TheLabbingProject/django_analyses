@@ -9,6 +9,9 @@ router.register(r"analysis_version", views.AnalysisVersionViewSet)
 router.register(r"category", views.CategoryViewSet)
 router.register(r"output_specification", views.OutputSpecificationViewSet)
 router.register(r"run", views.RunViewSet)
+router.register(r"node", views.NodeViewSet)
+router.register(r"pipe", views.PipeViewSet)
+router.register(r"pipeline", views.PipelineViewSet)
 
 # In viewsets of base models basename must be provided because of the `get_queryset`
 # method override. Since the `queryset` attribute is not provided the basename cannot

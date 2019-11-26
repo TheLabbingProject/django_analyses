@@ -8,3 +8,6 @@ from django_analysis.views.output import OutputViewSet
 from django_analysis.views.output_definition import OutputDefinitionViewSet
 from django_analysis.views.output_specification import OutputSpecificationViewSet
 from django_analysis.views.run import RunViewSet
+from django_analysis.views.node import NodeViewSet
+from django_analysis.views.pipe import PipeViewSet
+from django_analysis.views.pipeline import PipelineViewSet

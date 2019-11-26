@@ -1,13 +1,17 @@
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django_analysis.models.run import Run
+from django_extensions.db.models import TimeStampedModel
 
 
-class Node(models.Model):
+class Node(TimeStampedModel):
     analysis_version = models.ForeignKey(
         "django_analysis.AnalysisVersion", on_delete=models.PROTECT
     )
     configuration = JSONField()
+
+    class Meta:
+        ordering = ("-created",)
 
     def save(self, *args, **kwargs):
         self.validate()

@@ -2,9 +2,10 @@ from django.db import models
 from django_analysis.models.managers.output_specification import (
     OutputSpecificationManager,
 )
+from django_extensions.db.models import TimeStampedModel
 
 
-class OutputSpecification(models.Model):
+class OutputSpecification(TimeStampedModel):
     analysis = models.ForeignKey("django_analysis.Analysis", on_delete=models.CASCADE)
     base_output_definitions = models.ManyToManyField("django_analysis.OutputDefinition")
 

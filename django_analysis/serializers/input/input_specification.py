@@ -17,5 +17,12 @@ class InputSpecificationSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = InputSpecification
-        fields = "id", "analysis", "url", "input_definitions", "created", "modified"
+        fields = (
+            "id",
+            "analysis",
+            "input_definitions",
+            "created",
+            "modified",
+            "url",
+        )
 
