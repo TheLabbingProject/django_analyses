@@ -1,8 +1,12 @@
-from django_analysis.models.input.definitions.input_definition import InputDefinition
-from django_analysis.models.output.definitions.output_definition import OutputDefinition
 from django_analysis.models.pipeline.node import Node
 from django_analysis.models.pipeline.pipe import Pipe
 from django_analysis.models.pipeline.pipeline import Pipeline
+from django_analysis.serializers.input.definitions.input_definition import (
+    InputDefinitionSerializer,
+)
+from django_analysis.serializers.output.definitions.output_definition import (
+    OutputDefinitionSerializer,
+)
 from rest_framework import serializers
 
 
@@ -14,17 +18,11 @@ class PipeSerializer(serializers.HyperlinkedModelSerializer):
     source = serializers.HyperlinkedRelatedField(
         view_name="analysis:node-detail", queryset=Node.objects.all()
     )
-    source_port = serializers.HyperlinkedRelatedField(
-        view_name="analysis:outputdefinition-detail",
-        queryset=OutputDefinition.objects.all(),
-    )
+    source_port = OutputDefinitionSerializer()
     destination = serializers.HyperlinkedRelatedField(
         view_name="analysis:node-detail", queryset=Node.objects.all()
     )
-    destination_port = serializers.HyperlinkedRelatedField(
-        view_name="analysis:inputdefinition-detail",
-        queryset=InputDefinition.objects.all(),
-    )
+    destination_port = InputDefinitionSerializer()
 
     class Meta:
         model = Pipe

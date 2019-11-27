@@ -1,14 +1,11 @@
-from django_analysis.models.analysis_version import AnalysisVersion
 from django_analysis.models.pipeline.node import Node
+from django_analysis.serializers.analysis_version import AnalysisVersionSerializer
 from rest_framework import serializers
 
 
 class NodeSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(view_name="analysis:node-detail")
-    analysis_version = serializers.HyperlinkedRelatedField(
-        view_name="analysis:analysisversion-detail",
-        queryset=AnalysisVersion.objects.all(),
-    )
+    analysis_version = AnalysisVersionSerializer()
 
     class Meta:
         model = Node

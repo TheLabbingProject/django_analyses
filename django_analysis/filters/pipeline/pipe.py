@@ -15,8 +15,8 @@ class PipeFilter(filters.FilterSet):
         fields = (
             "pipeline",
             "source",
-            "source_port",
+            "base_source_port",
             "destination",
-            "destination_port",
+            "base_destination_port",
         )
 
