@@ -7,7 +7,7 @@ from rest_framework import viewsets
 
 
 class NodeViewSet(DefaultsMixin, viewsets.ModelViewSet):
-    queryset = Node.objects.all()
     filter_class = NodeFilter
     pagination_class = StandardResultsSetPagination
+    queryset = Node.objects.all()
     serializer_class = NodeSerializer

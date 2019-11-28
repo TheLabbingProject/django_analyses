@@ -7,6 +7,9 @@ class Category(TitleDescriptionModel, TimeStampedModel):
         "self", on_delete=models.CASCADE, null=True, related_name="subcategories"
     )
 
+    def __str__(self) -> str:
+        return self.title
+
     class Meta:
         verbose_name_plural = "Categories"
         ordering = ("title",)
