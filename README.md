@@ -6,19 +6,19 @@ A reusable Django app to manage analyses.
 Quick start
 -----------
 
-1. Add "django_analysis" to your INSTALLED_APPS setting:
+1. Add "django_analyses" to your INSTALLED_APPS setting:
 
 <pre>
     INSTALLED_APPS = [  
         ...  
-        'django_analysis',  
+        'django_analyses',  
     ]  
 </pre>
 
 2. Include the `analysis` URLconf in your project urls.py:
 
 <pre>
-    path("api/", include("django_analysis.urls", namespace="analysis")),
+    path("api/", include("django_analyses.urls", namespace="analysis")),
 </pre>
 
 3. Run `python manage.py migrate` to create the analysis models.

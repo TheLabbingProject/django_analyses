@@ -1,0 +1,1 @@
+from django_analyses.serializers.input.input_specification import InputSpecification

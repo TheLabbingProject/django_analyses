@@ -15,7 +15,7 @@ with open("requirements-dev.txt") as fh:
 os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
-    name="django_analysis",
+    name="django_analyses",
     version="0.0.1",
     packages=find_packages(),
     include_package_data=True,
@@ -23,7 +23,7 @@ setup(
     description="A reusable Django app to manage analyses.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/TheLabbingProject/django_analysis",
+    url="https://github.com/TheLabbingProject/django_analyses",
     author="Zvi Baratz",
     author_email="baratzz@pm.me",
     keywords="django research analysis pipeline",
@@ -34,7 +34,7 @@ setup(
         "Environment :: Web Environment",
         "Framework :: Django :: 2.2",
         "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: GNU Affero General Public License v3 (AGPLv3)",
+        "License :: OSI Approved :: GNU Affero General Public License v3",
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",

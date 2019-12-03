@@ -1,0 +1,1 @@
+from django_analyses.serializers.output.output_specification import OutputSpecification
