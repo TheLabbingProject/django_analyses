@@ -1,4 +1,4 @@
-# django-analysis
+# django-analyses
 
 
 A reusable Django app to manage analyses.
@@ -21,7 +21,7 @@ Quick start
     path("api/", include("django_analyses.urls", namespace="analysis")),
 </pre>
 
-3. Run `python manage.py migrate` to create the analysis models.
+3. Run `python manage.py migrate` to create the analyses models.
 
 4. Start the development server and visit http://127.0.0.1:8000/admin/.
 
