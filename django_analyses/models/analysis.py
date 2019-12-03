@@ -1,10 +1,11 @@
 from django.db import models
+from django_analyses.models.category import Category
 from django_analyses.models.managers.analysis import AnalysisManager
 from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
 
 
 class Analysis(TitleDescriptionModel, TimeStampedModel):
-    category = models.ForeignKey("Category", on_delete=models.SET_NULL, null=True)
+    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
 
     objects = AnalysisManager()
 
