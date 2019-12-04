@@ -1,3 +1,6 @@
+[![PyPI version](https://img.shields.io/pypi/v/django-analyses.svg)](https://pypi.python.org/pypi/django-analyses/)
+[![PyPI status](https://img.shields.io/pypi/status/django-analyses.svg)](https://pypi.python.org/pypi/django-analyses/)
+
 # django-analyses
 
 
