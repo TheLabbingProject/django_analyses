@@ -5,35 +5,31 @@ from django_analyses.models.pipeline.pipeline import Pipeline
 
 
 class PipelineRunner:
-    def __init__(self, pipeline: Pipeline, inputs: dict):
+    def __init__(self, pipeline: Pipeline):
         self.pipeline = pipeline
-        self.inputs = inputs
         self.runs = {node: None for node in pipeline.node_set}
 
-    def get_input_pipes(self, node: Node) -> QuerySet:
+    def get_incoming_pipes(self, node: Node) -> QuerySet:
         return self.pipeline.pipe_set.filter(destination=node)
 
     def get_destination_kwarg(self, pipe: Pipe) -> dict:
-        return {
-            pipe.destination_port.key: [
-                output.value
-                for output in self.runs[pipe.source].output_set
-                if output.definition.key == pipe.source_port.key
-            ][0]
-        }
+        source_outputs = self.runs[pipe.source].output_set
+        key = pipe.destination_port.key
+        value = [
+            output.value
+            for output in source_outputs
+            if output.key == pipe.source_port.key
+        ][0]
+        return {key: value}
 
     def get_node_inputs(self, node: Node) -> dict:
-        input_pipes = self.get_input_pipes(node)
-        input_kwargs = [self.get_destination_kwarg(pipe) for pipe in input_pipes]
-        return {
-            key: value
-            for input_kwarg in input_kwargs
-            for key, value in input_kwarg.items()
-        }
+        input_pipes = self.get_incoming_pipes(node)
+        kwargs = [self.get_destination_kwarg(pipe) for pipe in input_pipes]
+        return {key: value for kwarg in kwargs for key, value in kwarg.items()}
 
-    def run_entry_nodes(self) -> None:
+    def run_entry_nodes(self, inputs: dict) -> None:
         for node in self.pipeline.entry_nodes:
-            node_inputs = self.inputs.get(node, self.inputs)
+            node_inputs = inputs.get(node, inputs)
             self.runs[node] = node.run(node_inputs)
 
     def has_required_runs(self, node: Node) -> bool:
@@ -46,8 +42,8 @@ class PipelineRunner:
         node_inputs = self.get_node_inputs(node)
         self.runs[node] = node.run(node_inputs)
 
-    def run(self):
-        self.run_entry_nodes()
+    def run(self, inputs: dict):
+        self.run_entry_nodes(inputs)
         while self.pending_nodes:
             for node in self.pending_nodes:
                 if self.has_required_runs(node):

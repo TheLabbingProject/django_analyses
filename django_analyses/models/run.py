@@ -7,6 +7,7 @@ from django_analyses.models.input.input import Input
 from django_analyses.models.managers.run import RunManager
 from django_analyses.models.output.output import Output
 from django_extensions.db.models import TimeStampedModel
+from pathlib import Path
 
 
 class Run(TimeStampedModel):
@@ -23,12 +24,8 @@ class Run(TimeStampedModel):
         ordering = ("-created",)
 
     def get_input_configuration(self) -> dict:
-        configuration = {
-            inpt.definition.key: inpt.value
-            for inpt in self.input_set.select_subclasses()
-        }
         defaults = self.input_defaults.copy()
-        defaults.update(configuration)
+        defaults.update(self.raw_input_configuration)
         return defaults
 
     def get_output_configuration(self) -> dict:
@@ -96,3 +93,11 @@ class Run(TimeStampedModel):
     @property
     def output_set(self) -> models.QuerySet:
         return self.get_output_set()
+
+    @property
+    def raw_input_configuration(self) -> dict:
+        raw = {}
+        for inpt in self.input_set:
+            is_output_path = getattr(inpt.definition, "is_output_path", False)
+            raw[inpt.key] = inpt.value if not is_output_path else Path(inpt.value).name
+        return raw
