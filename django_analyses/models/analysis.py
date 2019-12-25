@@ -5,6 +5,7 @@ from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
 
 
 class Analysis(TitleDescriptionModel, TimeStampedModel):
+    title = models.CharField(max_length=255, unique=True)
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
 
     objects = AnalysisManager()
@@ -15,6 +16,3 @@ class Analysis(TitleDescriptionModel, TimeStampedModel):
 
     def __str__(self) -> str:
         return self.title
-
-    def get_latest_version(self):
-        return self.analysis_version_set.last()
