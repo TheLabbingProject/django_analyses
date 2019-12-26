@@ -4,7 +4,7 @@ from django_analyses.models.input.definitions.input_definitions import InputDefi
 
 
 class FileInputDefinition(InputDefinition):
-    INPUT_CLASS = FileInput
+    input_class = FileInput
 
     def get_type(self) -> InputDefinitions:
         return InputDefinitions.FIL

@@ -14,7 +14,7 @@ class ListInputDefinition(InputDefinition):
     max_length = models.PositiveIntegerField(blank=True, null=True)
     default = JSONField(blank=True, null=True)
 
-    INPUT_CLASS = ListInput
+    input_class = ListInput
 
     def raise_not_list_error(self) -> None:
         raise ValidationError(

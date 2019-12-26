@@ -26,7 +26,7 @@ class AnalysisTestCase(TestCase):
 
     def test_verbose_name_plural(self):
         """
-        Validate the `verbose name plural`_ of the
+        Test the `verbose name plural`_ of the
         :class:`~django_analyses.models.analysis.Analysis` model.
 
         .. _verbose name plural: https://docs.djangoproject.com/en/2.2/ref/models/options/#verbose-name-plural
@@ -36,7 +36,7 @@ class AnalysisTestCase(TestCase):
 
     def test_ordering(self):
         """
-        Validate the `ordering`_ of the
+        Test the `ordering`_ of the
         :class:`~django_analyses.models.analysis.Analysis` model.
 
         .. _ordering: https://docs.djangoproject.com/en/2.2/ref/models/options/#ordering
@@ -51,7 +51,7 @@ class AnalysisTestCase(TestCase):
     # title
     def test_title_max_length(self):
         """
-        Validate the max_length of the *title* field.
+        Test the max_length of the *title* field.
         
         """
 
@@ -60,7 +60,7 @@ class AnalysisTestCase(TestCase):
 
     def test_title_is_unique(self):
         """
-        Validates that the *title* field is unique.
+        Tests that the *title* field is unique.
 
         """
 
@@ -69,7 +69,7 @@ class AnalysisTestCase(TestCase):
 
     def test_title_blank_and_null(self):
         """
-        Validates that the *title* field may not be blank or null.
+        Tests that the *title* field may not be blank or null.
 
         """
 
@@ -80,7 +80,7 @@ class AnalysisTestCase(TestCase):
     # description
     def test_description_is_not_unique(self):
         """
-        Validates that the *description* field is not set to unique.
+        Tests that the *description* field is not set to unique.
 
         """
 
@@ -89,7 +89,7 @@ class AnalysisTestCase(TestCase):
 
     def test_description_blank_and_null(self):
         """
-        Validates that the *description* field may be blank or null.
+        Tests that the *description* field may be blank or null.
 
         """
 
@@ -100,7 +100,7 @@ class AnalysisTestCase(TestCase):
     # category
     def test_category_is_nullable(self):
         """
-        Validates that the *category* field is nullable.
+        Tests that the *category* field is nullable.
 
         """
 
@@ -113,7 +113,7 @@ class AnalysisTestCase(TestCase):
 
     def test_string(self):
         """
-        Validate the string output of the
+        Test the string output of the
         :class:`~django_analyses.models.analysis.Analysis` model.
 
         """

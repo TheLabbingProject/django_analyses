@@ -105,6 +105,26 @@ class CategoryTestCase(TestCase):
         field = self.category._meta.get_field("parent")
         self.assertTrue(field.null)
 
+    def test_creation_with_parent_category(self):
+        """
+        Tests creating a category with an existing category as the parent.
+        
+        """
+
+        new_category = CategoryFactory(parent=self.category)
+        self.assertEqual(new_category.parent, self.category)
+
+    def test_settings_a_parent_category(self):
+        """
+        Tests setting a parent category.
+
+        """
+
+        parent = CategoryFactory()
+        self.category.parent = parent
+        self.category.save()
+        self.assertEqual(self.category.parent, parent)
+
     ###########
     # Methods #
     ###########

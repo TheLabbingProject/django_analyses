@@ -9,7 +9,7 @@ class FloatInputDefinition(InputDefinition):
     max_value = models.FloatField(blank=True, null=True)
     default = models.FloatField(blank=True, null=True)
 
-    INPUT_CLASS = FloatInput
+    input_class = FloatInput
 
     def get_type(self) -> InputDefinitions:
         return InputDefinitions.FLT

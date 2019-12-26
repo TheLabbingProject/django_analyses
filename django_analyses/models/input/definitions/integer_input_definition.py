@@ -9,7 +9,7 @@ class IntegerInputDefinition(InputDefinition):
     max_value = models.IntegerField(blank=True, null=True)
     default = models.IntegerField(blank=True, null=True)
 
-    INPUT_CLASS = IntegerInput
+    input_class = IntegerInput
 
     def get_type(self) -> InputDefinitions:
         return InputDefinitions.INT
