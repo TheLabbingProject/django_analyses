@@ -1,5 +1,8 @@
 from django.test import TestCase
 from django_analyses.models.managers.input_definition import InputDefinitionManager
+from django_analyses.models.output.definitions.file_output_definition import (
+    FileOutputDefinition,
+)
 from tests.factories.input.definitions.input_definition import InputDefinitionFactory
 
 
@@ -8,7 +11,7 @@ class BooleanInputDefinitionTestCase(TestCase):
     Tests for the
     :class:`~django_analyses.models.input.definitions.input_definition.InputDefinition`
     model.
-    
+
     """
 
     def setUp(self):
@@ -36,7 +39,7 @@ class BooleanInputDefinitionTestCase(TestCase):
         """
         Tests that the *input_class* class attribute is set to None. This is
         meant to be overriden by a
-        :class:`~django_analyses.models.input.input.Input` instance.        
+        :class:`~django_analyses.models.input.input.Input` instance.
 
         """
 
@@ -61,7 +64,7 @@ class BooleanInputDefinitionTestCase(TestCase):
     def test_key_max_length(self):
         """
         Test the max_length of the *key* field.
-        
+
         """
 
         field = self.input_definition._meta.get_field("key")
@@ -90,7 +93,7 @@ class BooleanInputDefinitionTestCase(TestCase):
     def test_required_default_value(self):
         """
         Test the default value of the *required* field.
-        
+
         """
 
         field = self.input_definition._meta.get_field("required")
@@ -111,7 +114,7 @@ class BooleanInputDefinitionTestCase(TestCase):
     def test_is_configuration_default_value(self):
         """
         Test the default value of the *is_configuration* field.
-        
+
         """
 
         field = self.input_definition._meta.get_field("is_configuration")
@@ -121,7 +124,7 @@ class BooleanInputDefinitionTestCase(TestCase):
     def test_default_field_is_none(self):
         """
         Tests that the *default* field is set to None. This field is
-        meant to be overriden by a :class:`~django.db.models.Field` instance.        
+        meant to be overriden by a :class:`~django.db.models.Field` instance.
 
         """
 
@@ -147,7 +150,7 @@ class BooleanInputDefinitionTestCase(TestCase):
         :meth:`~django_analyses.models.input.definitions.input_definition.InputDefinition.create_input_instance`
         raises a TypeError. This is the expected behavior as long as the
         input_class attribute is not defined (or ill defined).
-        
+
         """
 
         with self.assertRaises(TypeError):
@@ -158,7 +161,7 @@ class BooleanInputDefinitionTestCase(TestCase):
         Tests that calling the
         :meth:`~django_analyses.models.input.definitions.input_definition.InputDefinition.create_input_instance`
         with a non-model value raises a TypeError.
-        
+
         """
 
         self.input_definition.input_class = str
@@ -171,10 +174,11 @@ class BooleanInputDefinitionTestCase(TestCase):
         """
         Tests that calling the
         :meth:`~django_analyses.models.input.definitions.input_definition.InputDefinition.create_input_instance`
-        with a non-input model subclass value raises a TypeError.
-        
+        with a non-:class:`~django_analyses.models.input.input.Input`
+        model subclass value raises a TypeError.
+
         """
-        # TODO:
-        self.input_definition.input_class = str
+
+        self.input_definition.input_class = FileOutputDefinition
         with self.assertRaises(TypeError):
             self.input_definition.create_input_instance()
