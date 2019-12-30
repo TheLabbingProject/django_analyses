@@ -55,4 +55,3 @@ class InputSpecification(TimeStampedModel):
         required_definitions = self.input_definitions.filter(required=True)
         required_keys = required_definitions.values_list("key", flat=True)
         return list(required_keys)
-

@@ -3,6 +3,9 @@ from factory.django import DjangoModelFactory
 
 
 class IntegerInputDefinitionFactory(DjangoModelFactory):
+    key = Faker("word")
+    required = Faker("pybool")
+    description = Faker("sentence")
     min_value = Faker("pyint", min_value=-20, max_value=-10)
     max_value = Faker("pyint", min_value=20, max_value=40)
     default = Faker("pyint", min_value=-10, max_value=20)

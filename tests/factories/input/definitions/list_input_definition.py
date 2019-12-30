@@ -3,6 +3,9 @@ from factory.django import DjangoModelFactory
 
 
 class ListInputDefinitionFactory(DjangoModelFactory):
+    key = Faker("word")
+    required = Faker("pybool")
+    description = Faker("sentence")
     min_length = Faker("pyint", min_value=2, max_value=4)
     max_length = Faker("pyint", min_value=7, max_value=10)
 
