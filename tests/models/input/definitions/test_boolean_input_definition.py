@@ -1,5 +1,8 @@
 from django.test import TestCase
 from django_analyses.models.input.types.boolean_input import BooleanInput
+from django_analyses.models.input.definitions.boolean_input_definition import (
+    BooleanInputDefinition,
+)
 from django_analyses.models.input.definitions.input_definitions import InputDefinitions
 from tests.factories.input.definitions.boolean_input_definition import (
     BooleanInputDefinitionFactory,
@@ -34,7 +37,7 @@ class BooleanInputDefinitionTestCase(TestCase):
 
         """
 
-        self.assertEqual(self.boolean_input_definition.input_class, BooleanInput)
+        self.assertEqual(BooleanInputDefinition.input_class, BooleanInput)
 
     ##########
     # Fields #

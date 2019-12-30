@@ -1,4 +1,7 @@
+from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django_analyses.models.input.definitions.input_definition import InputDefinition
+from django_analyses.models.input.types.boolean_input import BooleanInput
 from django_analyses.models.managers.input_definition import InputDefinitionManager
 from django_analyses.models.output.definitions.file_output_definition import (
     FileOutputDefinition,
@@ -6,7 +9,7 @@ from django_analyses.models.output.definitions.file_output_definition import (
 from tests.factories.input.definitions.input_definition import InputDefinitionFactory
 
 
-class BooleanInputDefinitionTestCase(TestCase):
+class InputDefinitionTestCase(TestCase):
     """
     Tests for the
     :class:`~django_analyses.models.input.definitions.input_definition.InputDefinition`
@@ -33,7 +36,7 @@ class BooleanInputDefinitionTestCase(TestCase):
 
         """
 
-        self.assertTupleEqual(self.input_definition._meta.ordering, ("key",))
+        self.assertTupleEqual(InputDefinition._meta.ordering, ("key",))
 
     def test_input_class_is_none(self):
         """
@@ -43,7 +46,7 @@ class BooleanInputDefinitionTestCase(TestCase):
 
         """
 
-        self.assertIsNone(self.input_definition.input_class)
+        self.assertIsNone(InputDefinition.input_class)
 
     def test_custom_manager_is_assigned(self):
         """
@@ -53,8 +56,7 @@ class BooleanInputDefinitionTestCase(TestCase):
 
         """
 
-        model = type(self.input_definition)
-        self.assertIsInstance(model.objects, InputDefinitionManager)
+        self.assertIsInstance(InputDefinition.objects, InputDefinitionManager)
 
     ##########
     # Fields #
@@ -148,24 +150,24 @@ class BooleanInputDefinitionTestCase(TestCase):
         """
         Tests that calling the
         :meth:`~django_analyses.models.input.definitions.input_definition.InputDefinition.create_input_instance`
-        raises a TypeError. This is the expected behavior as long as the
+        raises a ValidationError. This is the expected behavior as long as the
         input_class attribute is not defined (or ill defined).
 
         """
 
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValidationError):
             self.input_definition.create_input_instance()
 
     def test_create_input_instance_with_non_model_value_raises_type_error(self):
         """
         Tests that calling the
         :meth:`~django_analyses.models.input.definitions.input_definition.InputDefinition.create_input_instance`
-        with a non-model value raises a TypeError.
+        with a non-model value raises a ValidationError.
 
         """
 
         self.input_definition.input_class = str
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValidationError):
             self.input_definition.create_input_instance()
 
     def test_create_input_instance_with_non_input_subclass_value_raises_type_error(
@@ -175,10 +177,40 @@ class BooleanInputDefinitionTestCase(TestCase):
         Tests that calling the
         :meth:`~django_analyses.models.input.definitions.input_definition.InputDefinition.create_input_instance`
         with a non-:class:`~django_analyses.models.input.input.Input`
-        model subclass value raises a TypeError.
+        model subclass value raises a ValidationError.
 
         """
 
         self.input_definition.input_class = FileOutputDefinition
-        with self.assertRaises(TypeError):
+        with self.assertRaises(ValidationError):
+            self.input_definition.check_input_class_definition()
+
+    def test_resetting_input_class_to_valid_input_subclass(self):
+        """
+        Tests that the
+        :meth:`~django_analyses.models.input.definitions.input_definition.InputDefinition.check_input_class_definition`
+        method does not raise a ValidationError when setting *input_class* to
+        some valid Input model subclass.
+        
+        """
+
+        self.input_definition.input_class = BooleanInput
+        try:
+            self.input_definition.check_input_class_definition()
+        except ValidationError:
+            self.fail(
+                "Failed to set input_definition input_class to a valid Input subclass!"
+            )
+
+    def test_create_input_instance_reraises_uncaught_exception(self):
+        """
+        Tests that calling the
+        :meth:`~django_analyses.models.input.definitions.input_definition.InputDefinition.create_input_instance`
+        method when *input_class* is properly set but invalid kwargs still
+        raises an exception.
+
+        """
+
+        self.input_definition.input_class = BooleanInput
+        with self.assertRaises(ValueError):
             self.input_definition.create_input_instance()

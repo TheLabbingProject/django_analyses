@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.db.models.base import ModelBase
 from django.db import models
 from django_analyses.models.input.input import Input
@@ -34,7 +35,7 @@ class InputDefinition(models.Model):
         not_model = not isinstance(self.input_class, ModelBase)
         not_input_subclass = self.input_class_base is not Input
         if not self.input_class or not_model or not_input_subclass:
-            raise TypeError(
+            raise ValidationError(
                 f"Please set the input_class attribute to the appropriate {input_base_name} subclass."
             )
 
