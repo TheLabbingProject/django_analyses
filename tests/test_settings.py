@@ -1,3 +1,4 @@
+from tests.test_interface import Addition, Division, Power
 import os
 
 DEBUG = False
@@ -67,4 +68,10 @@ REST_FRAMEWORK = {
     ],
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 20,
+}
+
+ANALYSIS_INTERFACES = {
+    "addition": {"1.0": Addition},
+    "power": {"1.0": Power},
+    "division": {"1.0": Division},
 }

@@ -6,7 +6,7 @@ from django_analyses.models.output.types.file_output import FileOutput
 
 
 class FileOutputDefinition(OutputDefinition):
-    OUTPUT_CLASS = FileOutput
+    output_class = FileOutput
 
     def get_type(self) -> str:
         return OutputDefinitions.FIL

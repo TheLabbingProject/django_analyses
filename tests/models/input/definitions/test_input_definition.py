@@ -72,7 +72,7 @@ class InputDefinitionTestCase(TestCase):
         field = self.input_definition._meta.get_field("key")
         self.assertEqual(field.max_length, 50)
 
-    def test_key_is_unique(self):
+    def test_key_is_not_unique(self):
         """
         Tests that the *key* field is not unique.
 

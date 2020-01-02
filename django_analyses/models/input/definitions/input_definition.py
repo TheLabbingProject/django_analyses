@@ -33,7 +33,8 @@ class InputDefinition(models.Model):
     def check_input_class_definition(self) -> None:
         input_base_name = f"{Input.__module__}.{Input.__name__}"
         not_model = not isinstance(self.input_class, ModelBase)
-        not_input_subclass = self.input_class_base is not Input
+        base = getattr(self.input_class, "__base__", None)
+        not_input_subclass = base is not Input
         if not self.input_class or not_model or not_input_subclass:
             raise ValidationError(
                 f"Please set the input_class attribute to the appropriate {input_base_name} subclass."
@@ -52,7 +53,3 @@ class InputDefinition(models.Model):
     def save(self, *args, **kwargs):
         self.validate()
         super().save(*args, **kwargs)
-
-    @property
-    def input_class_base(self):
-        return getattr(self.input_class, "__base__", None)
