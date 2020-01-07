@@ -43,3 +43,8 @@ class InputSpecificationFactory(DjangoModelFactory):
                 self.base_input_definitions.add(ListInputDefinitionFactory())
                 self.base_input_definitions.add(StringInputDefinitionFactory())
 
+            # Validate that at least one definition is required
+            if not self.base_input_definitions.filter(required=True):
+                definition = self.base_input_definitions.first()
+                definition.required = True
+                definition.save()

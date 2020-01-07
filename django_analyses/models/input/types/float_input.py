@@ -4,7 +4,7 @@ from django_analyses.models.input.types.input_types import InputTypes
 
 
 class FloatInput(NumberInput):
-    value = models.FloatField()
+    value = models.FloatField(blank=True, null=True)
     definition = models.ForeignKey(
         "django_analyses.FloatInputDefinition",
         on_delete=models.PROTECT,

@@ -3,7 +3,7 @@ from factory.django import DjangoModelFactory
 
 
 class InputDefinitionFactory(DjangoModelFactory):
-    key = Faker("word")
+    key = Faker("pystr", min_chars=3, max_chars=50)
     required = Faker("pybool")
     description = Faker("sentence")
     is_configuration = Faker("pybool")

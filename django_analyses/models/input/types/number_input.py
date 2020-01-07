@@ -22,10 +22,12 @@ class NumberInput(Input):
         raise ValidationError(f"{key} must be less than {max_value}!")
 
     def validate(self) -> None:
-        if not self.valid_min_value:
-            self.raise_min_value_error()
-        if not self.valid_max_value:
-            self.raise_max_value_error()
+        if self.value is not None:
+            if not self.valid_min_value:
+                self.raise_min_value_error()
+            if not self.valid_max_value:
+                self.raise_max_value_error()
+        super().validate()
 
     @property
     def valid_min_value(self) -> bool:

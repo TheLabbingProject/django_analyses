@@ -1,6 +1,11 @@
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from tests.factories.analysis import AnalysisFactory
 from tests.factories.analysis_version import AnalysisVersionFactory
+from tests.factories.input.definitions.float_input_definition import (
+    FloatInputDefinitionFactory,
+)
+from tests.factories.input.input_specification import InputSpecificationFactory
 from tests.test_interface import Power
 
 
@@ -21,14 +26,35 @@ class AnalysisVersionTestCase(TestCase):
         self.addition_analysis_version = AnalysisVersionFactory(
             analysis=self.addition_analysis, title="1.0", run_method_key="calculate"
         )
-        self.power_analysis = AnalysisFactory(title="power")
-        self.power_analysis_version = AnalysisVersionFactory(
-            analysis=self.power_analysis, title="1.0"
+
+        power_base_definition = FloatInputDefinitionFactory(key="base", required=True)
+        power_exp_definition = FloatInputDefinitionFactory(
+            key="exponent", required=True
         )
+        self.power_analysis = AnalysisFactory(title="power")
+        self.power_spec = InputSpecificationFactory(
+            analysis=self.power_analysis,
+            base_input_definitions=[power_base_definition, power_exp_definition],
+        )
+        self.power_analysis_version = AnalysisVersionFactory(
+            analysis=self.power_analysis,
+            title="1.0",
+            input_specification=self.power_spec,
+        )
+
         self.division_analysis = AnalysisFactory(title="division")
+        dividend_definition = FloatInputDefinitionFactory(key="dividend", required=True)
+        divisor_definition = FloatInputDefinitionFactory(
+            key="divisor", required=False, default=2.0
+        )
+        self.division_spec = InputSpecificationFactory(
+            analysis=self.division_analysis,
+            base_input_definitions=[dividend_definition, divisor_definition],
+        )
         self.division_analysis_version = AnalysisVersionFactory(
             analysis=self.division_analysis,
             title="1.0",
+            input_specification=self.division_spec,
             nested_results_attribute="results",
         )
         self.analysis_version_without_interface = AnalysisVersionFactory()
@@ -84,3 +110,28 @@ class AnalysisVersionTestCase(TestCase):
         run = self.division_analysis_version.run_interface(dividend=9.3, divisor=3)
         results = self.division_analysis_version.extract_results(run)
         self.assertDictEqual(run.results, results)
+
+    def test_run_with_invalid_kwarg_keys(self):
+        kwargs = {"base": 2, "exp": 10}
+        with self.assertRaises(ValidationError):
+            self.power_analysis_version.run(**kwargs)
+
+    def test_run_with_missing_required(self):
+        with self.assertRaises(ValidationError):
+            self.power_analysis_version.run(base=2)
+
+    def test_run_with_valid_arguments(self):
+        result = self.power_analysis_version.run(base=2, exponent=10)
+        self.assertEqual(result["result"], 1024)
+
+    def test_update_input_with_defaults(self):
+        inputs = {"dividend": 20}
+        configuration = self.division_analysis_version.update_input_with_defaults(
+            **inputs
+        )
+        inputs.update(divisor=2)
+        self.assertDictEqual(configuration, inputs)
+
+    def test_run_with_default_value(self):
+        result = self.division_analysis_version.run(dividend=12)["result"]
+        self.assertEqual(result, 6)

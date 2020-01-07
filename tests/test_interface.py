@@ -16,7 +16,7 @@ class Power:
 
 
 class Division:
-    def __init__(self, dividend: float, divisor: float):
+    def __init__(self, dividend: float, divisor: float = 2.0):
         self.dividend = dividend
         self.divisor = divisor
 

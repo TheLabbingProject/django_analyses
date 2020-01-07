@@ -70,6 +70,8 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 20,
 }
 
+ANALYSIS_BASE_PATH = os.path.join(BASE_DIR, "media", "analysis")
+
 ANALYSIS_INTERFACES = {
     "addition": {"1.0": Addition},
     "power": {"1.0": Power},

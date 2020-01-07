@@ -61,7 +61,7 @@ class ListInput(Input):
 
     @property
     def type_validation_by_element(self) -> list:
-        return [isinstance(element, self.expected_type) for element in self.value]
+        return [type(element) is self.expected_type for element in self.value]
 
     @property
     def valid_elements(self) -> bool:

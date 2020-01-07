@@ -58,6 +58,7 @@ class ListInputDefinition(InputDefinition):
     def validate(self):
         if self.default is not None:
             self.validate_default_value()
+        super().validate()
 
     def get_type(self) -> InputDefinitions:
         return InputDefinitions.LST
