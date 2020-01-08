@@ -13,6 +13,9 @@ class Node(TimeStampedModel):
     class Meta:
         ordering = ("-created",)
 
+    def __str__(self) -> str:
+        return f"{self.analysis_version} [{self.configuration}]"
+
     def save(self, *args, **kwargs):
         self.validate()
         super().save(*args, **kwargs)
