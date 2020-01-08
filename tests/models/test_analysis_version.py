@@ -6,6 +6,10 @@ from tests.factories.input.definitions.float_input_definition import (
     FloatInputDefinitionFactory,
 )
 from tests.factories.input.input_specification import InputSpecificationFactory
+from tests.factories.output.output_specification import OutputSpecificationFactory
+from tests.factories.output.definitions.float_output_definition import (
+    FloatOutputDefinitionFactory,
+)
 from tests.test_interface import Power
 
 
@@ -32,14 +36,20 @@ class AnalysisVersionTestCase(TestCase):
             key="exponent", required=True
         )
         self.power_analysis = AnalysisFactory(title="power")
-        self.power_spec = InputSpecificationFactory(
+        self.power_input_spec = InputSpecificationFactory(
             analysis=self.power_analysis,
             base_input_definitions=[power_base_definition, power_exp_definition],
+        )
+        power_results_definition = FloatOutputDefinitionFactory(key="result")
+        self.power_output_spec = OutputSpecificationFactory(
+            analysis=self.power_analysis,
+            base_output_definitions=[power_results_definition],
         )
         self.power_analysis_version = AnalysisVersionFactory(
             analysis=self.power_analysis,
             title="1.0",
-            input_specification=self.power_spec,
+            input_specification=self.power_input_spec,
+            output_specification=self.power_output_spec,
         )
 
         self.division_analysis = AnalysisFactory(title="division")
@@ -135,3 +145,26 @@ class AnalysisVersionTestCase(TestCase):
     def test_run_with_default_value(self):
         result = self.division_analysis_version.run(dividend=12)["result"]
         self.assertEqual(result, 6)
+
+    ##############
+    # Properties #
+    ##############
+
+    def test_nested_results_parts(self):
+        value = self.division_analysis_version.nested_results_parts
+        expected = ["results"]
+        self.assertEqual(value, expected)
+
+    def test_input_definitions(self):
+        value = self.power_analysis_version.input_definitions
+        expected = self.power_input_spec.input_definitions
+        self.assertQuerysetEqual(value, expected, transform=lambda x: x)
+        # The 'transform' kwargs was added because of the problem explained here:
+        # https://stackoverflow.com/a/49129560/4416932
+
+    def test_output_definitions(self):
+        value = self.power_analysis_version.output_definitions
+        expected = self.power_output_spec.output_definitions
+        self.assertQuerysetEqual(value, expected, transform=lambda x: x)
+        # The 'transform' kwargs was added because of the problem explained here:
+        # https://stackoverflow.com/a/49129560/4416932
