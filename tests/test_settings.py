@@ -1,4 +1,4 @@
-from tests.test_interface import Addition, Division, Power
+from tests.interfaces import Addition, Division, Power
 import os
 
 DEBUG = False

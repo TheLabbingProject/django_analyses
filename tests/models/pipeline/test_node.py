@@ -1,12 +1,28 @@
+from django.core.exceptions import ValidationError
+from django.db.models import QuerySet
 from django.test import TestCase
+from django_analyses.models.analysis import Analysis
+from django_analyses.models.analysis_version import AnalysisVersion
 from tests.factories.pipeline.node import NodeFactory
+from tests.factories.pipeline.pipe import PipeFactory
+from tests.factories.pipeline.pipeline import PipelineFactory
+from tests.factories.user import UserFactory
+from tests.fixtures import ANALYSES
 
 
 class NodeTestCase(TestCase):
     """
-    Tests for the :class:`~django_analyses.models.node.Node` model.    
-    
+    Tests for the :class:`~django_analyses.models.node.Node` model.
+
     """
+
+    @classmethod
+    def setUpTestData(cls):
+        Analysis.objects.from_list(ANALYSES)
+        cls.addition = AnalysisVersion.objects.get(analysis__title="addition")
+        cls.power = AnalysisVersion.objects.get(analysis__title="power")
+        cls.addition_node = NodeFactory(analysis_version=cls.addition)
+        cls.power_node = NodeFactory(analysis_version=cls.power)
 
     def setUp(self):
         """
@@ -28,6 +44,97 @@ class NodeTestCase(TestCase):
         value = str(self.node)
         expected = f"{self.node.analysis_version} [{self.node.configuration}]"
         self.assertEqual(value, expected)
+
+    def test_node_validation_with_no_configuration_returns_none(self):
+        self.assertIsNone(self.node.validate())
+
+    def test_node_validation_with_valid_configuration_keys_returns_none(self):
+        definitions = self.node.analysis_version.input_specification.input_definitions
+        for definition in definitions:
+            self.node.configuration[definition.key] = "value"
+        self.assertIsNone(self.node.validate())
+
+    def test_node_validation_with_invalid_configuration_keys_raises_validation_error(
+        self,
+    ):
+        self.node.configuration["some_invalid_definition_key!"] = "value"
+        with self.assertRaises(ValidationError):
+            self.node.validate()
+
+    def test_get_full_configuration_with_defaults_only(self):
+        defaults = self.node.analysis_version.input_specification.default_configuration
+        configuration = self.node.get_full_configuration({})
+        self.assertDictEqual(defaults, configuration)
+
+    def test_get_full_configuration_with_defaults_and_node_configuration(self):
+        defaults = self.node.analysis_version.input_specification.default_configuration
+        node_configuration = {"a": "b", "c": "d"}
+        self.node.configuration = node_configuration
+        configuration = self.node.get_full_configuration({})
+        expected = {**defaults, **node_configuration}
+        self.assertDictEqual(configuration, expected)
+
+    def test_get_full_configuration_with_defaults_and_node_configuration_and_inputs(
+        self,
+    ):
+        defaults = self.node.analysis_version.input_specification.default_configuration
+        node_configuration = {"a": "b", "c": "d"}
+        inputs = {"e": "f", "g": "h"}
+        self.node.configuration = node_configuration
+        configuration = self.node.get_full_configuration(inputs)
+        expected = {**defaults, **node_configuration, **inputs}
+        self.assertDictEqual(configuration, expected)
+
+    def test_run_with_no_user(self):
+        run = self.addition_node.run({"x": 6, "y": 4})
+        self.assertEqual(run.output_set.count(), 1)
+        self.assertEqual(run.output_set.first().value, 10)
+        self.assertIsNone(run.user)
+
+    def test_run_with_user(self):
+        user = UserFactory()
+        run = self.power_node.run({"base": 2, "exponent": 5}, user=user)
+        self.assertEqual(run.output_set.count(), 1)
+        self.assertEqual(run.output_set.first().value, 32)
+        self.assertEqual(run.user, user)
+
+    def test_get_required_nodes_with_no_pipes(self):
+        required_nodes = self.addition_node.get_required_nodes()
+        self.assertIsInstance(required_nodes, QuerySet)
+        self.assertFalse(required_nodes)
+
+    def test_get_required_nodes_with_a_pipe(self):
+        pipeline = PipelineFactory()
+        addition_output = self.addition.output_definitions.first()
+        power_base_definition = self.power.input_definitions.get(key="base")
+        PipeFactory(
+            pipeline=pipeline,
+            source=self.addition_node,
+            base_source_port=addition_output,
+            destination=self.power_node,
+            base_destination_port=power_base_definition,
+        )
+        required_nodes = self.power_node.get_required_nodes()
+        self.assertEqual(list(required_nodes), [self.addition_node])
+
+    def test_get_requiring_nodes_with_no_pipes(self):
+        requiring_nodes = self.addition_node.get_requiring_nodes()
+        self.assertIsInstance(requiring_nodes, QuerySet)
+        self.assertFalse(requiring_nodes)
+
+    def test_get_requiring_nodes_with_a_pipe(self):
+        pipeline = PipelineFactory()
+        addition_output = self.addition.output_definitions.first()
+        power_base_definition = self.power.input_definitions.get(key="base")
+        PipeFactory(
+            pipeline=pipeline,
+            source=self.addition_node,
+            base_source_port=addition_output,
+            destination=self.power_node,
+            base_destination_port=power_base_definition,
+        )
+        requiring_nodes = self.addition_node.get_requiring_nodes()
+        self.assertEqual(list(requiring_nodes), [self.power_node])
 
     ##############
     # Properties #

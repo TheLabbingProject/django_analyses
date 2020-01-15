@@ -18,6 +18,7 @@ class AnalysisVersionManager(models.Manager):
             description=definition.get("description"),
             input_specification=input_specification,
             output_specification=output_specification,
+            run_method_key=definition.get("run_method_key", "run"),
             nested_results_attribute=definition.get("nested_results_attribute"),
         )
 

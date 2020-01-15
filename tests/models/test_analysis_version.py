@@ -10,7 +10,7 @@ from tests.factories.output.output_specification import OutputSpecificationFacto
 from tests.factories.output.definitions.float_output_definition import (
     FloatOutputDefinitionFactory,
 )
-from tests.test_interface import Power
+from tests.interfaces import Power
 
 
 class AnalysisVersionTestCase(TestCase):
@@ -108,8 +108,8 @@ class AnalysisVersionTestCase(TestCase):
         self.assertEqual(run["result"], 25)
 
     def test_run_inteface_with_custom_run_method_key(self):
-        run = self.addition_analysis_version.run_interface(x=1, y=2, z=3)
-        self.assertEqual(run["result"], 6)
+        run = self.addition_analysis_version.run_interface(x=1, y=2)
+        self.assertEqual(run["result"], 3)
 
     def test_extract_results_without_nested_attribute(self):
         run = self.power_analysis_version.run_interface(base=5, exponent=2)

@@ -1,9 +1,10 @@
 class Addition:
-    def __init__(self, **kwargs):
-        self.kwargs = kwargs
+    def __init__(self, x: float, y: float):
+        self.x = x
+        self.y = y
 
     def calculate(self) -> dict:
-        return {"result": sum(self.kwargs.values())}
+        return {"result": self.x + self.y}
 
 
 class Power:

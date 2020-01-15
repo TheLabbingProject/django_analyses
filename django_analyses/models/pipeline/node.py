@@ -1,7 +1,10 @@
+from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django_analyses.models.run import Run
 from django_extensions.db.models import TimeStampedModel
+
+User = get_user_model()
 
 
 class Node(TimeStampedModel):
@@ -33,9 +36,11 @@ class Node(TimeStampedModel):
         node_configuration.update(inputs)
         return node_configuration
 
-    def run(self, inputs: dict) -> Run:
+    def run(self, inputs: dict, user: User = None) -> Run:
         full_configuration = self.get_full_configuration(inputs)
-        return Run.objects.get_or_execute(self.analysis_version, **full_configuration)
+        return Run.objects.get_or_execute(
+            self.analysis_version, user=user, **full_configuration
+        )
 
     def get_required_nodes(self) -> models.QuerySet:
         node_ids = self.pipe_destination_set.values_list("source", flat=True)
