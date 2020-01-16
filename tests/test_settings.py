@@ -1,4 +1,4 @@
-from tests.interfaces import Addition, Division, Power
+from tests.interfaces import Addition, Division, NormCalculation, Power
 import os
 
 DEBUG = False
@@ -74,6 +74,7 @@ ANALYSIS_BASE_PATH = os.path.join(BASE_DIR, "media", "analysis")
 
 ANALYSIS_INTERFACES = {
     "addition": {"1.0": Addition},
-    "power": {"1.0": Power},
     "division": {"1.0": Division},
+    "norm": {"NumPy:1.18": NormCalculation},
+    "power": {"1.0": Power},
 }

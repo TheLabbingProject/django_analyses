@@ -21,8 +21,10 @@ class NodeTestCase(TestCase):
         Analysis.objects.from_list(ANALYSES)
         cls.addition = AnalysisVersion.objects.get(analysis__title="addition")
         cls.power = AnalysisVersion.objects.get(analysis__title="power")
+        cls.norm = AnalysisVersion.objects.get(analysis__title="norm")
         cls.addition_node = NodeFactory(analysis_version=cls.addition)
         cls.power_node = NodeFactory(analysis_version=cls.power)
+        cls.norm_node = NodeFactory(analysis_version=cls.norm)
 
     def setUp(self):
         """
@@ -136,7 +138,105 @@ class NodeTestCase(TestCase):
         requiring_nodes = self.addition_node.get_requiring_nodes()
         self.assertEqual(list(requiring_nodes), [self.power_node])
 
+    def test_check_configuration_sameness_for_default_value_returns_true(self):
+        same = self.norm_node.check_configuration_sameness("order", None)
+        self.assertTrue(same)
+
+    def test_check_configuration_sameness_for_same_configuration_returns_true(self):
+        self.norm_node.configuration = {"order": "inf"}
+        same = self.norm_node.check_configuration_sameness("order", "inf")
+        self.assertTrue(same)
+
+    def test_check_configuration_sameness_for_non_configuration_returns_true(self):
+        same = self.norm_node.check_configuration_sameness("x", [1, 2, 3, 4])
+        self.assertTrue(same)
+
+    def test_check_configuration_sameness_for_non_default_when_key_not_configured_returns_false(
+        self,
+    ):
+        same = self.norm_node.check_configuration_sameness("order", "-inf")
+        self.assertFalse(same)
+
+    def test_check_configuration_sameness_for_not_same_configuration_returns_false(
+        self,
+    ):
+        self.norm_node.configuration = {"order": "inf"}
+        same = self.norm_node.check_configuration_sameness("order", "-inf")
+        self.assertFalse(same)
+
+    def test_check_run_configuration_sameness_for_not_same_configuration_returns_false(
+        self,
+    ):
+        run = self.norm_node.run({"x": [1, 2, 3, 4]})
+        another_node = NodeFactory(
+            analysis_version=self.norm, configuration={"order": "-1"}
+        )
+        same = another_node.check_run_configuration_sameness(run)
+        self.assertFalse(same)
+
+    def test_check_run_configuration_sameness_for_same_configuration_returns_true(
+        self,
+    ):
+        run = self.norm_node.run({"x": [1, 2, 3, 4]})
+        same = self.norm_node.check_run_configuration_sameness(run)
+        self.assertTrue(same)
+
+    def test_get_run_set(self):
+        run1 = self.norm_node.run({"x": [1, 2, 3]})
+        run2 = self.norm_node.run({"x": [1, 2, 3, 4]})
+        different_node = NodeFactory(
+            analysis_version=self.norm, configuration={"order": -2}
+        )
+        different_node_run = different_node.run({"x": [1, 2, 3]})
+        runs = self.norm_node.get_run_set()
+        self.assertIn(run1, runs)
+        self.assertIn(run2, runs)
+        self.assertNotIn(different_node_run, runs)
+
     ##############
     # Properties #
     ##############
 
+    def test_required_nodes_with_no_required_returns_none(self):
+        self.assertIsNone(self.addition_node.required_nodes)
+
+    def test_required_nodes_with_required(self):
+        pipeline = PipelineFactory()
+        addition_output = self.addition.output_definitions.first()
+        power_base_definition = self.power.input_definitions.get(key="base")
+        PipeFactory(
+            pipeline=pipeline,
+            source=self.addition_node,
+            base_source_port=addition_output,
+            destination=self.power_node,
+            base_destination_port=power_base_definition,
+        )
+        required_nodes = list(self.power_node.required_nodes)
+        self.assertListEqual(required_nodes, [self.addition_node])
+
+    def test_requiring_nodes_with_no_required_returns_none(self):
+        self.assertIsNone(self.power_node.requiring_nodes)
+
+    def test_requiring_nodes_with_required(self):
+        pipeline = PipelineFactory()
+        addition_output = self.addition.output_definitions.first()
+        power_base_definition = self.power.input_definitions.get(key="base")
+        PipeFactory(
+            pipeline=pipeline,
+            source=self.addition_node,
+            base_source_port=addition_output,
+            destination=self.power_node,
+            base_destination_port=power_base_definition,
+        )
+        requiring_nodes = list(self.addition_node.requiring_nodes)
+        self.assertListEqual(requiring_nodes, [self.power_node])
+
+    def test_run_set(self):
+        value = self.norm_node.run_set
+        expected = self.norm_node.get_run_set()
+        self.assertListEqual(value, expected)
+        self.norm_node.run({"x": [10, 11, 12, 13]})
+        value = self.norm_node.run_set
+        expected = self.norm_node.get_run_set()
+        self.assertEqual(len(value), 1)
+        self.assertListEqual(value, expected)

@@ -14,6 +14,10 @@ class ListInput(Input):
         related_name="input_set",
     )
 
+    @classmethod
+    def validate_element_types(cls, value: list, expected_type: type) -> bool:
+        return all([type(element) is expected_type for element in value])
+
     def validate_min_length(self) -> bool:
         min_length = self.definition.min_length
         return len(self.value) >= min_length if min_length else True
@@ -42,7 +46,13 @@ class ListInput(Input):
         if not isinstance(self.value, list):
             self.raise_not_list_error()
         if not self.valid_elements:
-            self.raise_incorrect_type_error()
+            if self.expected_type is float and self.validate_element_types(
+                self.value, int
+            ):
+                self.value = [float(element) for element in self.value]
+                self.validate()
+            else:
+                self.raise_incorrect_type_error()
         if not self.valid_min_length:
             self.raise_min_length_error()
         if not self.valid_max_length:
@@ -60,12 +70,8 @@ class ListInput(Input):
         return TYPES_DICT[self.expected_type_definition]
 
     @property
-    def type_validation_by_element(self) -> list:
-        return [type(element) is self.expected_type for element in self.value]
-
-    @property
     def valid_elements(self) -> bool:
-        return all(self.type_validation_by_element)
+        return self.validate_element_types(self.value, self.expected_type)
 
     @property
     def valid_min_length(self) -> bool:

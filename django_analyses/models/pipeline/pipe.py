@@ -22,6 +22,13 @@ class Pipe(models.Model):
         "django_analyses.InputDefinition", on_delete=models.PROTECT
     )
 
+    def __str__(self) -> str:
+        source_analysis = self.source.analysis_version.analysis
+        source_key = self.base_source_port.key
+        destination_analysis = self.destination.analysis_version.analysis
+        destination_key = self.base_destination_port.key
+        return f"{source_analysis} [{source_key}] --> [{destination_key}] {destination_analysis}"
+
     @property
     def source_port(self) -> OutputDefinition:
         return OutputDefinition.objects.select_subclasses().get(
