@@ -16,7 +16,7 @@ class StringInputDefinition(InputDefinition):
     )
     is_output_path = models.BooleanField(default=False)
 
-    INPUT_CLASS = StringInput
+    input_class = StringInput
 
     def raise_default_not_in_choices_error(self) -> None:
         raise ValidationError(_(f"{self.default} not in {self.choices}!"))

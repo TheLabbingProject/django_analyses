@@ -23,13 +23,8 @@ class Run(TimeStampedModel):
     class Meta:
         ordering = ("-created",)
 
-    def get_input_configuration(self) -> dict:
-        defaults = self.input_defaults.copy()
-        defaults.update(self.raw_input_configuration)
-        return defaults
-
-    def get_output_configuration(self) -> dict:
-        return {output.key: output.value for output in self.output_set}
+    def __str__(self):
+        return f"{self.analysis_version} run from {self.created}"
 
     def create_input_instance(self, key: str, value) -> Input:
         input_definition = self.analysis_version.input_definitions.get(key=key)
@@ -74,6 +69,22 @@ class Run(TimeStampedModel):
     def get_output_set(self) -> models.QuerySet:
         return self.base_output_set.select_subclasses()
 
+    def get_input_configuration(self) -> dict:
+        defaults = self.input_defaults.copy()
+        defaults.update(self.raw_input_configuration)
+        return defaults
+
+    def get_output_configuration(self) -> dict:
+        return {output.key: output.value for output in self.output_set}
+
+    def get_raw_input_configuation(self) -> dict:
+        return {
+            inpt.key: inpt.value
+            if not getattr(inpt.definition, "is_output_path", False)
+            else Path(inpt.value).name
+            for inpt in self.input_set
+        }
+
     @property
     def input_defaults(self) -> dict:
         return self.analysis_version.input_specification.default_configuration
@@ -96,8 +107,4 @@ class Run(TimeStampedModel):
 
     @property
     def raw_input_configuration(self) -> dict:
-        raw = {}
-        for inpt in self.input_set:
-            is_output_path = getattr(inpt.definition, "is_output_path", False)
-            raw[inpt.key] = inpt.value if not is_output_path else Path(inpt.value).name
-        return raw
+        return self.get_raw_input_configuation()

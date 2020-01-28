@@ -7,7 +7,7 @@ from django_analyses.models.input.definitions.input_definitions import InputDefi
 class BooleanInputDefinition(InputDefinition):
     default = models.BooleanField(blank=True, null=True)
 
-    INPUT_CLASS = BooleanInput
+    input_class = BooleanInput
 
     def get_type(self) -> InputDefinitions:
         return InputDefinitions.BLN

@@ -23,7 +23,7 @@ class Input(models.Model):
         pass
 
     def validate(self) -> None:
-        if self.definition.required and not self.value:
+        if self.definition.required and self.value is None:
             self.raise_required_error()
 
     def save(self, *args, **kwargs):

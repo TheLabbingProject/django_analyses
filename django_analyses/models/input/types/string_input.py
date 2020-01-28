@@ -42,14 +42,15 @@ class StringInput(Input):
 
     def fix_output_path(self) -> str:
         if self.value:
-            if not Path(self.value).is_absolute():
+            if Path(self.value).is_absolute():
+                path = self.value
+            else:
                 path = self.default_output_directory / self.value
         else:
             if self.definition.default:
                 path = self.default_output_directory / self.definition.default
             else:
                 path = self.default_output_directory / self.definition.key
-        path.parent.mkdir(parents=True, exist_ok=True)
         return str(path)
 
     def pre_save(self) -> None:
@@ -57,12 +58,14 @@ class StringInput(Input):
             self.value = self.fix_output_path()
 
     def validate(self) -> None:
-        if not self.valid_min_length:
-            self.raise_min_length_error()
-        if not self.valid_max_length:
-            self.raise_max_length_error()
+        if self.value is not None:
+            if not self.valid_min_length:
+                self.raise_min_length_error()
+            if not self.valid_max_length:
+                self.raise_max_length_error()
         if not self.valid_choice:
             self.raise_invalid_choice_error()
+        super().validate()
 
     def get_type(self) -> InputTypes:
         return InputTypes.STR

@@ -41,8 +41,8 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
     def get_interface(self):
         try:
             return settings.ANALYSIS_INTERFACES[self.analysis.title][self.title]
-        except AttributeError:
-            return ValueError(f"No interface detected for {self}!")
+        except KeyError:
+            raise NotImplementedError(f"No interface detected for {self}!")
 
     def run_interface(self, **kwargs):
         interface = self.get_interface()

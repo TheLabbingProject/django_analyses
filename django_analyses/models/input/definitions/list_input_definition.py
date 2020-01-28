@@ -14,7 +14,7 @@ class ListInputDefinition(InputDefinition):
     max_length = models.PositiveIntegerField(blank=True, null=True)
     default = JSONField(blank=True, null=True)
 
-    INPUT_CLASS = ListInput
+    input_class = ListInput
 
     def raise_not_list_error(self) -> None:
         raise ValidationError(
@@ -27,7 +27,7 @@ class ListInputDefinition(InputDefinition):
 
     def validate_elements_type_for_default(self) -> bool:
         required_type = TYPES_DICT[ListElementTypes[self.element_type]]
-        return all([isinstance(element, required_type) for element in self.default])
+        return all([type(element) == required_type for element in self.default])
 
     def validate_default_value_min_length(self) -> bool:
         return len(self.default) >= self.min_length if self.min_length else True
@@ -56,8 +56,9 @@ class ListInputDefinition(InputDefinition):
             self.raise_max_length_error()
 
     def validate(self):
-        if self.default:
+        if self.default is not None:
             self.validate_default_value()
+        super().validate()
 
     def get_type(self) -> InputDefinitions:
         return InputDefinitions.LST

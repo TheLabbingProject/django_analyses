@@ -1,4 +1,6 @@
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models.base import ModelBase
 from django_analyses.models.managers.output_definition import OutputDefinitionManager
 from django_analyses.models.output.output import Output
 
@@ -9,10 +11,27 @@ class OutputDefinition(models.Model):
 
     objects = OutputDefinitionManager()
 
-    OUTPUT_CLASS = None
+    output_class = None
+
+    class Meta:
+        ordering = ("key",)
 
     def __str__(self) -> str:
         return self.key
 
+    def check_output_class_definition(self) -> None:
+        output_base_name = f"{Output.__module__}.{Output.__name__}"
+        not_model = not isinstance(self.output_class, ModelBase)
+        base = getattr(self.output_class, "__base__", None)
+        not_output_subclass = base is not Output
+        if not self.output_class or not_model or not_output_subclass:
+            raise ValidationError(
+                f"Please set the output_class attribute to the appropriate {output_base_name} subclass."
+            )
+
     def create_output_instance(self, **kwargs) -> Output:
-        return self.OUTPUT_CLASS.objects.create(definition=self, **kwargs)
+        try:
+            return self.output_class.objects.create(definition=self, **kwargs)
+        except AttributeError:
+            self.check_output_class_definition()
+            raise
