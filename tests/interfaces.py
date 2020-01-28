@@ -34,7 +34,7 @@ class DivisionResults:
 
 
 class NormCalculation:
-    def __init__(self, x, order: str):
+    def __init__(self, x, order: str = None):
         self.x = x
         self.order = order
 
@@ -46,7 +46,7 @@ class NormCalculation:
         else:
             try:
                 self.order = int(self.order)
-            except ValueError:
+            except (ValueError, TypeError):
                 pass
         return self.order
 
