@@ -17,7 +17,7 @@ class Node(TimeStampedModel):
         ordering = ("-created",)
 
     def __str__(self) -> str:
-        return f"{self.analysis_version} [{self.configuration}]"
+        return f"\nNode #{self.id}\n{self.analysis_version}\nConfiguration: [{self.configuration}]"
 
     def save(self, *args, **kwargs):
         self.validate()

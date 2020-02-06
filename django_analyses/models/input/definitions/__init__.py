@@ -10,6 +10,9 @@ from django_analyses.models.input.definitions.float_input_definition import (
 from django_analyses.models.input.definitions.file_input_definition import (
     FileInputDefinition,
 )
+from django_analyses.models.input.definitions.directory_input_definition import (
+    DirectoryInputDefinition,
+)
 from django_analyses.models.input.definitions.boolean_input_definition import (
     BooleanInputDefinition,
 )

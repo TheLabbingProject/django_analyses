@@ -5,7 +5,9 @@ from django_analyses.models.output.types.output_types import OutputTypes
 
 
 class FileOutput(Output):
-    value = models.FilePathField(settings.MEDIA_ROOT, blank=True, null=True)
+    value = models.FilePathField(
+        settings.MEDIA_ROOT, max_length=1000, blank=True, null=True
+    )
     definition = models.ForeignKey(
         "django_analyses.FileOutputDefinition",
         on_delete=models.PROTECT,

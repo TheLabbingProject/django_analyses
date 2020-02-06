@@ -5,7 +5,6 @@ from django_analyses.models.input.definitions.input_definitions import InputDefi
 from django_analyses.models.input.definitions.list_input_definition import (
     ListInputDefinition,
 )
-from django_analyses.models.input.utils import ListElementTypes
 from tests.factories.input.definitions.list_input_definition import (
     ListInputDefinitionFactory,
 )

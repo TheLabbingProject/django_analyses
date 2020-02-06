@@ -4,6 +4,7 @@ from django.contrib.postgres.fields import JSONField
 from django_analyses.models.input.input import Input
 from django_analyses.models.input.types.input_types import InputTypes
 from django_analyses.models.input.utils import ListElementTypes, TYPES_DICT
+from pathlib import Path
 
 
 class ListInput(Input):
@@ -16,6 +17,8 @@ class ListInput(Input):
 
     @classmethod
     def validate_element_types(cls, value: list, expected_type: type) -> bool:
+        if expected_type == "file":
+            return all([Path(element).is_file() for element in value])
         return all([type(element) is expected_type for element in value])
 
     def validate_min_length(self) -> bool:

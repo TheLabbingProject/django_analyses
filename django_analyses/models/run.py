@@ -24,7 +24,7 @@ class Run(TimeStampedModel):
         ordering = ("-created",)
 
     def __str__(self):
-        return f"{self.analysis_version} run from {self.created}"
+        return f"[#{self.id} {self.analysis_version} run from {self.created}"
 
     def create_input_instance(self, key: str, value) -> Input:
         input_definition = self.analysis_version.input_definitions.get(key=key)
@@ -53,6 +53,12 @@ class Run(TimeStampedModel):
         ]
         input_instances += self.create_missing_output_path_definitions(**kwargs)
         return input_instances
+
+    def create_output_path_destinations(self, inputs: models.QuerySet):
+        for inpt in inputs:
+            if getattr(inpt.definition, "is_output_path", False):
+                path = Path(inpt.value)
+                path.parent.mkdir(parents=True, exist_ok=True)
 
     def create_output_instance(self, key: str, value) -> Output:
         output_definition = self.analysis_version.output_definitions.get(key=key)

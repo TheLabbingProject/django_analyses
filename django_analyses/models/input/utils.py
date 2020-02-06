@@ -6,6 +6,7 @@ class ListElementTypes(ChoiceEnum):
     INT = "Integer"
     FLT = "Float"
     BLN = "Boolean"
+    FIL = "File"
 
 
 TYPES_DICT = {
@@ -13,4 +14,5 @@ TYPES_DICT = {
     ListElementTypes.INT: int,
     ListElementTypes.FLT: float,
     ListElementTypes.BLN: bool,
+    ListElementTypes.FIL: "file",
 }

@@ -6,6 +6,7 @@ from django_analyses.models.input.definitions.input_definition import InputDefin
 from django_analyses.models.input.types.list_input import ListInput
 from django_analyses.models.input.utils import ListElementTypes, TYPES_DICT
 from django_analyses.models.input.definitions.input_definitions import InputDefinitions
+from pathlib import Path
 
 
 class ListInputDefinition(InputDefinition):
@@ -27,6 +28,8 @@ class ListInputDefinition(InputDefinition):
 
     def validate_elements_type_for_default(self) -> bool:
         required_type = TYPES_DICT[ListElementTypes[self.element_type]]
+        if required_type == "file":
+            return all([Path(element).is_file() for element in self.default])
         return all([type(element) == required_type for element in self.default])
 
     def validate_default_value_min_length(self) -> bool:

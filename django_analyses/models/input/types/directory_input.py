@@ -4,13 +4,15 @@ from django_analyses.models.input.input import Input
 from django_analyses.models.input.types.input_types import InputTypes
 
 
-class FileInput(Input):
-    value = models.FilePathField(settings.MEDIA_ROOT, max_length=1000)
+class DirectoryInput(Input):
+    value = models.FilePathField(
+        settings.MEDIA_ROOT, max_length=1000, allow_files=False, allow_folders=True
+    )
     definition = models.ForeignKey(
-        "django_analyses.FileInputDefinition",
+        "django_analyses.DirectoryInputDefinition",
         on_delete=models.PROTECT,
         related_name="input_set",
     )
 
     def get_type(self) -> InputTypes:
-        return InputTypes.FIL
+        return InputTypes.DIR
