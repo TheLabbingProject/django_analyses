@@ -34,7 +34,7 @@ class ListInputTestCase(TestCase):
 
     def test_string(self):
         value = str(self.list_input)
-        expected = str(self.list_input.value)
+        expected = f"'{self.list_input.key}' = {self.list_input.value}"
         self.assertEqual(value, expected)
 
     def test_none_value_if_required_raises_validation_error(self):

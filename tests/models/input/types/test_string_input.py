@@ -33,7 +33,7 @@ class StringInputTestCase(TestCase):
 
     def test_string(self):
         value = str(self.string_input)
-        expected = str(self.string_input.value)
+        expected = f"'{self.string_input.key}' = {self.string_input.value}"
         self.assertEqual(value, expected)
 
     def test_none_value_if_required_raises_validation_error(self):

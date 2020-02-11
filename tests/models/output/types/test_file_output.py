@@ -1,5 +1,8 @@
 from django.test import TestCase
 from django_analyses.models.output.types.output_types import OutputTypes
+from tests.factories.output.definitions.file_output_definition import (
+    FileOutputDefinitionFactory,
+)
 from tests.factories.output.types.file_output import FileOutputFactory
 
 
@@ -16,7 +19,8 @@ class FileOutputTestCase(TestCase):
 
         """
 
-        self.file_output = FileOutputFactory()
+        file_output_definition = FileOutputDefinitionFactory(validate_existence=False)
+        self.file_output = FileOutputFactory(definition=file_output_definition)
 
     ###########
     # Methods #
@@ -24,7 +28,7 @@ class FileOutputTestCase(TestCase):
 
     def test_string(self):
         value = str(self.file_output)
-        expected = str(self.file_output.value)
+        expected = f"'{self.file_output.key}' = {self.file_output.value}"
         self.assertEqual(value, expected)
 
     def test_get_type(self):

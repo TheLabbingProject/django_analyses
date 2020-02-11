@@ -13,13 +13,17 @@ class Output(models.Model):
     objects = InheritanceManager()
 
     def __str__(self) -> str:
-        return str(self.value)
+        return f"'{self.key}' = {self.value}"
+
+    def pre_save(self) -> None:
+        pass
 
     def validate(self) -> None:
         pass
 
     def save(self, *args, **kwargs):
         self.validate()
+        self.pre_save()
         super().save(*args, **kwargs)
 
     @property

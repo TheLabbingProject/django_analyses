@@ -14,6 +14,10 @@ class InputDefinition(models.Model):
     # parameters or, e.g., a definition of the input or output of it.
     is_configuration = models.BooleanField(default=True)
 
+    # Whether the created inputs instances should be passed to interface's
+    # class at initialization (False) or upon calling the run method (True).
+    run_method_input = models.BooleanField(default=False)
+
     # Child models may allow setting a default value using the
     # appropriate django.db.models.Field type.
     default = None
@@ -53,3 +57,9 @@ class InputDefinition(models.Model):
     def save(self, *args, **kwargs):
         self.validate()
         super().save(*args, **kwargs)
+
+    @property
+    def is_output_definition(self) -> bool:
+        is_output_path = getattr(self, "is_output_path", False)
+        is_output_directory = getattr(self, "is_output_directory", False)
+        return is_output_path or is_output_directory

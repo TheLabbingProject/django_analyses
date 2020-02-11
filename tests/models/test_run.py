@@ -32,7 +32,9 @@ class RunTestCase(TestCase):
     ###########
 
     def test_string(self):
-        expected = f"{self.run.analysis_version} run from {self.run.created}"
+        expected = (
+            f"#{self.run.id} {self.run.analysis_version} run from {self.run.created}"
+        )
         value = str(self.run)
         self.assertEqual(value, expected)
 

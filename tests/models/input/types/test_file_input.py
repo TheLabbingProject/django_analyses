@@ -25,7 +25,7 @@ class FileInputTestCase(TestCase):
 
     def test_string(self):
         value = str(self.file_input)
-        expected = str(self.file_input.value)
+        expected = f"'{self.file_input.key}' = {self.file_input.value}"
         self.assertEqual(value, expected)
 
     def test_none_value_if_required_raises_validation_error(self):

@@ -33,7 +33,7 @@ class IntegerInputTestCase(TestCase):
 
     def test_string(self):
         value = str(self.integer_input)
-        expected = str(self.integer_input.value)
+        expected = f"'{self.integer_input.key}' = {self.integer_input.value}"
         self.assertEqual(value, expected)
 
     def test_none_value_if_required_raises_validation_error(self):

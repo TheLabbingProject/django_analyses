@@ -1,9 +1,16 @@
+import shutil
+
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django_analyses.models.input.definitions.string_input_definition import (
     StringInputDefinition,
 )
+from django_analyses.models.input.definitions.directory_input_definition import (
+    DirectoryInputDefinition,
+)
 from django_analyses.models.input.input import Input
+from django_analyses.models.input.types.directory_input import DirectoryInput
 from django_analyses.models.managers.run import RunManager
 from django_analyses.models.output.output import Output
 from django_extensions.db.models import TimeStampedModel
@@ -24,7 +31,11 @@ class Run(TimeStampedModel):
         ordering = ("-created",)
 
     def __str__(self):
-        return f"[#{self.id} {self.analysis_version} run from {self.created}"
+        return f"#{self.id} {self.analysis_version} run from {self.created}"
+
+    def delete(self, using=None, keep_parents=False):
+        shutil.rmtree(self.path)
+        return super().delete(using=using, keep_parents=keep_parents)
 
     def create_input_instance(self, key: str, value) -> Input:
         input_definition = self.analysis_version.input_definitions.get(key=key)
@@ -39,6 +50,20 @@ class Run(TimeStampedModel):
             and definition.key not in kwargs
         ]
 
+    def get_missing_output_directory_definition(
+        self, **kwargs
+    ) -> DirectoryInputDefinition:
+        try:
+            return [
+                definition
+                for definition in self.analysis_version.input_definitions
+                if isinstance(definition, DirectoryInputDefinition)
+                and definition.is_output_directory
+                and definition.key not in kwargs
+            ][0]
+        except IndexError:
+            return None
+
     def create_missing_output_path_definitions(self, **kwargs) -> list:
         return [
             output_path_definition.create_input_instance(run=self)
@@ -47,18 +72,32 @@ class Run(TimeStampedModel):
             )
         ]
 
+    def create_missing_output_directory_definition(self, **kwargs) -> DirectoryInput:
+        definition = self.get_missing_output_directory_definition()
+        if definition:
+            return definition.create_input_instance(run=self)
+
     def create_input_instances(self, **kwargs) -> list:
         input_instances = [
             self.create_input_instance(key, value) for key, value in kwargs.items()
         ]
         input_instances += self.create_missing_output_path_definitions(**kwargs)
+        output_directory = self.create_missing_output_directory_definition()
+        if output_directory:
+            input_instances += [output_directory]
         return input_instances
 
     def create_output_path_destinations(self, inputs: models.QuerySet):
         for inpt in inputs:
-            if getattr(inpt.definition, "is_output_path", False):
+            is_output_path = getattr(inpt.definition, "is_output_path", False)
+            is_output_directory = getattr(inpt.definition, "is_output_directory", False)
+            if is_output_path:
+                path = Path(inpt.value).parent
+            elif is_output_directory:
                 path = Path(inpt.value)
-                path.parent.mkdir(parents=True, exist_ok=True)
+            else:
+                continue
+            path.mkdir(parents=True, exist_ok=True)
 
     def create_output_instance(self, key: str, value) -> Output:
         output_definition = self.analysis_version.output_definitions.get(key=key)
@@ -89,7 +128,12 @@ class Run(TimeStampedModel):
             if not getattr(inpt.definition, "is_output_path", False)
             else Path(inpt.value).name
             for inpt in self.input_set
+            if not getattr(inpt.definition, "is_output_directory", False)
         }
+
+    @property
+    def path(self) -> Path:
+        return Path(settings.ANALYSIS_BASE_PATH) / str(self.id)
 
     @property
     def input_defaults(self) -> dict:

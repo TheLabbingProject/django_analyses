@@ -6,6 +6,7 @@ from django_analyses.models.input.definitions.input_definitions import InputDefi
 
 class BooleanInputDefinition(InputDefinition):
     default = models.BooleanField(blank=True, null=True)
+    is_output_switch = models.BooleanField(default=False)
 
     input_class = BooleanInput
 

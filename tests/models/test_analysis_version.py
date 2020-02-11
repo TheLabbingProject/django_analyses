@@ -27,8 +27,16 @@ class AnalysisVersionTestCase(TestCase):
         """
 
         self.addition_analysis = AnalysisFactory(title="addition")
+        x = FloatInputDefinitionFactory(key="x", required=True)
+        y = FloatInputDefinitionFactory(key="y", required=True)
+        self.addition_input_spec = InputSpecificationFactory(
+            analysis=self.addition_analysis, base_input_definitions=[x, y]
+        )
         self.addition_analysis_version = AnalysisVersionFactory(
-            analysis=self.addition_analysis, title="1.0", run_method_key="calculate"
+            analysis=self.addition_analysis,
+            title="1.0",
+            run_method_key="calculate",
+            input_specification=self.addition_input_spec,
         )
 
         power_base_definition = FloatInputDefinitionFactory(key="base", required=True)

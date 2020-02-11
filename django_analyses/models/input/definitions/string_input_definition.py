@@ -15,6 +15,7 @@ class StringInputDefinition(InputDefinition):
         models.CharField(max_length=255, blank=True, null=True), blank=True, null=True
     )
     is_output_path = models.BooleanField(default=False)
+    is_output_switch = models.BooleanField(default=False)
 
     input_class = StringInput
 

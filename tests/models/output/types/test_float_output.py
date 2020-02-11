@@ -24,7 +24,7 @@ class FloatOutputTestCase(TestCase):
 
     def test_string(self):
         value = str(self.float_output)
-        expected = str(self.float_output.value)
+        expected = f"'{self.float_output.key}' = {self.float_output.value}"
         self.assertEqual(value, expected)
 
     def test_get_type(self):

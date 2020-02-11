@@ -14,7 +14,7 @@ class Input(models.Model):
     objects = InheritanceManager()
 
     def __str__(self) -> str:
-        return f"{self.key}={self.value}"
+        return f"'{self.key}' = {self.value}"
 
     def raise_required_error(self):
         raise ValidationError(f"{self.key} is required!")

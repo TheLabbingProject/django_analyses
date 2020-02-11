@@ -1,5 +1,6 @@
-from django.db import models
 from django.conf import settings
+from django.contrib.postgres.fields import JSONField
+from django.db import models
 from django_analyses.models.managers.analysis_version import AnalysisVersionManager
 from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
 
@@ -27,6 +28,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         related_name="analysis_version_set",
     )
     run_method_key = models.CharField(max_length=100, default="run")
+    fixed_run_method_kwargs = JSONField(default=dict)
     nested_results_attribute = models.CharField(max_length=100, blank=True, null=True)
 
     objects = AnalysisVersionManager()
@@ -44,10 +46,31 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         except KeyError:
             raise NotImplementedError(f"No interface detected for {self}!")
 
+    def get_interface_initialization_kwargs(self, **kwargs) -> dict:
+        return {
+            key: value
+            for key, value in kwargs.items()
+            if not self.input_definitions.get(key=key).run_method_input
+        }
+
+    def get_run_method_kwargs(self, **kwargs) -> dict:
+        return {
+            key: value
+            for key, value in kwargs.items()
+            if self.input_definitions.get(key=key).run_method_input
+        }
+
     def run_interface(self, **kwargs):
         interface = self.get_interface()
-        instance = interface(**kwargs)
+        init_kwargs = self.get_interface_initialization_kwargs(**kwargs)
+        instance = interface(**init_kwargs)
         run_method = getattr(instance, self.run_method_key)
+        run_method_kwargs = {
+            **self.fixed_run_method_kwargs,
+            **self.get_run_method_kwargs(**kwargs),
+        }
+        if run_method_kwargs:
+            return run_method(**run_method_kwargs)
         return run_method()
 
     def extract_results(self, results) -> dict:
