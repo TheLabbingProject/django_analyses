@@ -1,4 +1,4 @@
-from django_analyses.utils import ChoiceEnum
+from django_analyses.utils.choice_enum import ChoiceEnum
 
 
 class ListElementTypes(ChoiceEnum):

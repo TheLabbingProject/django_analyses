@@ -32,23 +32,6 @@ class Input(models.Model):
         self.validate()
         super().save(*args, **kwargs)
 
-    def get_required_destination(self) -> Path:
-        output_path = getattr(self.definition, "is_output_path", False)
-        if output_path:
-            return Path(self.value).parent
-        output_directory = getattr(self.definition, "is_output_directory", False)
-        if output_directory:
-            return Path(self.value)
-
-    def create_required_destination(self) -> Path:
-        if self.required_destination:
-            self.required_destination.mkdir(parents=True, exist_ok=True)
-            return self.required_destination
-
     @property
     def key(self) -> str:
         return self.definition.key
-
-    @property
-    def required_destination(self) -> Path:
-        return self.get_required_destination()

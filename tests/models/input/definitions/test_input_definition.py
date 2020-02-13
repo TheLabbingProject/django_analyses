@@ -156,7 +156,7 @@ class InputDefinitionTestCase(TestCase):
         """
 
         with self.assertRaises(ValidationError):
-            self.input_definition.create_input_instance()
+            self.input_definition.get_or_create_input_instance()
 
     def test_create_input_instance_with_non_model_value_raises_type_error(self):
         """
@@ -168,7 +168,7 @@ class InputDefinitionTestCase(TestCase):
 
         self.input_definition.input_class = str
         with self.assertRaises(ValidationError):
-            self.input_definition.create_input_instance()
+            self.input_definition.get_or_create_input_instance()
 
     def test_create_input_instance_with_non_input_subclass_value_raises_type_error(
         self,
@@ -213,4 +213,4 @@ class InputDefinitionTestCase(TestCase):
 
         self.input_definition.input_class = BooleanInput
         with self.assertRaises(ValueError):
-            self.input_definition.create_input_instance()
+            self.input_definition.get_or_create_input_instance()

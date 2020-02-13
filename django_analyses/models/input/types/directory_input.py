@@ -30,3 +30,8 @@ class DirectoryInput(Input):
     @property
     def default_output_directory(self) -> Path:
         return Path(settings.ANALYSIS_BASE_PATH) / str(self.run.id)
+
+    @property
+    def required_path(self) -> Path:
+        if self.definition.is_output_directory:
+            return Path(self.value)

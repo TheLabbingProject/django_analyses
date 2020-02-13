@@ -57,11 +57,9 @@ class StringInput(Input):
         return {"run_id": self.run.id}
 
     def pre_save(self) -> None:
-        print("got to pre_save")
         if self.definition.is_output_path:
             self.value = self.fix_output_path()
         if self.definition.dynamic_default and not self.value:
-            print("got to setting value from default")
             self.value = self.definition.dynamic_default.format(
                 **self.default_value_formatting_dict
             )
@@ -98,3 +96,8 @@ class StringInput(Input):
     @property
     def default_value_formatting_dict(self) -> dict:
         return self.get_default_value_formatting_dict()
+
+    @property
+    def required_path(self) -> Path:
+        if self.definition.is_output_path:
+            return Path(self.value).parent

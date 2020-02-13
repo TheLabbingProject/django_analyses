@@ -44,7 +44,7 @@ class NodeTestCase(TestCase):
 
     def test_string(self):
         value = str(self.node)
-        expected = f"\nNode #{self.node.id}\n{self.node.analysis_version}\nConfiguration: [{self.node.configuration}]"
+        expected = f"\nNode #{self.node.id}\n{self.node.analysis_version}\nConfiguration: [{self.node.configuration}]\n"
         self.assertEqual(value, expected)
 
     def test_node_validation_with_no_configuration_returns_none(self):

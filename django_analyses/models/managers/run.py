@@ -1,6 +1,8 @@
 from django.contrib.auth import get_user_model
 from django.db import models
 from django_analyses.models.analysis_version import AnalysisVersion
+from django_analyses.utils.input_manager import InputManager
+from django_analyses.utils.output_manager import OutputManager
 
 
 User = get_user_model()
@@ -17,11 +19,11 @@ class RunManager(models.Manager):
         self, analysis_version: AnalysisVersion, user: User = None, **kwargs
     ):
         run = self.create(analysis_version=analysis_version, user=user)
-        inputs = run.create_input_instances(**kwargs)
-        run.create_output_path_destinations(inputs)
-        updated_kwargs = {inpt.key: inpt.value for inpt in inputs}
-        results = analysis_version.run(**updated_kwargs)
-        run.create_output_instances(**results)
+        input_manager = InputManager(run=run, configuration=kwargs)
+        input_manager.create_required_paths()
+        results = analysis_version.run(**input_manager.full_configuration)
+        output_manager = OutputManager(run=run, results=results)
+        output_manager.create_output_instances()
         return run
 
     def get_or_execute(

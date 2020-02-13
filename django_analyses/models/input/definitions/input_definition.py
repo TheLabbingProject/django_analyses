@@ -44,9 +44,9 @@ class InputDefinition(models.Model):
                 f"Please set the input_class attribute to the appropriate {input_base_name} subclass."
             )
 
-    def create_input_instance(self, **kwargs) -> Input:
+    def get_or_create_input_instance(self, **kwargs) -> Input:
         try:
-            return self.input_class.objects.create(definition=self, **kwargs)
+            return self.input_class.objects.get_or_create(definition=self, **kwargs)
         except AttributeError:
             self.check_input_class_definition()
             raise
@@ -57,9 +57,3 @@ class InputDefinition(models.Model):
     def save(self, *args, **kwargs):
         self.validate()
         super().save(*args, **kwargs)
-
-    @property
-    def is_output_definition(self) -> bool:
-        is_output_path = getattr(self, "is_output_path", False)
-        is_output_directory = getattr(self, "is_output_directory", False)
-        return is_output_path or is_output_directory
