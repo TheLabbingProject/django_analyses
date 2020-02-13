@@ -38,6 +38,7 @@ class StringInputTestCase(TestCase):
 
     def test_none_value_if_required_raises_validation_error(self):
         self.string_input.definition.required = True
+        self.string_input.definition.default = None
         self.string_input.definition.save()
         self.string_input.value = None
         with self.assertRaises(ValidationError):

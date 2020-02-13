@@ -11,6 +11,7 @@ class StringInputDefinition(InputDefinition):
     min_length = models.IntegerField(blank=True, null=True)
     max_length = models.IntegerField(blank=True, null=True)
     default = models.CharField(max_length=500, blank=True, null=True)
+    dynamic_default = models.CharField(max_length=500, blank=True, null=True)
     choices = ArrayField(
         models.CharField(max_length=255, blank=True, null=True), blank=True, null=True
     )

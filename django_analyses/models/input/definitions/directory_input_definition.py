@@ -5,8 +5,12 @@ from django_analyses.models.input.definitions.input_definitions import InputDefi
 
 
 class DirectoryInputDefinition(InputDefinition):
-    input_class = DirectoryInput
     is_output_directory = models.BooleanField(default=False)
+    default = models.FilePathField(
+        allow_files=False, allow_folders=True, null=True, blank=True
+    )
+
+    input_class = DirectoryInput
 
     def get_type(self) -> InputDefinitions:
         return InputDefinitions.DIR
