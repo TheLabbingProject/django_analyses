@@ -1,7 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from model_utils.managers import InheritanceManager
-from pathlib import Path
 
 
 class Input(models.Model):

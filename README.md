@@ -3,19 +3,17 @@
 
 # django-analyses
 
-
 A reusable Django app to manage analyses.
 
-Quick start
------------
+## Quick start
 
 1. Add "django_analyses" to your INSTALLED_APPS setting:
 
 <pre>
-    INSTALLED_APPS = [  
-        ...  
-        'django_analyses',  
-    ]  
+    INSTALLED_APPS = [
+        ...
+        'django_analyses',
+    ]
 </pre>
 
 2. Include the `analysis` URLconf in your project urls.py:
