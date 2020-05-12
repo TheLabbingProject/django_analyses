@@ -20,6 +20,24 @@ class AnalysisAdmin(admin.ModelAdmin):
     inlines = [AnalysisVersionInline]
 
 
+class InputInline(admin.TabularInline):
+    model = Input
+    readonly_fields = ("key", "value")
+    extra = 0
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_subclasses()
+
+
+class OutputInline(admin.TabularInline):
+    model = Output
+    readonly_fields = ("key", "value")
+    extra = 0
+
+    def get_queryset(self, request):
+        return super().get_queryset(request).select_subclasses()
+
+
 @admin.register(AnalysisVersion)
 class AnalysisVersionAdmin(admin.ModelAdmin):
     fieldsets = (
@@ -44,16 +62,18 @@ class RunAdmin(admin.ModelAdmin):
         "analysis_version",
         "created",
     )
+    inlines = (InputInline, OutputInline)
+
+    class Media:
+        css = {"all": ("django_analyses/css/hide_admin_original.css",)}
 
 
 @admin.register(Input)
 class InputAdmin(admin.ModelAdmin):
     list_display = ("run_id", "key", "value", "analysis_version")
-    list_filter = (
-        "run__analysis_version",
-        "run__id",
-    )
+    list_filter = ("run__analysis_version",)
     list_display_links = None
+    search_fields = ("run__id",)
 
     def get_queryset(self, request):
         return super(InputAdmin, self).get_queryset(request).select_subclasses()
@@ -140,4 +160,3 @@ class OutputSpecificationAdmin(admin.ModelAdmin):
     fields = ("analysis",)
     list_display = ("id", "analysis")
     list_filter = ("analysis",)
-

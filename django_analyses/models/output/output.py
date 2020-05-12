@@ -12,6 +12,9 @@ class Output(models.Model):
 
     objects = InheritanceManager()
 
+    class Meta:
+        ordering = ("run",)
+
     def __str__(self) -> str:
         return f"'{self.key}' = {self.value}"
 
@@ -29,4 +32,3 @@ class Output(models.Model):
     @property
     def key(self) -> str:
         return self.definition.key
-

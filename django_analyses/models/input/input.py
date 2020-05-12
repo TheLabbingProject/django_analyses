@@ -13,6 +13,9 @@ class Input(models.Model):
 
     objects = InheritanceManager()
 
+    class Meta:
+        ordering = ("run",)
+
     def __str__(self) -> str:
         return f"'{self.key}' = {self.value}"
 
