@@ -20,8 +20,8 @@ class RunManager(models.Manager):
     ):
         run = self.create(analysis_version=analysis_version, user=user)
         input_manager = InputManager(run=run, configuration=kwargs)
-        input_manager.create_required_paths()
-        results = analysis_version.run(**input_manager.full_configuration)
+        inputs = input_manager.fix_input()
+        results = analysis_version.run(**inputs)
         output_manager = OutputManager(run=run, results=results)
         output_manager.create_output_instances()
         return run
@@ -31,4 +31,3 @@ class RunManager(models.Manager):
     ):
         existing = self.get_existing(analysis_version, **kwargs)
         return existing or self.create_and_execute(analysis_version, user, **kwargs)
-

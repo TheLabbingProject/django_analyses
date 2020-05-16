@@ -1,6 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from model_utils.managers import InheritanceManager
+from types import MethodWrapperType
 
 
 class Input(models.Model):
@@ -34,6 +35,19 @@ class Input(models.Model):
         self.validate()
         super().save(*args, **kwargs)
 
+    def get_argument_value(self):
+        value = self.value
+        if self.definition.value_attribute:
+            parts = self.definition.value_attribute.split(".")
+            for part in parts:
+                value = getattr(value, part)
+        return value() if callable(value) else value
+
     @property
     def key(self) -> str:
-        return self.definition.key
+        if self.definition:
+            return self.definition.key
+
+    @property
+    def argument_value(self):
+        return self.get_argument_value()

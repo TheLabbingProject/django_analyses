@@ -17,7 +17,9 @@ class Node(TimeStampedModel):
         ordering = ("-created",)
 
     def __str__(self) -> str:
-        return f"\nNode #{self.id}\n{self.analysis_version}\nConfiguration: [{self.configuration}]\n"
+        version = self.analysis_version
+        config = self.configuration
+        return f"\nNode #{self.id}\n{version}\nConfiguration: [{config}]\n"
 
     def save(self, *args, **kwargs):
         self.validate()
@@ -69,7 +71,9 @@ class Node(TimeStampedModel):
 
     def get_run_set(self) -> models.QuerySet:
         all_runs = Run.objects.filter(analysis_version=self.analysis_version)
-        return [run for run in all_runs if self.check_run_configuration_sameness(run)]
+        runs = [run for run in all_runs if self.check_run_configuration_sameness(run)]
+        run_ids = [run.id for run in runs]
+        return Run.objects.filter(id__in=run_ids)
 
     @property
     def required_nodes(self) -> models.QuerySet:

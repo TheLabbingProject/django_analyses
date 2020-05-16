@@ -116,7 +116,7 @@ class InputDefinitionAdmin(admin.ModelAdmin):
         "required",
         "is_configuration",
     )
-    list_filter = ("inputspecification__analysis__title", "inputspecification__id")
+    list_filter = ("specification_set__analysis__title", "specification_set__id")
 
     def get_queryset(self, request):
         return (
@@ -136,14 +136,14 @@ class InputDefinitionAdmin(admin.ModelAdmin):
 @admin.register(OutputDefinition)
 class OutputDefinition(admin.ModelAdmin):
     list_display = ("key", "description", "analysis")
-    list_filter = ("outputspecification__analysis__title", "outputspecification__id")
+    list_filter = ("specification_set__analysis__title", "specification_set__id")
 
     def analysis(self, instance):
-        return instance.outputspecification_set.first().analysis
+        return instance.specification_set.first().analysis
 
 
 class InputDefinitionsInline(admin.TabularInline):
-    model = InputDefinition.inputspecification_set.through
+    model = InputDefinition.specification_set.through
     verbose_name_plural = "Input Definitions"
 
 

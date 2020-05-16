@@ -92,9 +92,13 @@ class InputManager:
 
     def get_full_configuration(self) -> dict:
         return {
-            input_instance.key: input_instance.value
+            input_instance.key: input_instance.argument_value
             for input_instance in self.all_input_instances
         }
+
+    def fix_input(self) -> dict:
+        self.create_required_paths()
+        return self.full_configuration
 
     @property
     def missing_input_definitions(self) -> list:

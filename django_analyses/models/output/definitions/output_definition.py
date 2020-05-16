@@ -29,7 +29,11 @@ class OutputDefinition(models.Model):
                 f"Please set the output_class attribute to the appropriate {output_base_name} subclass."
             )
 
+    def pre_output_instance_create(self, kwargs: dict) -> None:
+        pass
+
     def create_output_instance(self, **kwargs) -> Output:
+        self.pre_output_instance_create(kwargs)
         try:
             return self.output_class.objects.create(definition=self, **kwargs)
         except AttributeError:

@@ -25,8 +25,8 @@ class Output(models.Model):
         pass
 
     def save(self, *args, **kwargs):
-        self.validate()
         self.pre_save()
+        self.validate()
         super().save(*args, **kwargs)
 
     @property

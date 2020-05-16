@@ -17,6 +17,7 @@ class OutputManager:
             return output_definition.create_output_instance(value=value, run=self.run)
 
     def create_output_instances(self) -> list:
+        print(self.results)
         output_instances = [
             self.create_output_instance(key, value)
             for key, value in self.results.items()

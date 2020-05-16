@@ -9,7 +9,9 @@ from django_extensions.db.models import TimeStampedModel
 
 class InputSpecification(TimeStampedModel):
     analysis = models.ForeignKey("django_analyses.Analysis", on_delete=models.CASCADE)
-    base_input_definitions = models.ManyToManyField("django_analyses.InputDefinition")
+    base_input_definitions = models.ManyToManyField(
+        "django_analyses.InputDefinition", related_name="specification_set"
+    )
 
     objects = InputSpecificationManager()
 

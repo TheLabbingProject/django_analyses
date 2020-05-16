@@ -7,7 +7,9 @@ from django_extensions.db.models import TimeStampedModel
 
 class OutputSpecification(TimeStampedModel):
     analysis = models.ForeignKey("django_analyses.Analysis", on_delete=models.CASCADE)
-    base_output_definitions = models.ManyToManyField("django_analyses.OutputDefinition")
+    base_output_definitions = models.ManyToManyField(
+        "django_analyses.OutputDefinition", related_name="specification_set"
+    )
 
     objects = OutputSpecificationManager()
 
