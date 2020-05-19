@@ -10,12 +10,12 @@ User = get_user_model()
 
 
 class RunSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="analysis:run-detail")
+    url = serializers.HyperlinkedIdentityField(view_name="analyses:run-detail")
     user = serializers.HyperlinkedRelatedField(
         view_name="accounts:user-detail", queryset=User.objects.all()
     )
     analysis_version = serializers.HyperlinkedRelatedField(
-        view_name="analysis:analysisversion-detail",
+        view_name="analyses:analysisversion-detail",
         queryset=AnalysisVersion.objects.all(),
     )
     input_set = InputSerializer(many=True)

@@ -14,9 +14,8 @@ class InputDefinitionFilter(filters.FilterSet):
 
     """
 
-    input_specification = filters.AllValuesFilter("inputspecification")
+    input_specification = filters.AllValuesFilter("specification_set")
 
     class Meta:
         model = InputDefinition
         fields = "key", "required", "is_configuration", "input_specification"
-

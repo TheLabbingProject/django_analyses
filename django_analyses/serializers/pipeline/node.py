@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 
 class NodeSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="analysis:node-detail")
+    url = serializers.HyperlinkedIdentityField(view_name="analyses:node-detail")
     analysis_version = AnalysisVersionSerializer()
 
     class Meta:

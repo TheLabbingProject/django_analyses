@@ -15,6 +15,7 @@ class Node(TimeStampedModel):
 
     class Meta:
         ordering = ("-created",)
+        unique_together = "analysis_version", "configuration"
 
     def __str__(self) -> str:
         version = self.analysis_version

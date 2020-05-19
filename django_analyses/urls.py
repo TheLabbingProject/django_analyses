@@ -27,5 +27,4 @@ router.register(
 )
 
 
-urlpatterns = [path("analysis/", include(router.urls))]
-
+urlpatterns = [path("analyses/", include(router.urls))]

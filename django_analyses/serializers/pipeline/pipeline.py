@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 
 class PipelineSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="analysis:pipe-detail")
+    url = serializers.HyperlinkedIdentityField(view_name="analyses:pipe-detail")
     node_set = NodeSerializer(many=True)
     pipe_set = PipeSerializer(many=True)
 

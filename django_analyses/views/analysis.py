@@ -11,4 +11,3 @@ class AnalysisViewSet(DefaultsMixin, viewsets.ModelViewSet):
     pagination_class = StandardResultsSetPagination
     queryset = Analysis.objects.all()
     serializer_class = AnalysisSerializer
-

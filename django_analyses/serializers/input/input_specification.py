@@ -8,10 +8,10 @@ from rest_framework import serializers
 
 class InputSpecificationSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
-        view_name="analysis:inputspecification-detail"
+        view_name="analyses:inputspecification-detail"
     )
     analysis = serializers.HyperlinkedRelatedField(
-        view_name="analysis:analysis-detail", queryset=Analysis.objects.all()
+        view_name="analyses:analysis-detail", queryset=Analysis.objects.all()
     )
     input_definitions = InputDefinitionSerializer(many=True)
 
@@ -25,4 +25,3 @@ class InputSpecificationSerializer(serializers.HyperlinkedModelSerializer):
             "modified",
             "url",
         )
-

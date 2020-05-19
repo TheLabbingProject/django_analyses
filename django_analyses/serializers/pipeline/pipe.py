@@ -11,16 +11,16 @@ from rest_framework import serializers
 
 
 class PipeSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="analysis:pipe-detail")
+    url = serializers.HyperlinkedIdentityField(view_name="analyses:pipe-detail")
     pipeline = serializers.HyperlinkedRelatedField(
-        view_name="analysis:pipeline-detail", queryset=Pipeline.objects.all(),
+        view_name="analyses:pipeline-detail", queryset=Pipeline.objects.all(),
     )
     source = serializers.HyperlinkedRelatedField(
-        view_name="analysis:node-detail", queryset=Node.objects.all()
+        view_name="analyses:node-detail", queryset=Node.objects.all()
     )
     source_port = OutputDefinitionSerializer()
     destination = serializers.HyperlinkedRelatedField(
-        view_name="analysis:node-detail", queryset=Node.objects.all()
+        view_name="analyses:node-detail", queryset=Node.objects.all()
     )
     destination_port = InputDefinitionSerializer()
 
@@ -35,4 +35,3 @@ class PipeSerializer(serializers.HyperlinkedModelSerializer):
             "destination_port",
             "url",
         )
-

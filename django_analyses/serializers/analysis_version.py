@@ -11,7 +11,7 @@ from rest_framework import serializers
 
 class AnalysisVersionSerializer(serializers.HyperlinkedModelSerializer):
     url = serializers.HyperlinkedIdentityField(
-        view_name="analysis:analysisversion-detail"
+        view_name="analyses:analysisversion-detail"
     )
     analysis = AnalysisSerializer()
     input_specification = InputSpecificationSerializer()
@@ -30,4 +30,3 @@ class AnalysisVersionSerializer(serializers.HyperlinkedModelSerializer):
             "modified",
             "url",
         )
-

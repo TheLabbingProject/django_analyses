@@ -3,12 +3,12 @@ from rest_framework import serializers
 
 
 class CategorySerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="analysis:category-detail")
+    url = serializers.HyperlinkedIdentityField(view_name="analyses:category-detail")
     parent = serializers.HyperlinkedRelatedField(
-        view_name="analysis:category-detail", queryset=Category.objects.all()
+        view_name="analyses:category-detail", queryset=Category.objects.all()
     )
     subcategories = serializers.HyperlinkedRelatedField(
-        view_name="analysis:category-detail", queryset=Category.objects.all(), many=True
+        view_name="analyses:category-detail", queryset=Category.objects.all(), many=True
     )
 
     class Meta:

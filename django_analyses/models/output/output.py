@@ -31,4 +31,5 @@ class Output(models.Model):
 
     @property
     def key(self) -> str:
-        return self.definition.key
+        if self.definition:
+            return self.definition.key

@@ -4,9 +4,9 @@ from rest_framework import serializers
 
 
 class AnalysisSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="analysis:analysis-detail")
+    url = serializers.HyperlinkedIdentityField(view_name="analyses:analysis-detail")
     category = serializers.HyperlinkedRelatedField(
-        view_name="analysis:category-detail", queryset=Category.objects.all(),
+        view_name="analyses:category-detail", queryset=Category.objects.all(),
     )
 
     class Meta:
@@ -20,4 +20,3 @@ class AnalysisSerializer(serializers.HyperlinkedModelSerializer):
             "modified",
             "url",
         )
-

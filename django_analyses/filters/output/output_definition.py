@@ -7,9 +7,10 @@ class OutputDefinitionFilter(filters.FilterSet):
     Provides useful filtering options for the
     :class:`~django_analyses.models.output.definitions.output_definition.OutputDefinition`
     model.
-    
+
     """
-    output_specification = filters.AllValuesFilter("outputspecification")
+
+    output_specification = filters.AllValuesFilter("specification_set")
 
     class Meta:
         model = OutputDefinition
