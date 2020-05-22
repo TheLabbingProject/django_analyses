@@ -35,6 +35,7 @@ db.sqlite3
 
 # Coverage reports
 htmlcov
+.coverage
 
 # Other
 *.pem
