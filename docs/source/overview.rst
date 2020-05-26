@@ -65,4 +65,6 @@ Runs
 ----
 
 :class:`~django_analyses.models.run.Run` instances are used to keep a record of every time
-an analysis version is run with a distinct set of inputs and outputs.
+an analysis version is run with a distinct set of inputs and outputs. If we ever to execute
+a run with identical parameters, the :class:`~django_analyses.models.managers.run.RunManager`
+will simply return the existing run.
