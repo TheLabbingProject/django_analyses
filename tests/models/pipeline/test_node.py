@@ -233,7 +233,7 @@ class NodeTestCase(TestCase):
 
     def test_run_set(self):
         """
-        Tests the :prop:`~django_analyses.models.pipline.node.Node.run_set` property
+        Tests the :attr:`~django_analyses.models.pipline.node.Node.run_set` property
         return the expected :class:`~django.db.models.QuerySet`.
         """
 

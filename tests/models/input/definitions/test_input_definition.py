@@ -34,6 +34,8 @@ class InputDefinitionTestCase(TestCase):
         """
         Test the `ordering`_.
 
+        .. _ordering: https://docs.djangoproject.com/en/3.0/ref/models/options/#ordering
+
         """
 
         self.assertTupleEqual(InputDefinition._meta.ordering, ("key",))
@@ -191,7 +193,7 @@ class InputDefinitionTestCase(TestCase):
         :meth:`~django_analyses.models.input.definitions.input_definition.InputDefinition.check_input_class_definition`
         method does not raise a ValidationError when setting *input_class* to
         some valid Input model subclass.
-        
+
         """
 
         self.input_definition.input_class = BooleanInput
