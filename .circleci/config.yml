@@ -28,8 +28,6 @@ jobs:
       - run:
           command: tox
           name: Test using tox
-      - codecov/upload:
-          file:
 
 workflows:
   main:
