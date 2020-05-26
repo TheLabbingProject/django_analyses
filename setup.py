@@ -1,4 +1,3 @@
-import os
 from setuptools import find_packages, setup
 
 with open("README.md", "r") as fh:
@@ -9,10 +8,6 @@ with open("requirements.txt") as fh:
 
 with open("requirements-dev.txt") as fh:
     dev_requirements = fh.read().splitlines()
-
-
-# allow setup.py to be run from any path
-os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name="django_analyses",
@@ -30,7 +25,7 @@ setup(
     install_requires=requirements,
     extras_require={"dev": dev_requirements},
     classifiers=[
-        "Development Status :: 2 - Pre-Alpha",
+        "Development Status :: 2 - Alpha",
         "Environment :: Web Environment",
         "Framework :: Django :: 2.2",
         "Intended Audience :: Science/Research",
