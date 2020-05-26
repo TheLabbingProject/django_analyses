@@ -55,4 +55,7 @@ Pipelines
 
 :class:`~django_analyses.models.pipeline.pipeline.Pipeline` instances are used to reference
 a particular collection of :class:`~django_analyses.models.pipeline.node.Node` and
-:class:`~django_analyses.models.pipeline.pipe.Pipe` instances.
+:class:`~django_analyses.models.pipeline.pipe.Pipe` instances. Each
+:class:`~django_analyses.models.pipeline.node.Node` defines a particular combination of analysis
+version and configuration, and each :class:`~django_analyses.models.pipeline.pipe.Pipe` connects
+between one node's output definition and another's input definition.
