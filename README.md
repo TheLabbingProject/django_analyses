@@ -1,6 +1,7 @@
 [![PyPI version](https://img.shields.io/pypi/v/django-analyses.svg)](https://pypi.python.org/pypi/django-analyses/)
 [![PyPI status](https://img.shields.io/pypi/status/django-analyses.svg)](https://pypi.python.org/pypi/django-analyses/)
 [![TheLabbingProject](https://circleci.com/gh/TheLabbingProject/django_analyses.svg?style=shield)](https://app.circleci.com/pipelines/github/TheLabbingProject/django-analyses)
+[![Documentation Status](https://readthedocs.org/projects/django-analyses/badge/?version=latest)](http://django-analyses.readthedocs.io/?badge=latest)
 
 # django-analyses
 
