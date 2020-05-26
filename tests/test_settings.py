@@ -1,5 +1,17 @@
-from tests.interfaces import Addition, Division, NormCalculation, Power
+import environ
 import os
+
+from tests.interfaces import Addition, Division, NormCalculation, Power
+
+
+env = environ.Env(
+    DB_NAME=(str, "django_analyses"),
+    DB_USER=(str, ""),
+    DB_PASSWORD=(str, ""),
+    DB_HOST=(str, "localhost"),
+    DB_PORT=(int, 5432),
+)
+environ.Env.read_env()
 
 DEBUG = False
 ALLOWED_HOSTS = "*"
@@ -49,11 +61,11 @@ TEMPLATES = [
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql_psycopg2",
-        "NAME": os.getenv("DB_NAME", "django_dicom"),
-        "USER": os.getenv("DB_USER", "postgres"),
-        "PASSWORD": os.getenv("DB_PASSWORD", "password"),
-        "HOST": os.getenv("DB_HOST", "localhost"),
-        "PORT": os.getenv("DB_PORT", 5432),
+        "NAME": env("DB_NAME"),
+        "USER": env("DB_USER"),
+        "PASSWORD": env("DB_PASSWORD"),
+        "HOST": env("DB_HOST"),
+        "PORT": env("DB_PORT"),
     }
 }
 
