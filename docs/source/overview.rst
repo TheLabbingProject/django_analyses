@@ -59,3 +59,10 @@ a particular collection of :class:`~django_analyses.models.pipeline.node.Node` a
 :class:`~django_analyses.models.pipeline.node.Node` defines a particular combination of analysis
 version and configuration, and each :class:`~django_analyses.models.pipeline.pipe.Pipe` connects
 between one node's output definition and another's input definition.
+
+
+Runs
+----
+
+:class:`~django_analyses.models.run.Run` instances are used to keep a record of every time
+an analysis version is run with a distinct set of inputs and outputs.
