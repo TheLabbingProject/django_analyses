@@ -47,4 +47,12 @@ and two different kinds of supported output definitions:
 Each one of these :class:`~django_analyses.models.input.definitions.input_definition.InputDefinition`
 and :class:`~django_analyses.models.output.definitions.output_definition.OutputDefinition` sub-classes
 provides unique validation rules (default, minimal/maximal value or length, choices, etc.), and you
-can easily create more to suit your own needs.
+can easily create more definitions to suit your own needs.
+
+
+Pipelines
+---------
+
+:class:`~django_analyses.models.pipeline.pipeline.Pipeline` instances are used to reference
+a particular collection of :class:`~django_analyses.models.pipeline.node.Node` and
+:class:`~django_analyses.models.pipeline.pipe.Pipe` instances.
