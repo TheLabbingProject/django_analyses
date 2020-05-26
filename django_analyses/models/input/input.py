@@ -1,7 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from model_utils.managers import InheritanceManager
-from types import MethodWrapperType
 
 
 class Input(models.Model):
