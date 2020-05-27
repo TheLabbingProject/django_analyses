@@ -11,7 +11,7 @@ with open("requirements-dev.txt") as fh:
 
 setup(
     name="django_analyses",
-    version="0.0.3",
+    version="0.1.0",
     packages=find_packages(),
     include_package_data=True,
     license="AGPLv3",
@@ -25,7 +25,7 @@ setup(
     install_requires=requirements,
     extras_require={"dev": dev_requirements},
     classifiers=[
-        "Development Status :: 2 - Alpha",
+        "Development Status :: 3 - Alpha",
         "Environment :: Web Environment",
         "Framework :: Django :: 2.2",
         "Intended Audience :: Science/Research",
