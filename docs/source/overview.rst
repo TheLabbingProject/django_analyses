@@ -13,8 +13,8 @@ Analyses
 
 Each :class:`~django_analyses.models.analysis.Analysis` may be associated with a number of
 :class:`~django_analyses.models.analysis_version.AnalysisVersion` instances, and each of
-those must be provided with an interface, i.e. a Python class exposing some `run()` method
-and returning a dictionary of results.
+those must be provided with an interface, i.e. a Python class exposing some :meth:`run()`
+method and returning a dictionary of results (:doc:`see example <user_guide/analysis_integration>`).
 
 Input and Output Specifications
 ...............................
