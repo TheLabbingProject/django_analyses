@@ -47,5 +47,6 @@ coverage.xml
 **.pkl
 docs/build/
 docs/source/_*/
+!docs/source/_static/
 */migrations/*
 !*/migrations/__init__.py
