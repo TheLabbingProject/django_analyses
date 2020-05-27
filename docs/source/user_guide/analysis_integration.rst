@@ -11,7 +11,7 @@ Interface Creation
 ..................
 
 By default, interfaces are expected to be classes and expose a :meth:`run()` method which
-returns a dictionary of output keys and values. Therefore, out :class:`ExponentCalculator`
+returns a dictionary of output keys and values. Therefore, an :class:`ExponentCalculator`
 class might look something like this:
 
 .. code-block:: python
@@ -117,7 +117,7 @@ Interface Integration
 .....................
 
 At this stage our new analysis is ready to be "plugged-in". Interfaces are queried from
-the :code:`ANALYSIS_INTERFACES` dictionary in our project's *settings.py*. Analyses are
+the :code:`ANALYSIS_INTERFACES` dictionary in the project's *settings.py*. Analyses are
 expected to be registered as
 :code:`ANALYSIS_INTERFACES["analysis_title"]["analysis_version_title"]`, so in our case:
 
