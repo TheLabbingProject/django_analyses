@@ -17,7 +17,9 @@ class OutputDefinition(models.Model):
         ordering = ("key",)
 
     def __str__(self) -> str:
-        return self.key
+        output_type = self.output_class.__name__
+        output_type = output_type.replace("Output", "")
+        return f"{self.key:<50}\t{output_type:<30}"
 
     def check_output_class_definition(self) -> None:
         output_base_name = f"{Output.__module__}.{Output.__name__}"
