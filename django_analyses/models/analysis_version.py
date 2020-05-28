@@ -1,3 +1,9 @@
+"""
+Definition of the
+:class:`~django_analyses.models.analysis_version.AnalysisVersion` class.
+
+"""
+
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.db import models
@@ -6,6 +12,21 @@ from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
 
 
 class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
+    """
+    :class:`~django.db.models.Model` representing a single analysis version in the
+    database.
+
+    Each :class:`~django_analyses.models.analysis_version.AnalysisVersion` instance
+    should be assigned an interface through the project's :attr:`ANALYSIS_INTERFACES`
+    setting (for more information see
+    :ref:`user_guide/analysis_integration/simplified_example:Interface Integration`
+    and
+    :ref:`user_guide/analysis_integration/integration_customization:Integration Customization`).
+
+
+
+    """
+
     analysis = models.ForeignKey(
         "django_analyses.Analysis",
         on_delete=models.CASCADE,
@@ -27,6 +48,8 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         null=True,
         related_name="analysis_version_set",
     )
+
+    # Integration customization
     run_method_key = models.CharField(max_length=100, default="run")
     fixed_run_method_kwargs = JSONField(default=dict)
     nested_results_attribute = models.CharField(max_length=100, blank=True, null=True)
