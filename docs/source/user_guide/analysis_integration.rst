@@ -34,14 +34,12 @@ Let's define this procedure as a new available analysis:
 
 .. code-block:: python
 
-    from django_analyses.models import Analysis
-
-    definition = {
-        "title": "Exponentiation",
-        "description": "Calculate <base> in the power of <exponent>.",
-    }
-
-    analysis = Analysis.objects.create(**definition)
+    >>> from django_analyses.models import Analysis
+    >>> definition = {
+    >>>     "title": "Exponentiation",
+    >>>     "description": "Calculate <base> in the power of <exponent>.",
+    >>> }
+    >>> analysis = Analysis.objects.create(**definition)
 
 Analysis Version Creation
 .........................
@@ -51,14 +49,12 @@ instance to represent the :class:`ExponentCalculator` class we've created:
 
 .. code-block:: python
 
-    from django_analyses.models import AnalysisVersion
-
-    definition = {
-        "title": "built-in",
-        "description": "Calculate the exponent of a number using Python's built-in power operator.",
-    }
-
-    analysis_version = AnalysisVersion.objects.create(**definition)
+    >>> from django_analyses.models import AnalysisVersion
+    >>> definition = {
+    >>>     "title": "built-in",
+    >>>     "description": "Calculate the exponent of a number using Python's built-in power operator.",
+    >>> }
+    >>> analysis_version = AnalysisVersion.objects.create(**definition)
 
 
 Input Specification
@@ -75,23 +71,21 @@ and may be used for a number of its
 
 .. code-block:: python
 
-    from django_analyses.models import FloatInputDefinition, InputSpecification
-
-    definition = {
-        "base": {
-            "type": FloatInputDefinition,
-            "required": True,
-            "description": "Floating point number to be raised by <exponent>.",
-        },
-        "exponent": {
-            "type": FloatInputDefinition,
-            "required": True,
-            "description": "Floating point number to raise <base> by.",
-        },
-    }
-
-    analysis = Analysis.objects.get(title="Exponentiation")
-    input_specification, created = InputSpecification.objects.from_dict(analysis, definition)
+    >>> from django_analyses.models import FloatInputDefinition, InputSpecification
+    >>> definition = {
+    >>>     "base": {
+    >>>         "type": FloatInputDefinition,
+    >>>         "required": True,
+    >>>         "description": "Floating point number to be raised by <exponent>.",
+    >>>     },
+    >>>     "exponent": {
+    >>>         "type": FloatInputDefinition,
+    >>>         "required": True,
+    >>>         "description": "Floating point number to raise <base> by.",
+    >>>     },
+    >>> }
+    >>> analysis = Analysis.objects.get(title="Exponentiation")
+    >>> input_specification, created = InputSpecification.objects.from_dict(analysis, definition)
 
 Output Specification
 ....................
@@ -99,19 +93,17 @@ Output Specification
 The :class:`~django_analyses.models.output.output_specification.OutputSpecification`
 may be created very similarly:
 
-.. code-block:: Python
+.. code-block:: python
 
-    from django_analyses.models import FloatOutputDefinition, OutputSpecification
-
-    definition = {
-        "result": {
-            "type": FloatOutputDefinition,
-            "description": "Product of <base> multiplied <exponent> times.",
-        }
-    }
-
-    analysis = Analysis.objects.get(title="Exponentiation")
-    output_specification, created = OutputSpecification.objects.from_dict(analysis, definition)
+    >>> from django_analyses.models import FloatOutputDefinition, OutputSpecification
+    >>> definition = {
+    >>>     "result": {
+    >>>         "type": FloatOutputDefinition,
+    >>>         "description": "Product of <base> multiplied <exponent> times.",
+    >>>     }
+    >>> }
+    >>> analysis = Analysis.objects.get(title="Exponentiation")
+    >>> output_specification, created = OutputSpecification.objects.from_dict(analysis, definition)
 
 Interface Integration
 .....................
