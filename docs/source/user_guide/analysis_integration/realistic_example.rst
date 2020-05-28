@@ -144,6 +144,9 @@ First we'll create the complete definition in another file:
     :class:`~nipype.interfaces.base.specs.BaseTraitedSpec` class by extracting the results
     dictionary from the returned object.
 
+    For more information see
+    :ref:`user_guide/analysis_integration/integration_customization:Integration Customization`.
+
 All that's left to do is:
 
 .. code-block:: python

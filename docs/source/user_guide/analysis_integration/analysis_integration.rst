@@ -7,3 +7,4 @@ Analysis Integration
 
    simplified_example
    realistic_example
+   integration_customization
