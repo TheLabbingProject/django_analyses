@@ -5,5 +5,5 @@ User Guide
    :maxdepth: 2
    :caption: Contents:
 
-   analysis_integration
+   analysis_integration/analysis_integration
    pipeline_generation

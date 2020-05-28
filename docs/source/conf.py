@@ -52,6 +52,7 @@ intersphinx_mapping = {
     "python": ("https://docs.python.org/3", None),
     "django": ("http://django.readthedocs.org/en/latest/", None),
     "django_filters": ("https://django-filter.readthedocs.io/en/master/", None),
+    "nipype": ("https://nipype.readthedocs.io/en/latest/", None),
 }
 
 
