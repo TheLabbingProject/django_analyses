@@ -40,7 +40,12 @@ extensions = [
     "sphinx.ext.napoleon",
     "sphinx.ext.coverage",
     "sphinx.ext.intersphinx",
+    "sphinx.ext.autosectionlabel",
 ]
+
+# Allow safely referencing sections between documents.
+# See: https://www.sphinx-doc.org/en/master/usage/extensions/autosectionlabel.html#confval-autosectionlabel_prefix_document
+autosectionlabel_prefix_document = True
 
 # Intersphinx
 intersphinx_mapping = {
