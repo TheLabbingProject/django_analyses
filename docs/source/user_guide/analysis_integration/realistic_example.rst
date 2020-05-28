@@ -114,7 +114,7 @@ Similarly to the input and output specifications, the
 :meth:`~django_analyses.models.managers.analysis.AnalysisManager.from_list` method
 which we could use to easily add analyses to the database.
 
-First we'll create the complete definition in another file.
+First we'll create the complete definition in another file:
 
 .. code-block:: python
     :caption: analysis_definitions.py
@@ -137,10 +137,12 @@ First we'll create the complete definition in another file.
         }
     ]
 
-The :attr:`nested_results_attribute` field allows us to integrate smoothly with
-`Nipype <https://github.com/nipy/nipype>`_\'s
-:class:`~nipype.interfaces.base.specs.BaseTraitedSpec` class by extracting the results
-dictionary from the returned object.
+.. note::
+
+    The :attr:`nested_results_attribute` field allows us to integrate smoothly with
+    `Nipype <https://github.com/nipy/nipype>`_\'s
+    :class:`~nipype.interfaces.base.specs.BaseTraitedSpec` class by extracting the results
+    dictionary from the returned object.
 
 All that's left to do is:
 
@@ -156,7 +158,7 @@ The :meth:`~django_analyses.models.managers.analysis.AnalysisManager.from_list` 
 returns a dictionary with references to the specified
 :class:`~django_analyses.models.analysis.Analysis` and
 :class:`~django_analyses.models.analysis_version.AnalysisVersion` instances and whether
-they were created or not.
+they have been created or not.
 
 SUSAN is now an available analysis in our database. Only one thing missing...
 
