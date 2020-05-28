@@ -90,8 +90,8 @@ And then we can lay down the pipe:
     >>> from django_analyses.models import Pipe
 
     # Querying the required InputDefinition instances
-    >>> square_output = exponent.output_definitions.get(key="result")
-    >>> raise_3_input = exponent.input_definitions.get(key="exponent")
+    >>> square_output = exponent_calculation.output_definitions.get(key="result")
+    >>> raise_3_input = exponent_calculation.input_definitions.get(key="exponent")
 
     # Create the pipe
     >>> pipe = Pipe.objects.create(
