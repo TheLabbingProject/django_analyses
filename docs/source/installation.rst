@@ -1,7 +1,7 @@
 Installation
 ============
 
-    1. Install `from PyPi <https://pypi.org/project/django-analyses/>`_:
+    1. Install from `PyPi <https://pypi.org/project/django-analyses/>`_:
 
         .. code-block:: bash
 
@@ -14,7 +14,7 @@ Installation
 
             INSTALLED_APPS = [
                 ...,
-                'django_analyses',
+                "django_analyses",
             ]
 
     3. Include the *analyses* URLconf in your prject *urls.py*:
