@@ -83,6 +83,14 @@ and may be used for a number of its
     >>> }
     >>> analysis = Analysis.objects.get(title="Exponentiation")
     >>> input_specification, created = InputSpecification.objects.from_dict(analysis, definition)
+    >>> input_specification
+    <InputSpecification:
+    [Exponentiation]
+        base                                    Float
+        exponent                                Float
+    >
+    >>> created
+    True
 
 Output Specification
 ....................
@@ -101,6 +109,13 @@ may be created very similarly:
     >>> }
     >>> analysis = Analysis.objects.get(title="Exponentiation")
     >>> output_specification, created = OutputSpecification.objects.from_dict(analysis, definition)
+    >>> output_specification
+    <OutputSpecification
+    [Exponentiation]
+        result                                  Float
+    >
+    >>> created
+    True
 
 Interface Integration
 .....................

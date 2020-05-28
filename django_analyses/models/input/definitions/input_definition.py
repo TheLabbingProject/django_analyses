@@ -37,7 +37,9 @@ class InputDefinition(models.Model):
         ordering = ("key",)
 
     def __str__(self) -> str:
-        return self.key
+        input_type = self.input_class.__name__
+        input_type = input_type.replace("Input", "")
+        return f"{self.key:<50}\t{input_type:<30}"
 
     def check_input_class_definition(self) -> None:
         input_base_name = f"{Input.__module__}.{Input.__name__}"
