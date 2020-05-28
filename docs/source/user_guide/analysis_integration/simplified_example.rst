@@ -1,8 +1,5 @@
-Analysis Integration
-====================
-
-Simplified Example
-------------------
+Simplified Analysis Integration Example
+---------------------------------------
 
 In this example we will add an :class:`ExponentCalculator` class and integrate it into
 *django_analyses*.
