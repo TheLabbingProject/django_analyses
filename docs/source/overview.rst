@@ -16,7 +16,7 @@ Each :class:`~django_analyses.models.analysis.Analysis` may be associated with a
 those must be provided with an interface, i.e. a Python class exposing some :meth:`run()`
 method and returning a dictionary of results.
 
-For more information, see
+For more information, see the
 :ref:`user_guide/analysis_integration/simplified_example:Simplified Analysis Integration Example`.
 
 Input and Output Specifications
