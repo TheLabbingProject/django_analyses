@@ -1,17 +1,10 @@
-Pipeline Generation
-===================
-
-:class:`~django_analyses.models.pipeline.pipeline.Pipeline` instances represent
-a distinct association pattern between the outputs and inputs of pre-configured
-analyses.
-
 Simplified Example
 ------------------
 
 As a simple example for a pipeline generation flow, we will reuse the
 :class:`ExponentCalculator` from the
 :ref:`user_guide/analysis_integration/simplified_example:Simplified Analysis Integration Example`
-tutorial to create a pipeline which which computes :math:`3^{x^2}` (where :math:`x`
+to create a pipeline which which computes :math:`3^{x^2}` (where :math:`x`
 is the provided input).
 
 Nodes
@@ -71,7 +64,7 @@ across runs by associating one given node's output with another's input.
 In our case, the required pipe is represented by the arrow connecting :obj:`square`\'s
 result and :obj:`raise_3`\'s exponent.
 
-.. image:: ../_static/simple-pipeline.png
+.. image:: ../../_static/simple-pipeline.png
 
 First we create the :class:`~django_analyses.models.pipeline.pipeline.Pipeline`
 instance:
