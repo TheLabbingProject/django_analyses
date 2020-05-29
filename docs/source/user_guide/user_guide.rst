@@ -6,4 +6,4 @@ User Guide
    :caption: Contents:
 
    analysis_integration/analysis_integration
-   pipeline_generation
+   pipeline_generation/pipeline_generation
