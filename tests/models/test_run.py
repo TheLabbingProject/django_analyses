@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.test import TestCase
+from django_analyses.models.run import Run
 from pathlib import Path
 from tests.factories.input.types.string_input import StringInputFactory
 from tests.factories.run import RunFactory
@@ -80,3 +81,19 @@ class RunTestCase(TestCase):
         value = self.run.raw_input_configuration
         expected = {self.string_input.key: "name.ext"}
         self.assertDictEqual(value, expected)
+
+    def test_run_delete_with_no_media_dir(self):
+        self.assertIsNone(self.run.path)
+        self.run.delete()
+        with self.assertRaises(Run.DoesNotExist):
+            Run.objects.get(id=self.run.id)
+
+    def test_run_delete_with_media_dir(self):
+        self.assertIsNone(self.run.path)
+        base_path = getattr(settings, "ANALYSIS_BASE_PATH", "analysis")
+        p = Path(base_path, str(self.run.id))
+        p.mkdir(parents=True)
+        self.run.delete()
+        self.assertFalse(p.is_dir())
+        with self.assertRaises(Run.DoesNotExist):
+            Run.objects.get(id=self.run.id)
