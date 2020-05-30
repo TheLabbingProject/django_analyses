@@ -26,6 +26,28 @@ class Node(TimeStampedModel):
         self.validate()
         super().save(*args, **kwargs)
 
+    def get_configuration(self) -> dict:
+        """
+        Undo any changes made to the node's configuration for serialization
+        before passing them on to the interface.
+
+        Returns
+        -------
+        :obj:`dict`
+            Node's analysis version configuration
+        """
+
+        configuration = {}
+        for key, value in self.configuration.items():
+            definition = self.analysis_version.input_definitions.get(key=key)
+            value_field = definition.input_class._meta.get_field("value")
+            is_foreign_key = isinstance(value_field, models.ForeignKey)
+            if is_foreign_key:
+                configuration[key] = value_field.related_model.objects.get(id=value)
+            else:
+                configuration[key] = value
+        return configuration
+
     def validate(self) -> None:
         if self.configuration:
             self.analysis_version.input_specification.validate_keys(
@@ -35,7 +57,7 @@ class Node(TimeStampedModel):
     def get_full_configuration(self, inputs: dict) -> dict:
         defaults = self.analysis_version.input_specification.default_configuration
         node_configuration = defaults.copy()
-        node_configuration.update(self.configuration)
+        node_configuration.update(self.get_configuration())
         node_configuration.update(inputs)
         return node_configuration
 
@@ -54,8 +76,8 @@ class Node(TimeStampedModel):
         return Node.objects.filter(id__in=list(node_ids))
 
     def check_configuration_sameness(self, key: str, value) -> bool:
-        input_definition = self.analysis_version.input_definitions.get(key=key)
         is_same = value == self.configuration.get(key)
+        input_definition = self.analysis_version.input_definitions.get(key=key)
         is_default = (
             value == input_definition.default and self.configuration.get(key) is None
         )

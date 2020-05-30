@@ -1,5 +1,6 @@
 from django.db import models
 from django_analyses.models.input.definitions.input_definition import InputDefinition
+from django_analyses.models.managers.pipe import PipeManager
 from django_analyses.models.output.definitions.output_definition import OutputDefinition
 
 
@@ -21,6 +22,8 @@ class Pipe(models.Model):
     base_destination_port = models.ForeignKey(
         "django_analyses.InputDefinition", on_delete=models.PROTECT
     )
+
+    objects = PipeManager()
 
     def __str__(self) -> str:
         source_analysis = self.source.analysis_version.analysis

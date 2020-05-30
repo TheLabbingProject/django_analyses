@@ -116,12 +116,18 @@ class Run(TimeStampedModel):
 
         return {output.key: output.value for output in self.output_set}
 
+    def fix_input_value(self, inpt):
+        if getattr(inpt.definition, "is_output_path", False):
+            return Path(inpt.value).name
+        elif isinstance(inpt._meta.get_field("value"), models.ForeignKey):
+            return inpt.value.id
+        return inpt.value
+
     def get_raw_input_configuration(self) -> dict:
         """
         Returns the "raw" configuration of this run. As some inputs may have been
-        transformed by the :class:`~django_analyses.utils.input_manager.InputManager`,
-        this method is used to reverse these changes in case this run's parameters are
-        compared in the future to new input parameters.
+        transformed, this method is used to reverse these changes in case this run's
+        parameters are compared in the future to new input parameters.
 
         Returns
         -------
@@ -130,9 +136,7 @@ class Run(TimeStampedModel):
         """
 
         return {
-            inpt.key: inpt.value
-            if not getattr(inpt.definition, "is_output_path", False)
-            else Path(inpt.value).name
+            inpt.key: self.fix_input_value(inpt)
             for inpt in self.input_set
             if not getattr(inpt.definition, "is_output_directory", False)
         }

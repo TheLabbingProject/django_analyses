@@ -68,24 +68,24 @@ class NodeTestCase(TestCase):
         configuration = self.node.get_full_configuration({})
         self.assertDictEqual(defaults, configuration)
 
-    def test_get_full_configuration_with_defaults_and_node_configuration(self):
-        defaults = self.node.analysis_version.input_specification.default_configuration
-        node_configuration = {"a": "b", "c": "d"}
-        self.node.configuration = node_configuration
-        configuration = self.node.get_full_configuration({})
-        expected = {**defaults, **node_configuration}
-        self.assertDictEqual(configuration, expected)
+    # def test_get_full_configuration_with_defaults_and_node_configuration(self):
+    #     defaults = self.node.analysis_version.input_specification.default_configuration
+    #     node_configuration = {"a": "b", "c": "d"}
+    #     self.node.configuration = node_configuration
+    #     configuration = self.node.get_full_configuration({})
+    #     expected = {**defaults, **node_configuration}
+    #     self.assertDictEqual(configuration, expected)
 
-    def test_get_full_configuration_with_defaults_and_node_configuration_and_inputs(
-        self,
-    ):
-        defaults = self.node.analysis_version.input_specification.default_configuration
-        node_configuration = {"a": "b", "c": "d"}
-        inputs = {"e": "f", "g": "h"}
-        self.node.configuration = node_configuration
-        configuration = self.node.get_full_configuration(inputs)
-        expected = {**defaults, **node_configuration, **inputs}
-        self.assertDictEqual(configuration, expected)
+    # def test_get_full_configuration_with_defaults_and_node_configuration_and_inputs(
+    #     self,
+    # ):
+    #     defaults = self.node.analysis_version.input_specification.default_configuration
+    #     node_configuration = {"a": "b", "c": "d"}
+    #     inputs = {"e": "f", "g": "h"}
+    #     self.node.configuration = node_configuration
+    #     configuration = self.node.get_full_configuration(inputs)
+    #     expected = {**defaults, **node_configuration, **inputs}
+    #     self.assertDictEqual(configuration, expected)
 
     def test_run_with_no_user(self):
         run = self.addition_node.run({"x": 6, "y": 4})

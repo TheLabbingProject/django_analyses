@@ -11,6 +11,9 @@ User = get_user_model()
 class RunManager(models.Manager):
     def get_existing(self, analysis_version: AnalysisVersion, **kwargs):
         runs = self.filter(analysis_version=analysis_version)
+        for key, value in kwargs.items():
+            if isinstance(value, models.Model):
+                kwargs[key] = value.id
         configuration = analysis_version.update_input_with_defaults(**kwargs)
         matching = [run for run in runs if run.input_configuration == configuration]
         return matching[0] if matching else None

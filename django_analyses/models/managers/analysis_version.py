@@ -5,6 +5,19 @@ from django_analyses.models.output.output_specification import OutputSpecificati
 
 
 class AnalysisVersionManager(models.Manager):
+    def get_by_string_id(self, string_id: str):
+        n_parts = len(string_id.split("."))
+        if n_parts == 1:
+            versions = self.filter(analysis__title=string_id)
+            if versions:
+                return versions.first()
+            raise self.model.DoesNotExist(
+                f"No versions found for analysis {string_id}."
+            )
+        elif n_parts == 2:
+            analysis_title, title = string_id.split(".")
+            return self.get(analysis__title=analysis_title, title=title)
+
     def get_kwargs_from_definition(self, analysis, definition: dict) -> dict:
         (
             input_specification,

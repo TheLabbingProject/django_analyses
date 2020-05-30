@@ -14,6 +14,7 @@ class ListInputDefinition(InputDefinition):
     min_length = models.PositiveIntegerField(blank=True, null=True)
     max_length = models.PositiveIntegerField(blank=True, null=True)
     default = JSONField(blank=True, null=True)
+    as_tuple = models.BooleanField(default=False)
 
     input_class = ListInput
 

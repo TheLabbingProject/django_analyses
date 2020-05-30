@@ -23,7 +23,8 @@ class Input(models.Model):
         raise ValidationError(f"{self.key} is required!")
 
     def pre_save(self) -> None:
-        pass
+        if self.value_is_foreign_key and isinstance(self.value, int):
+            self.value = self.value.related_model.get(id=self.value)
 
     def validate(self) -> None:
         if self.definition.required and self.value is None:
@@ -34,13 +35,17 @@ class Input(models.Model):
         self.validate()
         super().save(*args, **kwargs)
 
-    def get_argument_value(self):
+    def extract_value_attribute(self):
         value = self.value
-        if self.definition.value_attribute:
-            parts = self.definition.value_attribute.split(".")
-            for part in parts:
-                value = getattr(value, part)
+        parts = self.definition.value_attribute.split(".")
+        for part in parts:
+            value = getattr(value, part)
         return value() if callable(value) else value
+
+    def get_argument_value(self):
+        if self.definition.value_attribute:
+            return self.extract_value_attribute()
+        return self.value
 
     @property
     def key(self) -> str:
@@ -50,3 +55,8 @@ class Input(models.Model):
     @property
     def argument_value(self):
         return self.get_argument_value()
+
+    @property
+    def value_is_foreign_key(self) -> bool:
+        value_field = self._meta.get_field("value")
+        return isinstance(value_field, models.ForeignKey)

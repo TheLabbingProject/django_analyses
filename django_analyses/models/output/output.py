@@ -33,3 +33,8 @@ class Output(models.Model):
     def key(self) -> str:
         if self.definition:
             return self.definition.key
+
+    @property
+    def value_is_foreign_key(self) -> bool:
+        value_field = self._meta.get_field("value")
+        return isinstance(value_field, models.ForeignKey)

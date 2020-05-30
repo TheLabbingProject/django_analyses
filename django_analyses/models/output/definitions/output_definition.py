@@ -2,6 +2,9 @@ from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.base import ModelBase
 from django_analyses.models.managers.output_definition import OutputDefinitionManager
+from django_analyses.models.output.definitions.messages import (
+    INVALID_OUTPUT_CLASS_DEFINITION,
+)
 from django_analyses.models.output.output import Output
 
 
@@ -30,9 +33,8 @@ class OutputDefinition(models.Model):
         base = getattr(self.output_class, "__base__", None)
         not_output_subclass = base is not Output
         if not self.output_class or not_model or not_output_subclass:
-            raise ValidationError(
-                f"Please set the output_class attribute to the appropriate {output_base_name} subclass."
-            )
+            message = INVALID_OUTPUT_CLASS_DEFINITION.format(base_name=output_base_name)
+            raise ValidationError(message)
 
     def pre_output_instance_create(self, kwargs: dict) -> None:
         pass
