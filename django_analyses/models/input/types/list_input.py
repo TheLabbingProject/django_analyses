@@ -64,6 +64,12 @@ class ListInput(Input):
     def get_type(self) -> InputTypes:
         return InputTypes.LST
 
+    def get_argument_value(self):
+        value = super().get_argument_value()
+        if self.definition.as_tuple:
+            return tuple(value)
+        return value
+
     @property
     def expected_type_definition(self) -> ListElementTypes:
         return ListElementTypes[self.definition.element_type]

@@ -10,3 +10,4 @@ analyses.
    :caption: Contents:
 
    simplified_example
+   realistic_example

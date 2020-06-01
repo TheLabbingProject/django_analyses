@@ -1,5 +1,5 @@
 Simplified Example
-------------------
+==================
 
 As a simple example for a pipeline generation flow, we will reuse the
 :class:`ExponentCalculator` from the
@@ -8,7 +8,7 @@ to create a pipeline which which computes :math:`3^{x^2}` (where :math:`x`
 is the provided input).
 
 Nodes
-.....
+-----
 
 A :class:`~django_analyses.models.pipeline.node.Node` instance provides a
 reference to a particular configuration of some analysis version.
@@ -56,7 +56,7 @@ We also need a :obj:`raise_3` node for our pipeline:
     >>> raise_3 = Node.objects.create(analysis_version=exponent_calculation, configuration={"base": 3})
 
 Pipes
-.....
+-----
 
 A :class:`~django_analyses.models.pipeline.pipe.Pipe` instance is used to stream data
 across runs by associating one given node's output with another's input.
@@ -96,7 +96,7 @@ And then we can lay down the pipe:
     >>> )
 
 Pipeline Execution
-..................
+------------------
 
 Pipelines are executed using a :class:`~django_analyses.pipeline_runner.PipelineRunner`
 instance, which wraps-up all the required logic.

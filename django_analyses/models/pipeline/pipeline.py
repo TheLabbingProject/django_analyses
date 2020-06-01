@@ -1,9 +1,24 @@
+"""
+Definition of the
+:class:`~django_analyses.models.pipeline.pipeline.Pipeline` class.
+
+"""
+
 from django.db.models import QuerySet
+from django_analyses.models.managers.pipeline import PipelineManager
 from django_analyses.models.pipeline.node import Node
 from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
 
 
 class Pipeline(TitleDescriptionModel, TimeStampedModel):
+    """
+    A pipeline essentially represents a set of
+    :class:`~django_analyses.models.pipeline.pipe.Pipe` instances,
+    constituting a distinct analysis procedure.
+    """
+
+    objects = PipelineManager()
+
     def __str__(self):
         return self.title
 

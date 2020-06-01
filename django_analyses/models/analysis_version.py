@@ -21,10 +21,8 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
     setting (for more information see
     :ref:`user_guide/analysis_integration/simplified_example:Interface Integration`
     and
-    :ref:`user_guide/analysis_integration/integration_customization:Integration Customization`).
-
-
-
+    :ref:`user_guide/analysis_integration/integration_customization:Integration
+    Customization`).
     """
 
     analysis = models.ForeignKey(
