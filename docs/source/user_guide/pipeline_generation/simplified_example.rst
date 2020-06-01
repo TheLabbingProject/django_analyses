@@ -4,7 +4,7 @@ Simplified Example
 As a simple example for a pipeline generation flow, we will reuse the
 :class:`ExponentCalculator` from the
 :ref:`user_guide/analysis_integration/simplified_example:Simplified Analysis Integration Example`
-tutorial to create a pipeline which which computes :math:`3^{x^2}` (where :math:`x`
+to create a pipeline which which computes :math:`3^{x^2}` (where :math:`x`
 is the provided input).
 
 Nodes
