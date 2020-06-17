@@ -30,12 +30,12 @@ class Category(TitleDescriptionModel, TimeStampedModel):
 
     def __str__(self) -> str:
         """
-        Returns the str representation of the instance.
+        Returns the string representation of the instance.
 
         Returns
         -------
         str
-            This instances string representation
+            This instance's string representation
         """
 
         return self.title

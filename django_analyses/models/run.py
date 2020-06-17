@@ -207,6 +207,10 @@ class Run(TimeStampedModel):
         -------
         dict
             Full input configuration
+
+        See Also
+        --------
+        * :meth:`get_input_configuration`
         """
 
         return self.get_input_configuration()
@@ -220,6 +224,10 @@ class Run(TimeStampedModel):
         -------
         dict
             Output configuration
+
+        See Also
+        --------
+        * :meth:`get_output_configuration`
         """
 
         return self.get_output_configuration()
@@ -234,6 +242,10 @@ class Run(TimeStampedModel):
         -------
         :class:`~django.db.models.query.QuerySet`
             This run's inputs
+
+        See Also
+        --------
+        * :meth:`get_input_set`
         """
 
         return self.get_input_set()
@@ -248,6 +260,10 @@ class Run(TimeStampedModel):
         -------
         :class:`~django.db.models.query.QuerySet`
             This run's outputs
+
+        See Also
+        --------
+        * :meth:`get_output_set`
         """
 
         return self.get_output_set()
@@ -256,13 +272,15 @@ class Run(TimeStampedModel):
     def raw_input_configuration(self) -> dict:
         """
         Returns a dictionary of this run's raw input configuration.
-        See
-        :meth:`~django_analyses.models.run.Run.get_raw_input_configuration`.
 
         Returns
         -------
         dict
             This run's raw input configuration
+
+        See Also
+        --------
+        * :meth:`get_raw_input_configuration`
         """
 
         return self.get_raw_input_configuration()
