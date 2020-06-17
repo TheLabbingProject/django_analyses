@@ -1,5 +1,5 @@
-django\_analyses.serializers package
-====================================
+Serializers
+===========
 
 Subpackages
 -----------

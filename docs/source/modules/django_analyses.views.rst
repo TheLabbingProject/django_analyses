@@ -1,5 +1,5 @@
-django\_analyses.views package
-==============================
+Views
+=====
 
 Submodules
 ----------

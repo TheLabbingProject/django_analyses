@@ -1,5 +1,5 @@
-django\_analyses.models package
-===============================
+Models
+======
 
 Subpackages
 -----------

@@ -1,3 +1,9 @@
+"""
+Definition of an
+:class:`~django_analyses.filters.analysis.AnalysisFilter` for the
+:class:`~django_analyses.models.analysis.Analysis` model.
+"""
+
 from django_analyses.models.analysis import Analysis
 from django_filters import rest_framework as filters
 
@@ -28,4 +34,3 @@ class AnalysisFilter(filters.FilterSet):
     class Meta:
         model = Analysis
         fields = "id", "title", "description", "created"
-

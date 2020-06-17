@@ -7,20 +7,22 @@ Definition of the
 from django.conf import settings
 from django.contrib.postgres.fields import JSONField
 from django.db import models
-from django_analyses.models.managers.analysis_version import AnalysisVersionManager
+from django_analyses.models.managers.analysis_version import (
+    AnalysisVersionManager,
+)
 from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
 
 
 class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
     """
-    :class:`~django.db.models.Model` representing a single analysis version in the
-    database.
+    :class:`~django.db.models.Model` representing a single analysis version in
+    the database.
 
-    Each :class:`~django_analyses.models.analysis_version.AnalysisVersion` instance
-    should be assigned an interface through the project's :attr:`ANALYSIS_INTERFACES`
-    setting (for more information see
-    :ref:`user_guide/analysis_integration/simplified_example:Interface Integration`
-    and
+    Each :class:`~django_analyses.models.analysis_version.AnalysisVersion`
+    instance should be assigned an interface through the project's
+    :attr:`ANALYSIS_INTERFACES` setting (for more information see
+    :ref:`user_guide/analysis_integration/simplified_example:Interface
+    Integration` and
     :ref:`user_guide/analysis_integration/integration_customization:Integration
     Customization`).
     """
@@ -50,7 +52,9 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
     # Integration customization
     run_method_key = models.CharField(max_length=100, default="run")
     fixed_run_method_kwargs = JSONField(default=dict)
-    nested_results_attribute = models.CharField(max_length=100, blank=True, null=True)
+    nested_results_attribute = models.CharField(
+        max_length=100, blank=True, null=True
+    )
 
     objects = AnalysisVersionManager()
 
@@ -66,7 +70,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
 
         Returns
         -------
-        :obj:`str`
+        str
             String representation of this instance
         """
 
@@ -76,7 +80,8 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         """
         Queries the project's settings to locate the instance's interface.
         For more information see
-        :ref:`user_guide/analysis_integration/simplified_example:Interface Integration`.
+        :ref:`user_guide/analysis_integration/simplified_example:Interface
+        Integration`.
 
         Returns
         -------
@@ -90,18 +95,21 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         """
 
         try:
-            return settings.ANALYSIS_INTERFACES[self.analysis.title][self.title]
+            return settings.ANALYSIS_INTERFACES[self.analysis.title][
+                self.title
+            ]
         except KeyError:
             raise NotImplementedError(f"No interface detected for {self}!")
 
     def get_interface_initialization_kwargs(self, **kwargs) -> dict:
         """
-        Returns the parameters required at the interface's class initialization.
+        Returns the parameters required at the interface's class
+        initialization.
 
         Returns
         -------
-        :obj:`dict`
-            Initialization parameters as a keyword arguments :obj:`dict`.
+        dict
+            Initialization parameters as a keyword arguments dict.
         """
 
         return {
@@ -112,12 +120,13 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
 
     def get_run_method_kwargs(self, **kwargs) -> dict:
         """
-        Returns the parameters required when calling the interface's :meth:`run` method.
+        Returns the parameters required when calling the interface's
+        :meth:`run` method.
 
         Returns
         -------
-        :obj:`dict`
-            :meth:`run` method parameters as a keyword arguments :obj:`dict`.
+        dict
+            :meth:`run` method parameters as a keyword arguments dict.
         """
 
         return {
@@ -128,11 +137,12 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
 
     def run_interface(self, **kwargs) -> dict:
         """
-        Call the interface class's :meth:`run` method with the given keyword arguments.
+        Call the interface class's :meth:`run` method with the given keyword
+        arguments.
 
         Returns
         -------
-        :obj:`dict`
+        dict
             Dictionary of results
         """
 
@@ -154,7 +164,8 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
 
     def extract_results(self, results: object) -> dict:
         """
-        Extracts a results dictionary from an arbitrary results :obj:`object` in case the
+        Extracts a results dictionary from an arbitrary results :obj:`object`
+        in case the
         :attr:`~django_analyses.models.analysis_version.AnalysisVersion.nested_results_attribute`
         is not :obj:`None`.
 
@@ -165,7 +176,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
 
         Returns
         -------
-        :obj:`dict`
+        dict
             Results dictionary
         """
 
@@ -175,14 +186,17 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
 
     def run(self, **kwargs) -> dict:
         """
-        Runs the interface safely by validating the input according to the instance's
+        Runs the interface safely by validating the input according to the
+        instance's
         :attr:`~django_analyses.models.analysis_version.AnalysisVersion.input_specification`
-        and applying any special integration customizations (for more information see
-        :ref:`user_guide/analysis_integration/integration_customization:Integration Customization`).
+        and applying any special integration customizations (for more
+        information see
+        :ref:`user_guide/analysis_integration/integration_customization:Integration
+        Customization`).
 
         Returns
         -------
-        :obj:`dict`
+        dict
             Results dictionary
         """
 
@@ -192,13 +206,14 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
 
     def update_input_with_defaults(self, **kwargs) -> dict:
         """
-        Updates a configuration specified as keyword arguments with the instance's
+        Updates a configuration specified as keyword arguments with the
+        instance's
         :attr:`~django_analyses.models.analysis_version.AnalysisVersion.input_specification`
         defaults.
 
         Returns
         -------
-        :obj:`dict`
+        dict
             Configuration updated with default values
         """
 
@@ -215,7 +230,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
 
         Returns
         -------
-        :obj:`list`
+        list
             Listed parts of nested result dictionary location
         """
 
@@ -230,7 +245,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         """
         Returns the associated instance's
         :class:`~django_analyses.models.input.definitions.input_definition.InputDefinition`
-        sub-classes as defined in its
+        subclasses as defined in its
         :attr:`~django_analyses.models.analysis_version.AnalysisVersion.input_specification`.
 
 
@@ -238,7 +253,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         -------
         :class:`~django.db.models.query.QuerySet`
             :class:`~django_analyses.models.input.definitions.input_definition.InputDefinition`
-            sub-classes.
+            subclasses.
         """
 
         return self.input_specification.input_definitions
@@ -248,7 +263,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         """
         Returns the associated instance's
         :class:`~django_analyses.models.output.definitions.output_definition.OutputDefinition`
-        sub-classes as defined in its
+        subclasses as defined in its
         :attr:`~django_analyses.models.analysis_version.AnalysisVersion.output_specification`.
 
 
@@ -256,7 +271,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         -------
         :class:`~django.db.models.query.QuerySet`
             :class:`~django_analyses.models.output.definitions.output_definition.OutputDefinition`
-            sub-classes.
+            subclasses.
         """
 
         return self.output_specification.output_definitions
