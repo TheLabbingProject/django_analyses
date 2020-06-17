@@ -1,5 +1,5 @@
-django\_analyses.utils package
-==============================
+Utils
+=====
 
 Submodules
 ----------

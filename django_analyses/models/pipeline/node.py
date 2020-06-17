@@ -33,7 +33,7 @@ class Node(TimeStampedModel):
 
         Returns
         -------
-        :obj:`dict`
+        dict
             Node's analysis version configuration
         """
 
@@ -43,7 +43,9 @@ class Node(TimeStampedModel):
             value_field = definition.input_class._meta.get_field("value")
             is_foreign_key = isinstance(value_field, models.ForeignKey)
             if is_foreign_key:
-                configuration[key] = value_field.related_model.objects.get(id=value)
+                configuration[key] = value_field.related_model.objects.get(
+                    id=value
+                )
             else:
                 configuration[key] = value
         return configuration
@@ -55,7 +57,9 @@ class Node(TimeStampedModel):
             )
 
     def get_full_configuration(self, inputs: dict) -> dict:
-        defaults = self.analysis_version.input_specification.default_configuration
+        defaults = (
+            self.analysis_version.input_specification.default_configuration
+        )
         node_configuration = defaults.copy()
         node_configuration.update(self.get_configuration())
         node_configuration.update(inputs)
@@ -79,7 +83,8 @@ class Node(TimeStampedModel):
         is_same = value == self.configuration.get(key)
         input_definition = self.analysis_version.input_definitions.get(key=key)
         is_default = (
-            value == input_definition.default and self.configuration.get(key) is None
+            value == input_definition.default
+            and self.configuration.get(key) is None
         )
         not_configuration = input_definition.is_configuration is False
         return is_same or is_default or not_configuration
@@ -94,7 +99,11 @@ class Node(TimeStampedModel):
 
     def get_run_set(self) -> models.QuerySet:
         all_runs = Run.objects.filter(analysis_version=self.analysis_version)
-        runs = [run for run in all_runs if self.check_run_configuration_sameness(run)]
+        runs = [
+            run
+            for run in all_runs
+            if self.check_run_configuration_sameness(run)
+        ]
         run_ids = [run.id for run in runs]
         return Run.objects.filter(id__in=run_ids)
 

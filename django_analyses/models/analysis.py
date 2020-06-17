@@ -11,14 +11,20 @@ from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
 
 class Analysis(TitleDescriptionModel, TimeStampedModel):
     """
-    :class:`~django.db.models.Model` representing a single analysis in the database.
+    :class:`~django.db.models.Model` representing a single analysis in the
+    database.
 
     """
 
-    # Override TitleDescriptionModel's title definition to specify `unique=True`
+    #: Override TitleDescriptionModel's title field to specify
+    #: `unique=True`.
     title = models.CharField(max_length=255, unique=True)
 
-    category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
+    #: A :class:`~django_analyses.models.category.Category` instance
+    #: associated with this analysis.
+    category = models.ForeignKey(
+        Category, on_delete=models.SET_NULL, null=True
+    )
 
     objects = AnalysisManager()
 

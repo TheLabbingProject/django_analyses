@@ -4,4 +4,3 @@ from django_analyses.models.output.definitions.file_output_definition import (
 from django_analyses.models.output.definitions.float_output_definition import (
     FloatOutputDefinition,
 )
-

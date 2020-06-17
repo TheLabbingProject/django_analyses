@@ -11,18 +11,23 @@ from django.db import models
 from django_analyses.models.managers.run import RunManager
 from django_extensions.db.models import TimeStampedModel
 from pathlib import Path
+from typing import Any
 
 
 class Run(TimeStampedModel):
     """
-    :class:`~django.db.models.Model` representing a single analysis version's run in the
-    database.
+    :class:`~django.db.models.Model` representing a single analysis version's
+    run in the database.
 
     """
 
+    #: The :class:`~django_analyses.models.analysis_version.AnalysisVersion`
+    #: that was run.
     analysis_version = models.ForeignKey(
         "django_analyses.AnalysisVersion", on_delete=models.PROTECT
     )
+
+    #: The user who created this run.
     user = models.ForeignKey(
         get_user_model(), blank=True, null=True, on_delete=models.SET_NULL,
     )
@@ -34,8 +39,8 @@ class Run(TimeStampedModel):
 
     def __str__(self) -> str:
         """
-        Returns the string representation of the :class:`~django_analyses.models.run.Run`
-        instance.
+        Returns the string representation of the
+        :class:`~django_analyses.models.run.Run` instance.
 
         Returns
         -------
@@ -47,14 +52,15 @@ class Run(TimeStampedModel):
 
     def delete(self, *args, **kwargs) -> tuple:
         """
-        `Overrides <https://docs.djangoproject.com/en/3.0/topics/db/models/#overriding-model-methods>`_
+        `Overrides
+        <https://docs.djangoproject.com/en/3.0/topics/db/models/#overriding-model-methods>`_
         the :meth:`~django.db.models.Model.delete` method to also remove
         the run's directory from
         `media <https://docs.djangoproject.com/en/3.0/topics/files/>`_.
 
         Returns
         -------
-        :obj:`tuple`
+        tuple
             (number of deleted objects, dictionary of number by type)
         """
 
@@ -64,8 +70,8 @@ class Run(TimeStampedModel):
 
     def get_input_set(self) -> models.QuerySet:
         """
-        Returns the :class:`~django_analyses.models.input.input.Input` sub-classes'
-        instances created for this execution of the
+        Returns the :class:`~django_analyses.models.input.input.Input`
+        subclasses' instances created for this execution of the
         :attr:`~django_analyses.models.run.Run.analysis_version`.
 
         Returns
@@ -78,8 +84,8 @@ class Run(TimeStampedModel):
 
     def get_output_set(self) -> models.QuerySet:
         """
-        Returns the :class:`~django_analyses.models.output.output.Output` sub-classes'
-        instances created on this execution of the
+        Returns the :class:`~django_analyses.models.output.output.Output`
+        subclasses' instances created on this execution of the
         :attr:`~django_analyses.models.run.Run.analysis_version`.
 
         Returns
@@ -96,7 +102,7 @@ class Run(TimeStampedModel):
 
         Returns
         -------
-        :obj:`dict`
+        dict
             Full input configuration
         """
 
@@ -110,13 +116,29 @@ class Run(TimeStampedModel):
 
         Returns
         -------
-        :obj:`dict`
+        dict
             Output configuration
         """
 
         return {output.key: output.value for output in self.output_set}
 
-    def fix_input_value(self, inpt):
+    def fix_input_value(self, inpt) -> Any:
+        """
+        Reverts changes that may have been made to a given input in order to
+        return the "raw" input configuration of this run (i.e. the input as it
+        was passed by the user).
+
+        Parameters
+        ----------
+        inpt : :class:`~django_analyses.models.input.input.Input`
+            An input of this run
+
+        Returns
+        -------
+        Any
+            The "raw" input value
+        """
+
         if getattr(inpt.definition, "is_output_path", False):
             return Path(inpt.value).name
         elif isinstance(inpt._meta.get_field("value"), models.ForeignKey):
@@ -125,13 +147,14 @@ class Run(TimeStampedModel):
 
     def get_raw_input_configuration(self) -> dict:
         """
-        Returns the "raw" configuration of this run. As some inputs may have been
-        transformed, this method is used to reverse these changes in case this run's
-        parameters are compared in the future to new input parameters.
+        Returns the "raw" configuration of this run. As some inputs may have
+        been transformed, this method is used to reverse these changes in case
+        this run's parameters are compared in the future to new input
+        parameters.
 
         Returns
         -------
-        :obj:`dict`
+        dict
             Raw input configuration as provided by the user
         """
 
@@ -144,13 +167,15 @@ class Run(TimeStampedModel):
     @property
     def path(self) -> Path:
         """
-        Retruns the default :class:`~pathlib.Path` for any artifacts created by this run.
+        Retruns the default :class:`~pathlib.Path` for any artifacts created
+        by this run.
 
         Returns
         -------
         :class:`pathlib.Path`
             Run artifacts directory under
-            `MEDIA_ROOT <https://docs.djangoproject.com/en/3.0/ref/settings/#media-root>`_.
+            `MEDIA_ROOT
+            <https://docs.djangoproject.com/en/3.0/ref/settings/#media-root>`_.
         """
 
         path = Path(settings.ANALYSIS_BASE_PATH) / str(self.id)
@@ -159,14 +184,15 @@ class Run(TimeStampedModel):
     @property
     def input_defaults(self) -> dict:
         """
-        Returns the default configuration parameters according to this instance's
+        Returns the default configuration parameters according to this
+        instance's
         :class:`~django_analyses.models.input.input_specification.InputSpecification`\'s
         :attr:`~django_analyses.models.input.input_specification.InputSpecification.default_configuration`
         property.
 
         Returns
         -------
-        :obj:`dict`
+        dict
             This analysis version's default input configuration
         """
 
@@ -179,7 +205,7 @@ class Run(TimeStampedModel):
 
         Returns
         -------
-        :obj:`dict`
+        dict
             Full input configuration
         """
 
@@ -192,7 +218,7 @@ class Run(TimeStampedModel):
 
         Returns
         -------
-        :obj:`dict`
+        dict
             Output configuration
         """
 
@@ -201,8 +227,8 @@ class Run(TimeStampedModel):
     @property
     def input_set(self) -> models.QuerySet:
         """
-        Returns the :class:`~django_analyses.models.input.input.Input` sub-classes'
-        instances created for this run.
+        Returns the :class:`~django_analyses.models.input.input.Input`
+        subclasses' instances created for this run.
 
         Returns
         -------
@@ -215,8 +241,8 @@ class Run(TimeStampedModel):
     @property
     def output_set(self) -> models.QuerySet:
         """
-        Returns the :class:`~django_analyses.models.output.output.Output` sub-classes'
-        instances created by this run.
+        Returns the :class:`~django_analyses.models.output.output.Output`
+        subclasses' instances created by this run.
 
         Returns
         -------
@@ -230,11 +256,12 @@ class Run(TimeStampedModel):
     def raw_input_configuration(self) -> dict:
         """
         Returns a dictionary of this run's raw input configuration.
-        See :meth:`~django_analyses.models.run.Run.get_raw_input_configuration`.
+        See
+        :meth:`~django_analyses.models.run.Run.get_raw_input_configuration`.
 
         Returns
         -------
-        :obj:`dict`
+        dict
             This run's raw input configuration
         """
 

@@ -21,11 +21,11 @@ class Pipeline(TitleDescriptionModel, TimeStampedModel):
 
     def __str__(self) -> str:
         """
-        Returns the :obj:`str` representation of the instance.
+        Returns the str representation of the instance.
 
         Returns
         -------
-        :obj:`str`
+        str
             This instances string representation
         """
 
@@ -33,8 +33,8 @@ class Pipeline(TitleDescriptionModel, TimeStampedModel):
 
     def get_node_set(self) -> QuerySet:
         """
-        Returns all :class:`~django_analyses.models.pipeline.node.Node` instances
-        used in this pipeline.
+        Returns all :class:`~django_analyses.models.pipeline.node.Node`
+        instances used in this pipeline.
 
         Returns
         -------
@@ -43,7 +43,9 @@ class Pipeline(TitleDescriptionModel, TimeStampedModel):
         """
 
         source_node_ids = list(self.pipe_set.values_list("source", flat=True))
-        destination_node_ids = list(self.pipe_set.values_list("destination", flat=True))
+        destination_node_ids = list(
+            self.pipe_set.values_list("destination", flat=True)
+        )
         node_ids = set(source_node_ids + destination_node_ids)
         return Node.objects.filter(id__in=node_ids)
 
@@ -56,7 +58,7 @@ class Pipeline(TitleDescriptionModel, TimeStampedModel):
 
         Returns
         -------
-        :obj:`list`
+        list
             List of :class:`~django_analyses.models.pipeline.node.Node`
             instances
         """
@@ -66,7 +68,8 @@ class Pipeline(TitleDescriptionModel, TimeStampedModel):
     @property
     def node_set(self) -> QuerySet:
         """
-        See :meth:`~django_analyses.models.pipeline.pipeline.Pipeline.get_node_set`.
+        See
+        :meth:`~django_analyses.models.pipeline.pipeline.Pipeline.get_node_set`.
 
         Returns
         -------
@@ -79,7 +82,8 @@ class Pipeline(TitleDescriptionModel, TimeStampedModel):
     @property
     def entry_nodes(self) -> list:
         """
-        See :meth:`~django_analyses.models.pipeline.pipeline.Pipeline.get_entry_nodes`.
+        See
+        :meth:`~django_analyses.models.pipeline.pipeline.Pipeline.get_entry_nodes`.
 
         Returns
         -------

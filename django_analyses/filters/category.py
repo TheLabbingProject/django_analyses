@@ -1,3 +1,9 @@
+"""
+Definition of a
+:class:`~django_analyses.filters.category.CategoryFilter` for the
+:class:`~django_analyses.models.category.Category` model.
+"""
+
 from django_analyses.models.category import Category
 from django_filters import rest_framework as filters
 
@@ -25,7 +31,9 @@ class CategoryFilter(filters.FilterSet):
         ]
     )
     parent = filters.CharFilter(field_name="parent__title")
-    is_root = filters.BooleanFilter(field_name="parent", method="filter_is_root")
+    is_root = filters.BooleanFilter(
+        field_name="parent", method="filter_is_root"
+    )
 
     class Meta:
         model = Category

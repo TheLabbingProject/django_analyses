@@ -8,7 +8,7 @@ Welcome to django_analyses's documentation!
    overview
    installation
    user_guide/user_guide
-   modules/modules
+   modules/reference
 
 
 
