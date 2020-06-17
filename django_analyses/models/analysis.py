@@ -11,7 +11,7 @@ from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
 
 class Analysis(TitleDescriptionModel, TimeStampedModel):
     """
-    :class:`~django.db.models.Model` representing a single analysis in the
+    A :class:`~django.db.models.Model` representing a single analysis in the
     database.
 
     """
