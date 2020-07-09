@@ -5,7 +5,7 @@ from django_analyses.models.input.types.input_types import InputTypes
 
 
 class FileInput(Input):
-    value = models.FilePathField(settings.MEDIA_ROOT, max_length=1000)
+    value = models.FilePathField(max_length=1000)
     definition = models.ForeignKey(
         "django_analyses.FileInputDefinition",
         on_delete=models.PROTECT,
