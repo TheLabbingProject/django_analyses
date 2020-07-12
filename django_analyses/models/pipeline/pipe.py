@@ -89,6 +89,11 @@ class Pipe(models.Model):
     .. # noqa: E501
     """
 
+    #: The *index* field is used to listify arguments in transit between nodes.
+    #: An integer indicates expected input's index in the destination
+    #: ListInput, and *None* indicates the index doesn't matter.
+    index = models.PositiveIntegerField(default=None, blank=True, null=True)
+
     objects = PipeManager()
 
     # A template to generate the string representation of pipe isntances.
