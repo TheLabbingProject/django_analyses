@@ -68,7 +68,8 @@ to reference a particular collection of
     * A :class:`~django_analyses.models.pipeline.pipe.Pipe` connects between a one
       node's output definition and another's input definition.
 
-For more information, see :ref:`user_guide/pipeline_generation:Pipeline Generation`.
+For more information, see
+:ref:`user_guide/pipeline_generation/pipeline_generation:Pipeline Generation`.
 
 Runs
 ----

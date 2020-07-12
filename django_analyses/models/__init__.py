@@ -1,6 +1,7 @@
 """
-Creates :class:`~django.db.models.Model` subclasses to represent all the
-different parts of an analysis pipeline.
+Creates :class:`~django.db.models.Model` and :class:`~django.db.models.Manager`
+subclasses to represent and manage all the different parts of an analysis
+pipeline.
 
 """
 

@@ -15,8 +15,8 @@ from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
 
 class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
     """
-    :class:`~django.db.models.Model` representing a single analysis version in
-    the database.
+    A :class:`~django.db.models.Model` representing a single analysis version
+    in the database.
 
     Each :class:`~django_analyses.models.analysis_version.AnalysisVersion`
     instance should be assigned an interface through the project's
@@ -34,6 +34,11 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         null=True,
         related_name="version_set",
     )
+    """
+    The :class:`~django_analyses.models.analysis.Analysis` instance to which
+    this analysis version belongs.
+    """
+
     input_specification = models.ForeignKey(
         "django_analyses.InputSpecification",
         on_delete=models.PROTECT,
@@ -41,6 +46,14 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         null=True,
         related_name="analysis_version_set",
     )
+    """
+    The
+    :class:`~django_analyses.models.input.input_specification.InputSpecification`
+    instance specifying the
+    :class:`~django_analyses.models.input.definitions.input_definition.InputDefinition`
+    subclasses associated with this analysis version.
+    """
+
     output_specification = models.ForeignKey(
         "django_analyses.OutputSpecification",
         on_delete=models.PROTECT,
@@ -48,13 +61,53 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         null=True,
         related_name="analysis_version_set",
     )
+    """
+    The
+    :class:`~django_analyses.models.output.output_specification.OutputSpecification`
+    instance specifying the
+    :class:`~django_analyses.models.output.definitions.output_definition.OutputDefinition`
+    subclasses associated with this analysis version.
+    """
 
-    # Integration customization
+    #############################
+    # Integration customization #
+    #############################
+
     run_method_key = models.CharField(max_length=100, default="run")
+    """
+    Custom *run* method name for the interface.
+    Each analysis version is expected to have some class associated with it and
+    used as an interface for running the analysis. This field determines the
+    name of the method that will be called (default value is *"run"*).
+    """
+
     fixed_run_method_kwargs = JSONField(default=dict)
+    """
+    Any "fixed" keyword arguments that should always be passed to the
+    interface's *run* method at execution.
+    """
+
     nested_results_attribute = models.CharField(
         max_length=100, blank=True, null=True
     )
+    """
+    Analysis interfaces are expected to return a dictionary of the results. In
+    case this analysis version's interface returns some object which conatins
+    the desired dictionary, this field allows specifying the attribute or
+    method that may be used to retrieve it.
+
+    Example
+    -------
+    Nipype_\'s interfaces generally return some kind of
+    :class:`InterfaceResults` object with an :attr:`outputs` attribute that may
+    be used to create a dictionary of the results by calling the
+    :meth:`get_traitsfree` method.
+    In order to integrate smoothly with Nipype's interfaces, we could simply
+    specify *nested_results_attribute="outputs.get_traitsfree"* when creating
+    the appropriate analysis versions.
+
+    .. _Nipype: https://nipype.readthedocs.io/en/latest/
+    """
 
     objects = AnalysisVersionManager()
 
@@ -109,7 +162,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         Returns
         -------
         dict
-            Initialization parameters as a keyword arguments dict.
+            Initialization parameters as a keyword arguments dict
         """
 
         return {
@@ -126,7 +179,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         Returns
         -------
         dict
-            :meth:`run` method parameters as a keyword arguments dict.
+            :meth:`run` method parameters as a keyword arguments dict
         """
 
         return {
@@ -253,7 +306,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         -------
         :class:`~django.db.models.query.QuerySet`
             :class:`~django_analyses.models.input.definitions.input_definition.InputDefinition`
-            subclasses.
+            subclasses
         """
 
         return self.input_specification.input_definitions
@@ -271,7 +324,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         -------
         :class:`~django.db.models.query.QuerySet`
             :class:`~django_analyses.models.output.definitions.output_definition.OutputDefinition`
-            subclasses.
+            subclasses
         """
 
         return self.output_specification.output_definitions

@@ -2,6 +2,9 @@ from django.db.models import QuerySet
 from django_analyses.models.pipeline.node import Node
 from django_analyses.models.pipeline.pipe import Pipe
 from django_analyses.models.pipeline.pipeline import Pipeline
+from django_analyses.models.input.definitions.list_input_definition import (
+    ListInputDefinition,
+)
 
 
 class PipelineRunner:
@@ -24,7 +27,17 @@ class PipelineRunner:
 
     def get_node_inputs(self, node: Node) -> dict:
         input_pipes = self.get_incoming_pipes(node)
-        kwargs = [self.get_destination_kwarg(pipe) for pipe in input_pipes]
+        kwargs = {}
+        for pipe in input_pipes.order_by("index"):
+            kwarg = self.get_destination_kwarg(pipe)
+            key, value = kwarg.items()[0]
+            if isinstance(pipe.destination_port, ListInputDefinition):
+                try:
+                    kwargs[key].append(value)
+                except KeyError:
+                    kwargs[key] = [value]
+            else:
+                kwargs[key] = value
         return {key: value for kwarg in kwargs for key, value in kwarg.items()}
 
     def run_entry_nodes(self, inputs: dict) -> None:
