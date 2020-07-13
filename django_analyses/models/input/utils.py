@@ -2,11 +2,12 @@ from django_analyses.utils.choice_enum import ChoiceEnum
 
 
 class ListElementTypes(ChoiceEnum):
-    STR = "String"
-    INT = "Integer"
-    FLT = "Float"
     BLN = "Boolean"
+    INT = "Integer"
     FIL = "File"
+    FLT = "Float"
+    STR = "String"
+    TUP = "Tuple"
 
 
 TYPES_DICT = {
@@ -15,4 +16,5 @@ TYPES_DICT = {
     ListElementTypes.FLT: float,
     ListElementTypes.BLN: bool,
     ListElementTypes.FIL: "file",
+    ListElementTypes.TUP: tuple,
 }

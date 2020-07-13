@@ -21,23 +21,19 @@ class Pipe(models.Model):
     :class:`~django_analyses.models.pipeline.pipeline.Pipeline`.
     """
 
+    #: The :class:`~django_analyses.models.pipeline.pipeline.Pipeline`
+    #: instance to which this pipe belongs.
     pipeline = models.ForeignKey(
         "django_analyses.Pipeline", on_delete=models.CASCADE
     )
-    """
-    The :class:`~django_analyses.models.pipeline.pipeline.Pipeline` instance to
-    which this pipe belongs.
-    """
 
+    #: The *source* :class:`~django_analyses.models.pipeline.node.Node`, i.e. a
+    #: node that will provide some input for the destination node.
     source = models.ForeignKey(
         "django_analyses.Node",
         on_delete=models.PROTECT,
         related_name="pipe_source_set",
     )
-    """
-    The *source* :class:`~django_analyses.models.pipeline.node.Node`, i.e. a
-    node that will provide some input for the destination node.
-    """
 
     base_source_port = models.ForeignKey(
         "django_analyses.OutputDefinition", on_delete=models.PROTECT
@@ -59,15 +55,13 @@ class Pipe(models.Model):
     .. # noqa: E501
     """
 
+    #: The *destination* :class:`~django_analyses.models.pipeline.node.Node`,
+    #: i.e. a node that will be provided an input from the *source* node.
     destination = models.ForeignKey(
         "django_analyses.Node",
         on_delete=models.PROTECT,
         related_name="pipe_destination_set",
     )
-    """
-    The *destination* :class:`~django_analyses.models.pipeline.node.Node`, i.e.
-    a node that will be provided an input from the *source* node.
-    """
 
     base_destination_port = models.ForeignKey(
         "django_analyses.InputDefinition", on_delete=models.PROTECT

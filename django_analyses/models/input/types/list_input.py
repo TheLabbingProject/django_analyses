@@ -28,7 +28,9 @@ class ListInput(Input):
     def raise_min_length_error(self) -> None:
         key = self.definition.key
         min_length = self.definition.min_length
-        raise ValidationError(f"'{key}' must have at least {min_length} elements!")
+        raise ValidationError(
+            f"'{key}' must have at least {min_length} elements!"
+        )
 
     def validate_max_length(self) -> bool:
         max_length = self.definition.max_length
@@ -37,13 +39,17 @@ class ListInput(Input):
     def raise_max_length_error(self) -> None:
         key = self.definition.key
         max_length = self.definition.max_length
-        raise ValidationError(f"'{key}' must have at most {max_length} elements!")
+        raise ValidationError(
+            f"'{key}' must have at most {max_length} elements!"
+        )
 
     def raise_not_list_error(self) -> None:
         raise ValidationError("ListInput value must be a list instance!")
 
     def raise_incorrect_type_error(self) -> None:
-        raise ValidationError(f"List elements must be of type {self.expected_type}!")
+        raise ValidationError(
+            f"List elements must be of type {self.expected_type}!"
+        )
 
     def validate(self) -> None:
         if not isinstance(self.value, list):
