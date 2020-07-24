@@ -1,5 +1,5 @@
 from django.conf import settings
-from django_analyses.models.input.definitions.directory_input_definition import (
+from django_analyses.models.input.definitions.directory_input_definition import (  # noqa: E501
     DirectoryInputDefinition,
 )
 from rest_framework import serializers

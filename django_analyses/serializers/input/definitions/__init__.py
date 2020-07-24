@@ -17,3 +17,4 @@ from django_analyses.serializers.input.definitions.string_input_definition impor
     StringInputDefinitionSerializer,
 )
 
+# flake8: noqa: E501
