@@ -1,6 +1,9 @@
 from django_analyses.serializers.input.definitions.boolean_input_definition import (
     BooleanInputDefinitionSerializer,
 )
+from django_analyses.serializers.input.definitions.directory_input_definition import (
+    DirectoryInputDefinition,
+)
 from django_analyses.serializers.input.definitions.file_input_definition import (
     FileInputDefinitionSerializer,
 )
