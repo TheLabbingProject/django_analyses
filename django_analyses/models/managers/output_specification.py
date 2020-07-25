@@ -1,6 +1,8 @@
 from django.db import models
 from django.db.models import Count, QuerySet
-from django_analyses.models.output.definitions.output_definition import OutputDefinition
+from django_analyses.models.output.definitions.output_definition import (
+    OutputDefinition,
+)
 
 
 class OutputSpecificationManager(models.Manager):

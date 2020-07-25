@@ -1,7 +1,6 @@
 """
 Definition of the
 :class:`~django_analyses.models.pipeline.pipeline.Pipeline` class.
-
 """
 
 from django.db.models import QuerySet
@@ -21,12 +20,12 @@ class Pipeline(TitleDescriptionModel, TimeStampedModel):
 
     def __str__(self) -> str:
         """
-        Returns the str representation of the instance.
+        Returns the string representation of the instance.
 
         Returns
         -------
         str
-            This instances string representation
+            This instance's string representation
         """
 
         return self.title
@@ -68,13 +67,17 @@ class Pipeline(TitleDescriptionModel, TimeStampedModel):
     @property
     def node_set(self) -> QuerySet:
         """
-        See
-        :meth:`~django_analyses.models.pipeline.pipeline.Pipeline.get_node_set`.
+        Returns all :class:`~django_analyses.models.pipeline.node.Node`
+        instances used in this pipeline.
 
         Returns
         -------
-        :class:`django.db.query.QuerySet`
+        QuerySet
             Pipeline nodes
+
+        See Also
+        --------
+        * :meth:`get_node_set`
         """
 
         return self.get_node_set()
@@ -82,13 +85,16 @@ class Pipeline(TitleDescriptionModel, TimeStampedModel):
     @property
     def entry_nodes(self) -> list:
         """
-        See
-        :meth:`~django_analyses.models.pipeline.pipeline.Pipeline.get_entry_nodes`.
+        Returns the "entry" node/s of this pipeline.
 
         Returns
         -------
-        :class:`django.db.query.QuerySet`
+        list
             Entry nodes
+
+        See Also
+        --------
+        * :meth:`get_entry_nodes`
         """
 
         return self.get_entry_nodes()

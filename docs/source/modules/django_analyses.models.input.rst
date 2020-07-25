@@ -1,5 +1,12 @@
-django\_analyses.models.input package
-=====================================
+Input
+=====
+
+Module contents
+---------------
+
+.. automodule:: django_analyses.models.input
+   :members:
+   :show-inheritance:
 
 Subpackages
 -----------
@@ -18,7 +25,6 @@ django\_analyses.models.input.input module
 
 .. automodule:: django_analyses.models.input.input
    :members:
-   :undoc-members:
    :show-inheritance:
 
 django\_analyses.models.input.input\_specification module
@@ -26,7 +32,6 @@ django\_analyses.models.input.input\_specification module
 
 .. automodule:: django_analyses.models.input.input_specification
    :members:
-   :undoc-members:
    :show-inheritance:
 
 django\_analyses.models.input.utils module
@@ -34,14 +39,4 @@ django\_analyses.models.input.utils module
 
 .. automodule:: django_analyses.models.input.utils
    :members:
-   :undoc-members:
-   :show-inheritance:
-
-
-Module contents
----------------
-
-.. automodule:: django_analyses.models.input
-   :members:
-   :undoc-members:
    :show-inheritance:

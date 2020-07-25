@@ -1,8 +1,12 @@
 import importlib
 
 from django.conf import settings
-from django_analyses.models.input.definitions.input_definition import InputDefinition
-from django_analyses.models.input.definitions.input_definitions import InputDefinitions
+from django_analyses.models.input.definitions.input_definition import (
+    InputDefinition,
+)
+from django_analyses.models.input.definitions.input_definitions import (
+    InputDefinitions,
+)
 from django_analyses.serializers.input.definitions.string_input_definition import (
     StringInputDefinitionSerializer,
 )

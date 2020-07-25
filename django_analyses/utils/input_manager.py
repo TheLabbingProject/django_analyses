@@ -1,7 +1,9 @@
 from django_analyses.models.input.definitions.directory_input_definition import (
     DirectoryInputDefinition,
 )
-from django_analyses.models.input.definitions.input_definition import InputDefinition
+from django_analyses.models.input.definitions.input_definition import (
+    InputDefinition,
+)
 from django_analyses.models.input.definitions.string_input_definition import (
     StringInputDefinition,
 )
@@ -38,11 +40,15 @@ class InputManager:
             if self.input_definition_is_a_missing_output_path(input_definition)
         ]
 
-    def get_missing_output_directory_definition(self) -> DirectoryInputDefinition:
+    def get_missing_output_directory_definition(
+        self,
+    ) -> DirectoryInputDefinition:
         return [
             input_definition
             for input_definition in self.input_definitions
-            if self.input_definition_is_a_missing_output_directory(input_definition)
+            if self.input_definition_is_a_missing_output_directory(
+                input_definition
+            )
         ]
 
     def get_missing_dynamic_default_definitions(self) -> list:
@@ -67,8 +73,16 @@ class InputManager:
         ]
 
     def get_or_create_input_instance_from_raw(self, key: str, value) -> tuple:
-        input_definition = self.input_definitions.get(key=key)
-        return input_definition.get_or_create_input_instance(value=value, run=self.run)
+        try:
+            input_definition = self.input_definitions.get(key=key)
+        except InputDefinition.DoesNotExist:
+            raise InputDefinition.DoesNotExist(
+                f"Invalid input definition key: {key}"
+            )
+        else:
+            return input_definition.get_or_create_input_instance(
+                value=value, run=self.run
+            )
 
     def convert_raw_configuration_to_input_instances(self) -> list:
         return [

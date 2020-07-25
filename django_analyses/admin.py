@@ -1,12 +1,18 @@
 from django.contrib import admin
 from django_analyses.models.analysis import Analysis
 from django_analyses.models.analysis_version import AnalysisVersion
-from django_analyses.models.input.definitions.input_definition import InputDefinition
+from django_analyses.models.input.definitions.input_definition import (
+    InputDefinition,
+)
 from django_analyses.models.input.input import Input
 from django_analyses.models.input.input_specification import InputSpecification
-from django_analyses.models.output.definitions.output_definition import OutputDefinition
+from django_analyses.models.output.definitions.output_definition import (
+    OutputDefinition,
+)
 from django_analyses.models.output.output import Output
-from django_analyses.models.output.output_specification import OutputSpecification
+from django_analyses.models.output.output_specification import (
+    OutputSpecification,
+)
 from django_analyses.models.run import Run
 
 
@@ -76,7 +82,9 @@ class InputAdmin(admin.ModelAdmin):
     search_fields = ("run__id",)
 
     def get_queryset(self, request):
-        return super(InputAdmin, self).get_queryset(request).select_subclasses()
+        return (
+            super(InputAdmin, self).get_queryset(request).select_subclasses()
+        )
 
     def analysis_version(self, instance) -> str:
         return str(instance.run.analysis_version)
@@ -95,7 +103,9 @@ class OutputAdmin(admin.ModelAdmin):
     list_display_links = None
 
     def get_queryset(self, request):
-        return super(OutputAdmin, self).get_queryset(request).select_subclasses()
+        return (
+            super(OutputAdmin, self).get_queryset(request).select_subclasses()
+        )
 
     def run_id(self, instance) -> str:
         return instance.run.id
@@ -116,11 +126,16 @@ class InputDefinitionAdmin(admin.ModelAdmin):
         "required",
         "is_configuration",
     )
-    list_filter = ("specification_set__analysis__title", "specification_set__id")
+    list_filter = (
+        "specification_set__analysis__title",
+        "specification_set__id",
+    )
 
     def get_queryset(self, request):
         return (
-            super(InputDefinitionAdmin, self).get_queryset(request).select_subclasses()
+            super(InputDefinitionAdmin, self)
+            .get_queryset(request)
+            .select_subclasses()
         )
 
     def choices(self, instance) -> list:
@@ -134,9 +149,12 @@ class InputDefinitionAdmin(admin.ModelAdmin):
 
 
 @admin.register(OutputDefinition)
-class OutputDefinition(admin.ModelAdmin):
+class OutputDefinitionAdmin(admin.ModelAdmin):
     list_display = ("key", "description", "analysis")
-    list_filter = ("specification_set__analysis__title", "specification_set__id")
+    list_filter = (
+        "specification_set__analysis__title",
+        "specification_set__id",
+    )
 
     def analysis(self, instance):
         return instance.specification_set.first().analysis

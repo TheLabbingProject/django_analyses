@@ -1,5 +1,9 @@
-from django_analyses.filters.input.input_definition import InputDefinitionFilter
-from django_analyses.models.input.definitions.input_definition import InputDefinition
+from django_analyses.filters.input.input_definition import (
+    InputDefinitionFilter,
+)
+from django_analyses.models.input.definitions.input_definition import (
+    InputDefinition,
+)
 from django_analyses.serializers.input.definitions.input_definition import (
     InputDefinitionSerializer,
 )

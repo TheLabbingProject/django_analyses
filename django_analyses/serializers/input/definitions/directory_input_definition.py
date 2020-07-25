@@ -1,7 +1,5 @@
 from django.conf import settings
-from django_analyses.models.input.definitions.directory_input_definition import (
-    DirectoryInputDefinition,
-)
+from django_analyses.models.input.definitions import DirectoryInputDefinition
 from rest_framework import serializers
 
 

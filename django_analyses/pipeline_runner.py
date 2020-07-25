@@ -2,6 +2,9 @@ from django.db.models import QuerySet
 from django_analyses.models.pipeline.node import Node
 from django_analyses.models.pipeline.pipe import Pipe
 from django_analyses.models.pipeline.pipeline import Pipeline
+from django_analyses.models.input.definitions.list_input_definition import (
+    ListInputDefinition,
+)
 
 
 class PipelineRunner:
@@ -22,10 +25,20 @@ class PipelineRunner:
         ][0]
         return {key: value}
 
-    def get_node_inputs(self, node: Node) -> dict:
+    def get_node_inputs(self, node: Node, user_inputs: dict = None) -> dict:
         input_pipes = self.get_incoming_pipes(node)
-        kwargs = [self.get_destination_kwarg(pipe) for pipe in input_pipes]
-        return {key: value for kwarg in kwargs for key, value in kwarg.items()}
+        kwargs = user_inputs or {}
+        for pipe in input_pipes.order_by("index"):
+            kwarg = self.get_destination_kwarg(pipe)
+            key, value = list(kwarg.items())[0]
+            if isinstance(pipe.destination_port, ListInputDefinition):
+                try:
+                    kwargs[key].append(value)
+                except KeyError:
+                    kwargs[key] = [value]
+            else:
+                kwargs[key] = value
+        return kwargs
 
     def run_entry_nodes(self, inputs: dict) -> None:
         for node in self.pipeline.entry_nodes:
@@ -38,8 +51,8 @@ class PipelineRunner:
         ]
         return all(required_runs)
 
-    def run_node(self, node: Node) -> None:
-        node_inputs = self.get_node_inputs(node)
+    def run_node(self, node: Node, user_inputs: dict = None) -> None:
+        node_inputs = self.get_node_inputs(node, user_inputs)
         self.runs[node] = node.run(node_inputs)
 
     def run(self, inputs: dict):
@@ -47,7 +60,8 @@ class PipelineRunner:
         while self.pending_nodes:
             for node in self.pending_nodes:
                 if self.has_required_runs(node):
-                    self.run_node(node)
+                    user_inputs = inputs.get(node)
+                    self.run_node(node, user_inputs)
         return self.runs
 
     @property

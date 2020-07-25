@@ -5,7 +5,9 @@ from model_utils.managers import InheritanceManager
 
 class Input(models.Model):
     run = models.ForeignKey(
-        "django_analyses.Run", on_delete=models.CASCADE, related_name="base_input_set"
+        "django_analyses.Run",
+        on_delete=models.CASCADE,
+        related_name="base_input_set",
     )
 
     value = None
@@ -35,17 +37,12 @@ class Input(models.Model):
         self.validate()
         super().save(*args, **kwargs)
 
-    def extract_value_attribute(self):
-        value = self.value
-        parts = self.definition.value_attribute.split(".")
-        for part in parts:
-            value = getattr(value, part)
-        return value() if callable(value) else value
-
     def get_argument_value(self):
+        value = self.value
         if self.definition.value_attribute:
-            return self.extract_value_attribute()
-        return self.value
+            location = self.definition.value_attribute
+            return self.definition.extract_nested_value(value, location)
+        return value
 
     @property
     def key(self) -> str:

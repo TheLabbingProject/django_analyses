@@ -14,7 +14,9 @@ class OutputManager:
         except ObjectDoesNotExist:
             pass
         else:
-            return output_definition.create_output_instance(value=value, run=self.run)
+            return output_definition.create_output_instance(
+                value=value, run=self.run
+            )
 
     def create_output_instances(self) -> list:
         output_instances = [

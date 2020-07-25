@@ -6,13 +6,11 @@ class PipelineManager(models.Manager):
     def from_dict(self, definition: dict):
         with transaction.atomic():
             pipeline = self.create(
-                title=definition["title"], description=definition["description"]
+                title=definition["title"],
+                description=definition["description"],
             )
             _ = Pipe.objects.from_list(pipeline, definition["pipes"])
         return pipeline
 
     def from_list(self, definitions: list) -> list:
         return [self.from_dict(definition) for definition in definitions]
-
-
-# TODO: Assign managers and test
