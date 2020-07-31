@@ -1,3 +1,16 @@
+"""
+Registers various :mod:`~django.contrib.admin` models to generate the app's
+admin site interface.
+
+References
+----------
+* `The Django admin site`_
+
+.. _The Django admin site:
+   https://docs.djangoproject.com/en/3.0/ref/contrib/admin/
+"""
+
+
 from django.contrib import admin
 from django_analyses.models.analysis import Analysis
 from django_analyses.models.analysis_version import AnalysisVersion
