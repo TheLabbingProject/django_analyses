@@ -30,7 +30,7 @@ class PipelineRunner:
         """
 
         self.pipeline = pipeline
-        self.runs = None
+        self.runs = {node: None for node in self.pipeline.node_set}
         self.quiet = quiet
 
     def get_incoming_pipes(self, node: Node) -> QuerySet:
