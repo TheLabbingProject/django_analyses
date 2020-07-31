@@ -28,7 +28,7 @@ class PipelineRunner:
         """
 
         self.pipeline = pipeline
-        self.runs = {node: None for node in pipeline.node_set}
+        self.runs = None
 
     def get_incoming_pipes(self, node: Node) -> QuerySet:
         """
@@ -152,7 +152,9 @@ class PipelineRunner:
         ]
         return all(required_runs)
 
-    def run_node(self, node: Node, user_inputs: dict = None) -> None:
+    def run_node(
+        self, node: Node, user_inputs: dict = None, quiet: bool = False
+    ) -> None:
         """
         Runs the provided node and stores the created
         :class:`~django_analyses.models.run.Run` instances in the class's
@@ -164,10 +166,17 @@ class PipelineRunner:
             Node to be executed
         user_inputs : dict, optional
             Inputs provided by the user at execution, by default None
+        quiet : bool
+            Whether to print execution start and end to the console or not
         """
 
         node_inputs = self.get_node_inputs(node, user_inputs)
+        if not quiet:
+            message = f"Running {node.analysis_version}".ljust(90, ".")
+            print(message, end="", flush=True)
         self.runs[node] = node.run(node_inputs)
+        if not quiet:
+            print("done!")
 
     def run(self, inputs: dict) -> dict:
         """
@@ -187,6 +196,7 @@ class PipelineRunner:
             Resulting run instances
         """
 
+        self.runs = {node: None for node in self.pipeline.node_set}
         self.run_entry_nodes(inputs)
         while self.pending_nodes:
             for node in self.pending_nodes:

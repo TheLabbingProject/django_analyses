@@ -61,6 +61,13 @@ EXLUDED_MEMBERS = (
     "pipeline_id",
     "source_id",
     "user_id",
+    "directoryinput",
+    "fileinput",
+    "booleaninput",
+    "listinput",
+    "numberinput",
+    "run_id",
+    "stringinput",
     # Methods
     "get_next_by_created",
     "get_next_by_modified",
