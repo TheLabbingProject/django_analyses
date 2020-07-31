@@ -1,14 +1,18 @@
 from django.db import models
 from django_analyses.models.analysis_version import AnalysisVersion
+from django_analyses.models.managers import messages
 from django_analyses.models.pipeline.node import Node
-from django_analyses.models.managers.utils import (
-    get_analysis_version_string_id,
-)
 
 
 class PipeManager(models.Manager):
     def get_node_from_dict_definition(self, definition: dict) -> tuple:
-        string_id = get_analysis_version_string_id(definition)
+        try:
+            string_id = definition["analysis_version"]
+        except KeyError:
+            message = messages.NODE_DEFINITION_MISSING_ANALYSIS_VERSION.format(
+                definition=definition
+            )
+            raise KeyError(message)
         analysis_version = AnalysisVersion.objects.get_by_string_id(string_id)
         return Node.objects.get_or_create(
             analysis_version=analysis_version,
@@ -16,6 +20,7 @@ class PipeManager(models.Manager):
         )
 
     def from_dict(self, pipeline, definition: dict):
+        print(definition["source"])
         source, _ = self.get_node_from_dict_definition(definition["source"])
         source_port = source.analysis_version.output_definitions.get(
             key=definition["source_port"]

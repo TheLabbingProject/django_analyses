@@ -12,7 +12,7 @@ Subpackages
 -----------
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 1
 
    django_analyses.models.input.definitions
    django_analyses.models.input.types

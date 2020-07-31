@@ -9,7 +9,8 @@ class PipelineManager(models.Manager):
                 title=definition["title"],
                 description=definition["description"],
             )
-            _ = Pipe.objects.from_list(pipeline, definition["pipes"])
+            pipes = definition.get("pipes", [])
+            _ = Pipe.objects.from_list(pipeline, pipes)
         return pipeline
 
     def from_list(self, definitions: list) -> list:

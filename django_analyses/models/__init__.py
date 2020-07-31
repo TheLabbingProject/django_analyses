@@ -3,6 +3,7 @@ Creates :class:`~django.db.models.Model` and :class:`~django.db.models.Manager`
 subclasses to represent and manage all the different parts of an analysis
 pipeline.
 
+For an illustration of the app's models, see the :ref:`overview:Overview`.
 """
 
 from django_analyses.models.analysis import Analysis
