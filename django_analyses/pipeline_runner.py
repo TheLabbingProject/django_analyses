@@ -16,7 +16,7 @@ class PipelineRunner:
     Manages the execution of pipelines.
     """
 
-    def __init__(self, pipeline: Pipeline):
+    def __init__(self, pipeline: Pipeline, quiet: bool = False):
         """
         Moderates the execution of a pipeline by iterating through the nodes
         and checking whether all required inputs are available.
@@ -25,10 +25,13 @@ class PipelineRunner:
         ----------
         pipeline : Pipeline
             The pipeline to be executed
+        quiet : bool
+            Whether to print node execution start and end to the console or not
         """
 
         self.pipeline = pipeline
         self.runs = None
+        self.quiet = quiet
 
     def get_incoming_pipes(self, node: Node) -> QuerySet:
         """
@@ -128,7 +131,12 @@ class PipelineRunner:
 
         for node in self.pipeline.entry_nodes:
             node_inputs = inputs.get(node, inputs)
+            if not self.quiet:
+                message = f"Running {node.analysis_version}".ljust(80, ".")
+                print(message, end="", flush=True)
             self.runs[node] = node.run(node_inputs)
+            if not self.quiet:
+                print("done!")
 
     def has_required_runs(self, node: Node) -> bool:
         """
@@ -152,9 +160,7 @@ class PipelineRunner:
         ]
         return all(required_runs)
 
-    def run_node(
-        self, node: Node, user_inputs: dict = None, quiet: bool = False
-    ) -> None:
+    def run_node(self, node: Node, user_inputs: dict = None) -> None:
         """
         Runs the provided node and stores the created
         :class:`~django_analyses.models.run.Run` instances in the class's
@@ -166,16 +172,14 @@ class PipelineRunner:
             Node to be executed
         user_inputs : dict, optional
             Inputs provided by the user at execution, by default None
-        quiet : bool
-            Whether to print execution start and end to the console or not
         """
 
         node_inputs = self.get_node_inputs(node, user_inputs)
-        if not quiet:
-            message = f"Running {node.analysis_version}".ljust(90, ".")
+        if not self.quiet:
+            message = f"Running {node.analysis_version}".ljust(80, ".")
             print(message, end="", flush=True)
         self.runs[node] = node.run(node_inputs)
-        if not quiet:
+        if not self.quiet:
             print("done!")
 
     def run(self, inputs: dict) -> dict:
