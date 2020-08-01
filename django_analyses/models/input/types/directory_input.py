@@ -7,7 +7,10 @@ from pathlib import Path
 
 class DirectoryInput(Input):
     value = models.FilePathField(
-        settings.MEDIA_ROOT, max_length=1000, allow_files=False, allow_folders=True
+        settings.MEDIA_ROOT,
+        max_length=1000,
+        allow_files=False,
+        allow_folders=True,
     )
     definition = models.ForeignKey(
         "django_analyses.DirectoryInputDefinition",
@@ -19,9 +22,14 @@ class DirectoryInput(Input):
         return InputTypes.DIR
 
     def fix_output_path(self) -> str:
-        if not Path(self.value).is_absolute():
+        # Handle relative path
+        if self.value and not Path(self.value).is_absolute():
             return str(self.default_output_directory / self.value)
-        return str(self.default_output_directory)
+        # Handle no value
+        elif not self.value:
+            return str(self.default_output_directory)
+        # Otherwise, simply return the value
+        return self.value
 
     def pre_save(self) -> None:
         if self.definition.is_output_directory:
