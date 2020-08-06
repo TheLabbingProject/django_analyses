@@ -19,12 +19,15 @@ class FileOutput(Output):
         return OutputTypes.FIL
 
     def raise_missing_output_error(self) -> None:
-        raise FileNotFoundError(f"{self.key} could not be found in {self.value}!")
+        raise FileNotFoundError(
+            f"{self.key} could not be found in {self.value}!"
+        )
 
     def validate(self) -> None:
-        file_exists = Path(self.value).is_file()
-        if self.definition.validate_existence and not file_exists:
-            self.raise_missing_output_error()
+        if self.value:
+            file_exists = Path(self.value).is_file()
+            if self.definition.validate_existence and not file_exists:
+                self.raise_missing_output_error()
         return super().validate()
 
     def pre_save(self) -> None:
