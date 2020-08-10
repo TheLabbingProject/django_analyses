@@ -78,7 +78,11 @@ class RunManager(models.Manager):
         run = self.create(analysis_version=analysis_version, user=user)
         input_manager = InputManager(run=run, configuration=kwargs)
         inputs = input_manager.fix_input()
-        results = analysis_version.run(**inputs)
+        try:
+            results = analysis_version.run(**inputs)
+        except KeyboardInterrupt:
+            run.delete()
+            return
         output_manager = OutputManager(run=run, results=results)
         output_manager.create_output_instances()
         return run
