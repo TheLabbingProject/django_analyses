@@ -22,6 +22,7 @@ class InputManager:
             isinstance(input_definition, StringInputDefinition)
             and input_definition.is_output_path
             and input_definition.key not in self.raw_configuration
+            and input_definition.required
         )
 
     def input_definition_is_a_missing_output_directory(
