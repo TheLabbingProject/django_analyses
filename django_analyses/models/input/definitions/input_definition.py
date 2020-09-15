@@ -88,7 +88,9 @@ class InputDefinition(models.Model):
                 try:
                     return str(value.path)
                 except AttributeError:
-                    raise ValueError(f"Failed to infer path from {value} for {self.key}!")
+                    raise ValueError(
+                        f"Failed to infer path from {value} for {self.key}!"
+                    )
         return value
 
     def get_or_create_input_instance(self, **kwargs) -> Input:

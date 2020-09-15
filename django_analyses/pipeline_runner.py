@@ -71,11 +71,16 @@ class PipelineRunner:
         key = pipe.destination_port.key
         # Find the source node's output the will be used as the destination
         # node's input.
-        value = [
-            output.value
-            for output in source_outputs
-            if output.key == pipe.source_port.key
-        ][0]
+        try:
+            value = [
+                output.value
+                for output in source_outputs
+                if output.key == pipe.source_port.key
+            ][0]
+        except IndexError:
+            raise RuntimeError(
+                f"Failed to find {key} in source node outputs!\nSource node:{pipe.source}\nSource outputs: {source_outputs}"
+            )
         # Return as keyword argument.
         return {key: value}
 
