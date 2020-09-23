@@ -136,12 +136,24 @@ class PipelineRunner:
 
         for node in self.pipeline.entry_nodes:
             node_inputs = inputs.get(node, inputs)
-            if not self.quiet:
-                message = f"Running {node.analysis_version}".ljust(80, ".")
-                print(message, end="", flush=True)
-            self.runs[node] = node.run(node_inputs)
-            if not self.quiet:
-                print("done!")
+            if isinstance(node_inputs, list):
+                self.runs[node] = []
+                for i, inputs in enumerate(node_inputs):
+                    if not self.quiet:
+                        message = f"Running {node.analysis_version} ({i})".ljust(
+                            80, "."
+                        )
+                        print(message, end="", flush=True)
+                    self.runs[node].append(node.run(inputs))
+                    if not self.quiet:
+                        print("done!")
+            else:
+                if not self.quiet:
+                    message = f"Running {node.analysis_version}".ljust(80, ".")
+                    print(message, end="", flush=True)
+                self.runs[node] = node.run(node_inputs)
+                if not self.quiet:
+                    print("done!")
 
     def has_required_runs(self, node: Node) -> bool:
         """

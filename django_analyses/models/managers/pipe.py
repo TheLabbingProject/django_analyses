@@ -20,7 +20,6 @@ class PipeManager(models.Manager):
         )
 
     def from_dict(self, pipeline, definition: dict):
-        print(definition["source"])
         source, _ = self.get_node_from_dict_definition(definition["source"])
         source_port = source.analysis_version.output_definitions.get(
             key=definition["source_port"]
@@ -37,6 +36,7 @@ class PipeManager(models.Manager):
             base_source_port=source_port,
             destination=destination,
             base_destination_port=destination_port,
+            group=definition.get("group", 0),
         )
 
     def from_list(self, pipeline, definitions: list):

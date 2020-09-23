@@ -88,6 +88,8 @@ class Pipe(models.Model):
     #: ListInput, and *None* indicates the index doesn't matter.
     index = models.PositiveIntegerField(default=None, blank=True, null=True)
 
+    group = models.PositiveIntegerField(default=0)
+
     objects = PipeManager()
 
     # A template to generate the string representation of pipe isntances.
