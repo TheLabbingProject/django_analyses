@@ -9,4 +9,3 @@ class InputDefinitions(Enum):
     FLT = "Float"
     INT = "Integer"
     LST = "List"
-    TPL = "Tuple"

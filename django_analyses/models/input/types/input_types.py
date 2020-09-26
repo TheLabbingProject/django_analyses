@@ -9,4 +9,3 @@ class InputTypes(Enum):
     INT = "Integer"
     FLT = "Float"
     LST = "List"
-    TPL = "Tuple"

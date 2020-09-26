@@ -16,4 +16,3 @@ from .file_input_definition import FileInputDefinition
 from .directory_input_definition import DirectoryInputDefinition
 from .boolean_input_definition import BooleanInputDefinition
 from .list_input_definition import ListInputDefinition
-from .tuple_input_definition import TupleInputDefinition
