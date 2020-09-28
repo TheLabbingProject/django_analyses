@@ -45,11 +45,11 @@ ANALYSES = [
     },
     {
         "title": "power",
-        "description": "Returns the value of x in the power of y.",
+        "description": "Returns the value of base in the power of exponent.",
         "versions": [
             {
                 "title": "1.0",
-                "description": "Simple power calculation for two floating point numbers.",
+                "description": "Simple power calculation for two floating point numbers.",  # noqa: E501
                 "input": {
                     "base": {
                         "type": FloatInputDefinition,
@@ -59,7 +59,7 @@ ANALYSES = [
                     },
                     "exponent": {
                         "type": FloatInputDefinition,
-                        "description": "The exponent in which the base is raised.",
+                        "description": "The exponent in which the base is raised.",  # noqa: E501
                         "required": True,
                         "is_configuration": False,
                     },
@@ -104,6 +104,84 @@ ANALYSES = [
                     }
                 },
             }
+        ],
+    },
+]
+
+
+ADDITION_NODE = {
+    "analysis_version": "addition",
+    "configuration": {},
+}
+SQUARE_NODE = {
+    "analysis_version": "power",
+    "configuration": {"exponent": 2},
+}
+NORM_NODE = {
+    "analysis_version": "norm",
+    "configuration": {},
+}
+PIPELINES = [
+    {
+        "title": "Test Pipeline 0",
+        "description": "Tests a pipeline with two identical nodes.",
+        "pipes": [
+            {
+                "source": ADDITION_NODE,
+                "source_run_index": 0,
+                "source_port": "result",
+                "destination": ADDITION_NODE,
+                "destination_run_index": 1,
+                "destination_port": "x",
+            }
+        ],
+    },
+    {
+        "title": "Test Pipeline 1",
+        "description": "Interleaved pipeline with identical nodes.",
+        "pipes": [
+            {
+                "source": ADDITION_NODE,
+                "source_run_index": 0,
+                "source_port": "result",
+                "destination": SQUARE_NODE,
+                "destination_run_index": 1,
+                "destination_port": "base",
+            },
+            {
+                "source": ADDITION_NODE,
+                "source_run_index": 1,
+                "source_port": "result",
+                "destination": ADDITION_NODE,
+                "destination_run_index": 2,
+                "destination_port": "y",
+            },
+            {
+                "source": SQUARE_NODE,
+                "source_run_index": 1,
+                "source_port": "result",
+                "destination": ADDITION_NODE,
+                "destination_run_index": 2,
+                "destination_port": "x",
+            },
+            {
+                "source": SQUARE_NODE,
+                "source_run_index": 0,
+                "source_port": "result",
+                "destination": NORM_NODE,
+                "destination_run_index": 0,
+                "destination_port": "x",
+                "index": 0,
+            },
+            {
+                "source": ADDITION_NODE,
+                "source_run_index": 2,
+                "source_port": "result",
+                "destination": NORM_NODE,
+                "destination_run_index": 0,
+                "destination_port": "x",
+                "index": 1,
+            },
         ],
     },
 ]

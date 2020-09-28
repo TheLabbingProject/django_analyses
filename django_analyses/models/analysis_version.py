@@ -11,6 +11,7 @@ from django_analyses.models.managers.analysis_version import (
     AnalysisVersionManager,
 )
 from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
+from typing import Any
 
 
 class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
@@ -215,16 +216,14 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         run_method = getattr(instance, self.run_method_key)
         return run_method(**run_method_kwargs)
 
-    def extract_results(self, results: object) -> dict:
+    def extract_results(self, results: Any) -> dict:
         """
-        Extracts a results dictionary from an arbitrary results :obj:`object`
-        in case the
-        :attr:`~django_analyses.models.analysis_version.AnalysisVersion.nested_results_attribute`
-        is not :obj:`None`.
+        Extracts a results dictionary from an arbitrary results object in case
+        the :attr:`nested_results_attribute` is not `None`.
 
         Parameters
         ----------
-        results : :obj:`object`
+        results : Any
             Arbitrary results object
 
         Returns

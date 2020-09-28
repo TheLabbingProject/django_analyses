@@ -30,13 +30,16 @@ class PipeManager(models.Manager):
         destination_port = destination.analysis_version.input_definitions.get(
             key=definition["destination_port"]
         )
+        source_run_index = definition.get("source_run_index", 0)
+        destination_run_index = definition.get("destination_run_index", 0)
         return self.create(
             pipeline=pipeline,
             source=source,
             base_source_port=source_port,
+            source_run_index=source_run_index,
             destination=destination,
             base_destination_port=destination_port,
-            group=definition.get("group", 0),
+            destination_run_index=destination_run_index,
         )
 
     def from_list(self, pipeline, definitions: list):

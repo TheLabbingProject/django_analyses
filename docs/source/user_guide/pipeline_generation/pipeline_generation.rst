@@ -11,3 +11,4 @@ analyses.
 
    simplified_example
    realistic_example
+   pipeline_execution

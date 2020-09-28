@@ -62,7 +62,36 @@ class Pipeline(TitleDescriptionModel, TimeStampedModel):
             instances
         """
 
-        return [node for node in self.node_set if node.required_nodes is None]
+        return [
+            node for node in self.node_set if node.is_entry_node(pipeline=self)
+        ]
+
+    def count_node_runs(self, node: Node) -> int:
+        """
+        Returns the number of times a particular node is meant to run during
+        the execution of this pipeline.
+
+        Parameters
+        ----------
+        node : Node
+            Node to count
+
+        Returns
+        -------
+        int
+            Number of separate runs of *node* within this pipeline
+        """
+
+        source_pipes = self.pipe_set.filter(source=node)
+        destination_pipes = self.pipe_set.filter(destination=node)
+        source_run_indices = list(
+            source_pipes.values_list("source_run_index", flat=True)
+        )
+        destination_run_indices = list(
+            destination_pipes.values_list("destination_run_index", flat=True)
+        )
+        max_index = max(source_run_indices + destination_run_indices)
+        return max_index + 1
 
     @property
     def node_set(self) -> QuerySet:

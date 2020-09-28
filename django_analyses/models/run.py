@@ -10,6 +10,7 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django_analyses.models.managers.run import RunManager
 from django_extensions.db.models import TimeStampedModel
+from model_utils.managers import InheritanceQuerySet
 from pathlib import Path
 from typing import Any
 
@@ -68,7 +69,7 @@ class Run(TimeStampedModel):
             shutil.rmtree(self.path)
         return super().delete(*args, **kwargs)
 
-    def get_input_set(self) -> models.QuerySet:
+    def get_input_set(self) -> InheritanceQuerySet:
         """
         Returns the :class:`~django_analyses.models.input.input.Input`
         subclasses' instances created for this execution of the
@@ -76,13 +77,13 @@ class Run(TimeStampedModel):
 
         Returns
         -------
-        :class:`~django.db.models.query.QuerySet`
+        :class:`~model_utils.managers.InheritanceQuerySet`
             This run's inputs
         """
 
         return self.base_input_set.select_subclasses()
 
-    def get_output_set(self) -> models.QuerySet:
+    def get_output_set(self) -> InheritanceQuerySet:
         """
         Returns the :class:`~django_analyses.models.output.output.Output`
         subclasses' instances created on this execution of the
@@ -90,11 +91,38 @@ class Run(TimeStampedModel):
 
         Returns
         -------
-        :class:`~django.db.models.query.QuerySet`
+        :class:`~model_utils.managers.InheritanceQuerySet`
             This run's outputs
         """
 
         return self.base_output_set.select_subclasses()
+
+    def get_output(self, key: str) -> Any:
+        """
+        Returns a particular output created in this run according to its
+        definition's
+        :attr:`~django_analyses.models.output.definitions.output_definition.key`
+        field.
+
+        Parameters
+        ----------
+        key : str
+            The desired :class:`~django_analyses.models.output.output.Output`'s
+            associated definition keyword
+
+        Returns
+        -------
+        Any
+            Output value
+        """
+
+        match = [
+            output
+            for output in self.output_set.all()
+            if output.definition.key == key
+        ]
+        if match:
+            return match[0].value
 
     def get_input_configuration(self) -> dict:
         """

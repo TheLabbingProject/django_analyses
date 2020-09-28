@@ -1,5 +1,5 @@
-Realistic Example
-=================
+Realistic Pipeline Generation Example
+=====================================
 
 As a realistic pipeline generation usage example we will create a basic brain
 MRI preprocessing pipeline using Nipype_\'s interface for FSL_.
