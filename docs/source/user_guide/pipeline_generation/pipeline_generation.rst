@@ -11,4 +11,5 @@ analyses.
 
    simplified_example
    realistic_example
+   multiple_identical_nodes
    pipeline_execution
