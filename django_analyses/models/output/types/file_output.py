@@ -1,13 +1,13 @@
-from django.conf import settings
 from django.db import models
 from django_analyses.models.output.output import Output
 from django_analyses.models.output.types.output_types import OutputTypes
+from django_analyses.models.utils.get_media_root import get_media_root
 from pathlib import Path
 
 
 class FileOutput(Output):
     value = models.FilePathField(
-        settings.MEDIA_ROOT, max_length=1000, blank=True, null=True
+        path=get_media_root(), max_length=1000, blank=True, null=True
     )
     definition = models.ForeignKey(
         "django_analyses.FileOutputDefinition",
