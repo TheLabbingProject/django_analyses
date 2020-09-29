@@ -16,6 +16,8 @@ from django_analyses.utils.messages import (
     BAD_USER_NODE_INPUT_TYPE,
     FAILED_NODE_RUN,
     MISSING_ENTRY_POINT_INPUTS,
+    NODE_RUN_FINISHED,
+    NODE_RUN_START,
 )
 
 
@@ -23,6 +25,8 @@ class PipelineRunner:
     """
     Manages the execution of pipelines.
     """
+
+    _RUN_SEP = "─" * 20
 
     def __init__(self, pipeline: Pipeline, quiet: bool = False):
         """
@@ -203,19 +207,19 @@ class PipelineRunner:
             Destination node keyword argument
         """
 
-        results = self.runs[pipe.source][pipe.source_run_index]
+        run = self.runs[pipe.source][pipe.source_run_index]
         key = pipe.destination_port.key
         # Find the source node's output the will be used as the destination
         # node's input.
         try:
             value = [
                 output.value
-                for output in results.output_set
+                for output in run.output_set
                 if output.key == pipe.source_port.key
             ][0]
         except IndexError:
             message = BAD_SOURCE_PORT.format(
-                key=key, source=pipe.source, output_set=results.output_set
+                key=key, source=pipe.source, output_set=run.output_set
             )
             raise RuntimeError(message)
         # Return as keyword argument.
@@ -275,13 +279,20 @@ class PipelineRunner:
             User provided input configurations
         """
 
+        first = True
         for node in self.pipeline.entry_nodes:
             node_inputs = self.get_node_user_inputs(user_inputs, node, 0)
             if not self.quiet:
-                message = f"Running {node.analysis_version} with configuration:\n{node_inputs}"
+                message = NODE_RUN_START.format(
+                    analysis_version=node.analysis_version,
+                    run_index=0,
+                    inputs=node_inputs,
+                )
+                if not first:
+                    message = self._RUN_SEP + message
                 print(message, flush=True)
             try:
-                results = node.run(node_inputs)
+                run = node.run(node_inputs)
             except Exception as e:
                 message = FAILED_NODE_RUN.format(
                     node_id=node.id,
@@ -292,9 +303,13 @@ class PipelineRunner:
                     node_inputs=node_inputs,
                 )
                 raise RuntimeError(message)
-            self.runs[node].append(results)
+            self.runs[node].append(run)
             if not self.quiet:
-                print("done!\n")
+                outputs = {
+                    output.key: output.value for output in run.output_set
+                }
+                message = NODE_RUN_FINISHED.format(outputs=outputs)
+                print(message + self._RUN_SEP)
 
     def has_required_runs(self, node: Node, run_index: int) -> bool:
         """
@@ -347,10 +362,14 @@ class PipelineRunner:
         run_index = len(self.runs[node])
         node_inputs = self.get_node_inputs(node, user_inputs, run_index)
         if not self.quiet:
-            message = f"Running {node.analysis_version} with configuration:\n{node_inputs}"
-            print(message, flush=True)
+            message = NODE_RUN_START.format(
+                analysis_version=node.analysis_version,
+                run_index=run_index,
+                inputs=node_inputs,
+            )
+            print(self._RUN_SEP + message, flush=True)
         try:
-            results = node.run(node_inputs)
+            run = node.run(node_inputs)
         except Exception as e:
             message = FAILED_NODE_RUN.format(
                 node_id=node.id,
@@ -361,9 +380,13 @@ class PipelineRunner:
                 node_inputs=node_inputs,
             )
             raise RuntimeError(message)
-        self.runs[node].append(results)
+        self.runs[node].append(run)
         if not self.quiet:
-            print("done!\n")
+            outputs = outputs = {
+                output.key: output.value for output in run.output_set
+            }
+            message = NODE_RUN_FINISHED.format(outputs=outputs)
+            print(message + self._RUN_SEP)
 
     def run(self, inputs: dict) -> dict:
         """

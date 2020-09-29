@@ -122,28 +122,53 @@ To run the pipeline, we need to specify both *x* and *y* for the first two
     >>> inputs = {addition: addition_inputs, power: power_inputs}
     >>> runner = PipelineRunner(pipeline=pipeline)
     >>> results = runner.run(inputs=inputs)
-    Running power v1.0 with configuration:
+    power v1.0 (#0)
+    Inputs:
     {'base': 1}
-    done!
+    ...
+    Outputs:
+    {'result': 1.0}
+    ────────────────────
 
-    Running addition v1.0 with configuration:
+    addition v1.0 (#0)
+    Inputs:
     {'x': 1, 'y': 1}
-    done!
-
-    Running power v1.0 with configuration:
+    ...
+    Outputs:
+    {'result': 2.0}
+    ────────────────────
+    ────────────────────
+    power v1.0 (#1)
+    Inputs:
     {'base': 2.0}
-    done!
-
-    Running addition v1.0 with configuration:
+    ...
+    Outputs:
+    {'result': 4.0}
+    ────────────────────
+    ────────────────────
+    addition v1.0 (#1)
+    Inputs:
     {'x': 1, 'y': 1}
-    done!
-
-    Running addition v1.0 with configuration:
+    ...
+    Outputs:
+    {'result': 2.0}
+    ────────────────────
+    ────────────────────
+    addition v1.0 (#2)
+    Inputs:
     {'y': 2.0, 'x': 4.0}
-    done!
-
-    Running norm vNumPy:1.18 with configuration:
+    ...
+    Outputs:
+    {'result': 6.0}
+    ────────────────────
+    ────────────────────
+    norm vNumPy:1.18 (#0)
+    Inputs:
     {'x': [1.0, 6.0]}
+    ...
+    Outputs:
+    {'norm': 6.08276253029822}
+    ────────────────────
     done!
     >>> norm = AnalysisVersion.objects.get(analysis__title="norm")
     >>> results[norm][0].get_output("norm")
