@@ -7,6 +7,7 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
 from django_analyses.models.managers.run import RunManager
+from django_analyses.utils.get_visualizers import get_visualizer
 from django_extensions.db.models import TimeStampedModel
 from model_utils.managers import InheritanceQuerySet
 from pathlib import Path
@@ -171,6 +172,11 @@ class Run(TimeStampedModel):
             for inpt in self.input_set
             if not getattr(inpt.definition, "is_output_directory", False)
         }
+
+    def get_visualizer(self, provider: str = None) -> callable:
+        return get_visualizer(
+            analysis_version=self.analysis_version, provider=provider
+        )
 
     @property
     def path(self) -> Path:
