@@ -171,7 +171,7 @@ PIPELINES = [
                 "destination": NORM_NODE,
                 "destination_run_index": 0,
                 "destination_port": "x",
-                "index": 0,
+                "index": 1,
             },
             {
                 "source": ADDITION_NODE,
@@ -180,7 +180,7 @@ PIPELINES = [
                 "destination": NORM_NODE,
                 "destination_run_index": 0,
                 "destination_port": "x",
-                "index": 1,
+                "index": 0,
             },
         ],
     },

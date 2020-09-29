@@ -40,6 +40,7 @@ class PipeManager(models.Manager):
             destination=destination,
             base_destination_port=destination_port,
             destination_run_index=destination_run_index,
+            index=definition.get("index"),
         )
 
     def from_list(self, pipeline, definitions: list):
