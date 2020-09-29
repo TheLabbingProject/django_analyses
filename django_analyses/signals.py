@@ -21,7 +21,5 @@ from django_analyses.models.run import Run
 def run_pre_delete_receiver(
     sender: Model, instance: Run, using, **kwargs
 ) -> None:
-    print("got signal")
     if instance.path:
-        print("deleting path")
         shutil.rmtree(instance.path)
