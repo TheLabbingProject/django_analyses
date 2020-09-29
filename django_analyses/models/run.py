@@ -3,8 +3,6 @@ Definition of the :class:`~django_analyses.models.run.Run` class.
 
 """
 
-import shutil
-
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
@@ -50,24 +48,6 @@ class Run(TimeStampedModel):
         """
 
         return f"#{self.id} {self.analysis_version} run from {self.created}"
-
-    def delete(self, *args, **kwargs) -> tuple:
-        """
-        `Overrides
-        <https://docs.djangoproject.com/en/3.0/topics/db/models/#overriding-model-methods>`_
-        the :meth:`~django.db.models.Model.delete` method to also remove
-        the run's directory from
-        `media <https://docs.djangoproject.com/en/3.0/topics/files/>`_.
-
-        Returns
-        -------
-        tuple
-            (number of deleted objects, dictionary of number by type)
-        """
-
-        if self.path:
-            shutil.rmtree(self.path)
-        return super().delete(*args, **kwargs)
 
     def get_input_set(self) -> InheritanceQuerySet:
         """
