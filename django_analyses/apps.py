@@ -21,8 +21,19 @@ class DjangoAnalysesConfig(AppConfig):
     * `AppConfig attributes`_
 
     .. _AppConfig attributes:
-       https://docs.djangoproject.com/en/3.0/ref/applications/#configurable-attributes
+    https://docs.djangoproject.com/en/3.0/ref/applications/#configurable-attributes
     """
 
     #: Full Python path to the application.
     name = "django_analyses"
+
+    def ready(self):
+        """
+        Loads the app's signals.
+
+        References
+        ----------
+        * :meth:`~django.apps.AppConfig.ready`
+        """
+
+        import django_analyses.signals  # noqa: F401

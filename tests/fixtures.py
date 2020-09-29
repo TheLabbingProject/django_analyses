@@ -18,7 +18,7 @@ ANALYSES = [
         "versions": [
             {
                 "title": "1.0",
-                "description": "Simple addition of two floating point numbers.",
+                "description": "Simple addition of two floating point numbers.",  # noqa: E501
                 "run_method_key": "calculate",
                 "input": {
                     "x": {
@@ -85,7 +85,7 @@ ANALYSES = [
                     "x": {
                         "type": ListInputDefinition,
                         "element_type": "FLT",
-                        "description": "Input array. If axis is None, x must be 1-D or 2-D.",
+                        "description": "Input array. If axis is None, x must be 1-D or 2-D.",  # noqa: E501
                         "required": True,
                         "is_configuration": False,
                     },
