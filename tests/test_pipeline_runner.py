@@ -242,3 +242,18 @@ class PipelineRunnerTestCase(TestCase):
         norm_result = norm_results[0].get_output("norm")
         norm_expected = 6.082762530298219
         self.assertAlmostEqual(norm_result, norm_expected)
+
+    def test_listinput_indices(self):
+        pipeline = Pipeline.objects.get(title="Test Pipeline 1")
+        runner = PipelineRunner(pipeline=pipeline, quiet=False)
+        square_node = Node.objects.get(
+            analysis_version=self.power, configuration={"exponent": 2}
+        )
+        inputs = {
+            self.addition_node: [{"x": 1, "y": 1}, {"x": 1, "y": 1}],
+            square_node: [{"base": 1}],
+        }
+        results = runner.run(inputs=inputs)
+        norm_run = results[self.norm_node][0]
+        x = norm_run.input_configuration["x"]
+        self.assertListEqual(x, [6.0, 1.0])
