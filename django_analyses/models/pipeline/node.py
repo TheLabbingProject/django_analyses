@@ -5,9 +5,10 @@ Definition of the :class:`~django_analyses.models.pipeline.node.Node` class.
 from django.contrib.auth import get_user_model
 from django.contrib.postgres.fields import JSONField
 from django.db import models
+from django_analyses.models.pipeline.messages import BAD_INPUTS_TYPE
 from django_analyses.models.run import Run
 from django_extensions.db.models import TimeStampedModel
-from typing import Any
+from typing import Any, Dict, List, Tuple, Union
 
 User = get_user_model()
 
@@ -127,7 +128,13 @@ class Node(TimeStampedModel):
         node_configuration.update(inputs)
         return node_configuration
 
-    def run(self, inputs: dict, user: User = None) -> Run:
+    def run(
+        self,
+        inputs: Union[
+            Dict[str, Any], List[Dict[str, Any]], Tuple[Dict[str, Any]]
+        ],
+        user: User = None,
+    ) -> Union[Run, List[Run]]:
         """
         Run this node (the interface associated with this node's
         :attr:`~django_analyses.models.pipeline.node.Node.analysis_version`)
@@ -142,16 +149,27 @@ class Node(TimeStampedModel):
 
         Returns
         -------
-        Run
-            The run instance holding the information of this run.
+        Union[Run, List[Run]]
+            The created or retreived run instance/s
         """
 
-        full_configuration = self.get_full_configuration(inputs)
-        return Run.objects.get_or_execute(
-            self.analysis_version, user=user, **full_configuration
-        )
+        if isinstance(inputs, dict):
+            full_configuration = self.get_full_configuration(inputs)
+            return Run.objects.get_or_execute(
+                self.analysis_version, user=user, **full_configuration
+            )
+        elif isinstance(inputs, (list, tuple)):
+            return [
+                self.run(inputs=iteration_inputs)
+                for iteration_inputs in inputs
+            ]
+        else:
+            message = BAD_INPUTS_TYPE.format(input_type=type(inputs))
+            raise TypeError(message)
 
-    def get_required_nodes(self) -> models.QuerySet:
+    def get_required_nodes(
+        self, pipeline=None, run_index: int = None
+    ) -> models.QuerySet:
         """
         Returns a queryset of
         :class:`~django_analyses.models.pipeline.node.Node` instances that are
@@ -160,16 +178,30 @@ class Node(TimeStampedModel):
         (i.e. there is a pipe in which the retuned nodes are the source and
         this node is the destination).
 
+        Parameters
+        ----------
+        pipeline : :class:`~django_analyses.models.pipeline.pipeline.Pipeline`
+            A pipeline instance to filter the pipe set with, optional
+        run_index : int
+            If this node is executed more than once in a given pipeline, filter
+            by the index of the node's run, optional
+
         Returns
         -------
         models.QuerySet
             Required nodes
         """
 
-        node_ids = self.pipe_destination_set.values_list("source", flat=True)
-        return Node.objects.filter(id__in=list(node_ids))
+        pipes = self.pipe_destination_set
+        if pipeline:
+            pipes = pipes.filter(pipeline=pipeline)
+        if isinstance(run_index, int):
+            pipes = pipes.filter(destination_run_index=run_index)
+        return pipes.values("source", "source_run_index")
 
-    def get_requiring_nodes(self) -> models.QuerySet:
+    def get_requiring_nodes(
+        self, pipeline=None, run_index: int = None
+    ) -> models.QuerySet:
         """
         Returns a queryset of
         :class:`~django_analyses.models.pipeline.node.Node` instances that are
@@ -178,14 +210,28 @@ class Node(TimeStampedModel):
         (i.e. there is a pipe in which the retuned nodes are the destination
         and this node is the source).
 
+        Parameters
+        ----------
+        pipeline : :class:`~django_analyses.models.pipeline.pipeline.Pipeline`
+            A pipeline instance to filter the pipe set with, optional
+        run_index : int
+            If this node is executed more than once in a given pipeline, filter
+            by the index of the node's run, optional
+
         Returns
         -------
         models.QuerySet
             Requiring nodes
         """
 
-        node_ids = self.pipe_source_set.values_list("destination", flat=True)
-        return Node.objects.filter(id__in=list(node_ids))
+        pipes = self.pipe_source_set
+        if pipeline:
+            pipes = pipes.filter(pipeline=pipeline)
+        if isinstance(run_index, int):
+            pipes = pipes.filter(source_run_index=run_index)
+        return self.pipe_source_set.values(
+            "destination", "destination_run_index"
+        )
 
     def check_configuration_sameness(self, key: str, value: Any) -> bool:
         """
@@ -269,6 +315,26 @@ class Node(TimeStampedModel):
         ]
         run_ids = [run.id for run in runs]
         return Run.objects.filter(id__in=run_ids)
+
+    def is_entry_node(self, pipeline) -> bool:
+        """
+        Determines whether this node is an entry point of the specified
+        pipeline by checking if the first run of this node has any dependencies
+        (i.e. has any pipes leading to it).
+
+
+        Parameters
+        ----------
+        pipeline : :class:`~django_analyses.models.pipeline.pipeline.Pipeline`
+            The pipeline to check
+
+        Returns
+        -------
+        bool
+            Whether this node is an entry point of the given pipeline or not
+        """
+
+        return not self.get_required_nodes(pipeline=pipeline, run_index=0)
 
     @property
     def required_nodes(self) -> models.QuerySet:

@@ -1,5 +1,5 @@
-Simplified Example
-==================
+Simplified Pipeline Generation Example
+======================================
 
 As a simple example for a pipeline generation flow, we will reuse the
 :class:`ExponentCalculator` from the
@@ -37,7 +37,7 @@ Now, we could use our :obj:`square` node to calculate :math:`2^2`:
     >>> run_1 = square.run(inputs={"base": 2})
     >>> run_1
     <Run: #1 Exponentiation vbuilt-in run from 2020-01-01 00:00:00.000000>
-    >>> run_1.output_set.get(key='result').value
+    >>> run_1.get_output(key='result')
     4
 
 Each run will be recorded in the database and returned whenver we call
@@ -94,30 +94,3 @@ And then we can lay down the pipe:
     >>>     destination=raise_3,
     >>>     base_destination_port=raise_3_input,
     >>> )
-
-Pipeline Execution
-------------------
-
-Pipelines are executed using a :class:`~django_analyses.pipeline_runner.PipelineRunner`
-instance, which wraps-up all the required logic.
-
-We will now use our brand new *"Simple Pipeline"* to calculate :math:`3^{2^2}`.
-
-.. code-block:: python
-
-    >>> from django_analyses.pipeline_runner import PipelineRunner
-    >>> pipeline = Pipeline.objects.get(title="Simple Pipeline")
-    >>> pipeline_runner = PipelineRunner(pipeline)
-    >>> runs = pipeline_runner.run(inputs={"base": 2})
-
-The returned :obj:`runs` variable is a :obj:`dict` instance containing the pipeline's
-nodes as keys and runs as values. Examining :obj:`runs` will show that :math:`2^2`
-returned :obj:`Run #1`, the same run created the beginning of this tutorial, whereas
-:math:`3^4` was a novel calculation and therefore a new run has been was created.
-
-Finally, to view our output:
-
-.. code-block:: python
-
-    >>> runs[raise_3].output_set.get(key="result").value
-    81

@@ -11,7 +11,7 @@ class AnalysisVersionFactory(DjangoModelFactory):
         "tests.factories.input.input_specification.InputSpecificationFactory"
     )
     output_specification = SubFactory(
-        "tests.factories.output.output_specification.OutputSpecificationFactory"
+        "tests.factories.output.output_specification.OutputSpecificationFactory"  # noqa: E501
     )
 
     class Meta:

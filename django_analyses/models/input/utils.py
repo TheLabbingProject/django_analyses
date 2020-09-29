@@ -7,7 +7,6 @@ class ListElementTypes(ChoiceEnum):
     FIL = "File"
     FLT = "Float"
     STR = "String"
-    TUP = "Tuple"
 
 
 TYPES_DICT = {
@@ -16,5 +15,4 @@ TYPES_DICT = {
     ListElementTypes.FLT: float,
     ListElementTypes.BLN: bool,
     ListElementTypes.FIL: "file",
-    ListElementTypes.TUP: tuple,
 }

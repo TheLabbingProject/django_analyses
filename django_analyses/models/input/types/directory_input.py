@@ -1,13 +1,13 @@
-from django.conf import settings
 from django.db import models
 from django_analyses.models.input.input import Input
 from django_analyses.models.input.types.input_types import InputTypes
+from django_analyses.models.utils.get_media_root import get_media_root
 from pathlib import Path
 
 
 class DirectoryInput(Input):
     value = models.FilePathField(
-        settings.MEDIA_ROOT,
+        path=get_media_root(),
         max_length=1000,
         allow_files=False,
         allow_folders=True,

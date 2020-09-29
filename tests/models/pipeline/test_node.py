@@ -3,6 +3,7 @@ from django.db.models import QuerySet
 from django.test import TestCase
 from django_analyses.models.analysis import Analysis
 from django_analyses.models.analysis_version import AnalysisVersion
+from django_analyses.models.run import Run
 from tests.factories.pipeline.node import NodeFactory
 from tests.factories.pipeline.pipe import PipeFactory
 from tests.factories.pipeline.pipeline import PipelineFactory
@@ -29,7 +30,8 @@ class NodeTestCase(TestCase):
     def setUp(self):
         """
         Adds the created instances to the tests' contexts.
-        For more information see unittest's :meth:`~unittest.TestCase.setUp` method.
+        For more information see unittest's :meth:`~unittest.TestCase.setUp`
+        method.
 
         """
         self.node = NodeFactory()
@@ -44,19 +46,21 @@ class NodeTestCase(TestCase):
 
     def test_string(self):
         value = str(self.node)
-        expected = f"\nNode #{self.node.id}\n{self.node.analysis_version}\nConfiguration: [{self.node.configuration}]\n"
+        expected = f"\nNode #{self.node.id}\n{self.node.analysis_version}\nConfiguration: [{self.node.configuration}]\n"  # noqa: E501
         self.assertEqual(value, expected)
 
     def test_node_validation_with_no_configuration_returns_none(self):
         self.assertIsNone(self.node.validate())
 
     def test_node_validation_with_valid_configuration_keys_returns_none(self):
-        definitions = self.node.analysis_version.input_specification.input_definitions
+        definitions = (
+            self.node.analysis_version.input_specification.input_definitions
+        )
         for definition in definitions:
             self.node.configuration[definition.key] = "value"
         self.assertIsNone(self.node.validate())
 
-    def test_node_validation_with_invalid_configuration_keys_raises_validation_error(
+    def test_node_validation_with_invalid_configuration_keys_raises_validation_error(  # noqa: E501
         self,
     ):
         self.node.configuration["some_invalid_definition_key!"] = "value"
@@ -64,22 +68,24 @@ class NodeTestCase(TestCase):
             self.node.validate()
 
     def test_get_full_configuration_with_defaults_only(self):
-        defaults = self.node.analysis_version.input_specification.default_configuration
+        defaults = (
+            self.node.analysis_version.input_specification.default_configuration  # noqa: E501
+        )
         configuration = self.node.get_full_configuration({})
         self.assertDictEqual(defaults, configuration)
 
-    # def test_get_full_configuration_with_defaults_and_node_configuration(self):
-    #     defaults = self.node.analysis_version.input_specification.default_configuration
+    # def test_get_full_configuration_with_defaults_and_node_configuration(self): # noqa: E501
+    #     defaults = self.node.analysis_version.input_specification.default_configuration # noqa: E501
     #     node_configuration = {"a": "b", "c": "d"}
     #     self.node.configuration = node_configuration
     #     configuration = self.node.get_full_configuration({})
     #     expected = {**defaults, **node_configuration}
     #     self.assertDictEqual(configuration, expected)
 
-    # def test_get_full_configuration_with_defaults_and_node_configuration_and_inputs(
+    # def test_get_full_configuration_with_defaults_and_node_configuration_and_inputs( # noqa: E501
     #     self,
     # ):
-    #     defaults = self.node.analysis_version.input_specification.default_configuration
+    #     defaults = self.node.analysis_version.input_specification.default_configuration # noqa: E501
     #     node_configuration = {"a": "b", "c": "d"}
     #     inputs = {"e": "f", "g": "h"}
     #     self.node.configuration = node_configuration
@@ -117,7 +123,8 @@ class NodeTestCase(TestCase):
             base_destination_port=power_base_definition,
         )
         required_nodes = self.power_node.get_required_nodes()
-        self.assertEqual(list(required_nodes), [self.addition_node])
+        expected = [{"source": self.addition_node.id, "source_run_index": 0}]
+        self.assertEqual(list(required_nodes), expected)
 
     def test_get_requiring_nodes_with_no_pipes(self):
         requiring_nodes = self.addition_node.get_requiring_nodes()
@@ -135,36 +142,43 @@ class NodeTestCase(TestCase):
             destination=self.power_node,
             base_destination_port=power_base_definition,
         )
-        requiring_nodes = self.addition_node.get_requiring_nodes()
-        self.assertEqual(list(requiring_nodes), [self.power_node])
+        requiring_nodes = list(self.addition_node.get_requiring_nodes())
+        expected = [
+            {"destination": self.power_node.id, "destination_run_index": 0}
+        ]
+        self.assertListEqual(requiring_nodes, expected)
 
     def test_check_configuration_sameness_for_default_value_returns_true(self):
         same = self.norm_node.check_configuration_sameness("order", None)
         self.assertTrue(same)
 
-    def test_check_configuration_sameness_for_same_configuration_returns_true(self):
+    def test_check_configuration_sameness_for_same_configuration_returns_true(
+        self,
+    ):
         self.norm_node.configuration = {"order": "inf"}
         same = self.norm_node.check_configuration_sameness("order", "inf")
         self.assertTrue(same)
 
-    def test_check_configuration_sameness_for_non_configuration_returns_true(self):
+    def test_check_configuration_sameness_for_non_configuration_returns_true(
+        self,
+    ):
         same = self.norm_node.check_configuration_sameness("x", [1, 2, 3, 4])
         self.assertTrue(same)
 
-    def test_check_configuration_sameness_for_non_default_when_key_not_configured_returns_false(
+    def test_check_configuration_sameness_for_non_default_when_key_not_configured_returns_false(  # noqa: E501
         self,
     ):
         same = self.norm_node.check_configuration_sameness("order", "-inf")
         self.assertFalse(same)
 
-    def test_check_configuration_sameness_for_not_same_configuration_returns_false(
+    def test_check_configuration_sameness_for_not_same_configuration_returns_false(  # noqa: E501
         self,
     ):
         self.norm_node.configuration = {"order": "inf"}
         same = self.norm_node.check_configuration_sameness("order", "-inf")
         self.assertFalse(same)
 
-    def test_check_run_configuration_sameness_for_not_same_configuration_returns_false(
+    def test_check_run_configuration_sameness_for_not_same_configuration_returns_false(  # noqa: E501
         self,
     ):
         run = self.norm_node.run({"x": [1, 2, 3, 4]})
@@ -174,7 +188,7 @@ class NodeTestCase(TestCase):
         same = another_node.check_run_configuration_sameness(run)
         self.assertFalse(same)
 
-    def test_check_run_configuration_sameness_for_same_configuration_returns_true(
+    def test_check_run_configuration_sameness_for_same_configuration_returns_true(  # noqa: E501
         self,
     ):
         run = self.norm_node.run({"x": [1, 2, 3, 4]})
@@ -212,7 +226,8 @@ class NodeTestCase(TestCase):
             base_destination_port=power_base_definition,
         )
         required_nodes = list(self.power_node.required_nodes)
-        self.assertListEqual(required_nodes, [self.addition_node])
+        expected = [{"source": self.addition_node.id, "source_run_index": 0}]
+        self.assertListEqual(required_nodes, expected)
 
     def test_requiring_nodes_with_no_required_returns_none(self):
         self.assertIsNone(self.power_node.requiring_nodes)
@@ -229,12 +244,15 @@ class NodeTestCase(TestCase):
             base_destination_port=power_base_definition,
         )
         requiring_nodes = list(self.addition_node.requiring_nodes)
-        self.assertListEqual(requiring_nodes, [self.power_node])
+        expected = [
+            {"destination": self.power_node.id, "destination_run_index": 0}
+        ]
+        self.assertListEqual(requiring_nodes, expected)
 
     def test_run_set(self):
         """
-        Tests the :attr:`~django_analyses.models.pipline.node.Node.run_set` property
-        return the expected :class:`~django.db.models.QuerySet`.
+        Tests the :attr:`~django_analyses.models.pipline.node.Node.run_set`
+        property return the expected :class:`~django.db.models.QuerySet`.
         """
 
         # Note: map(repr, qs) is required for QuerySet comparison,
@@ -247,3 +265,17 @@ class NodeTestCase(TestCase):
         expected = self.norm_node.get_run_set()
         self.assertEqual(len(value), 1)
         self.assertQuerysetEqual(value, map(repr, expected))
+
+    def test_run_with_multiple_inputs_as_list(self):
+        inputs = [{"x": 1, "y": 2}, {"x": 3, "y": 4}]
+        results = self.addition_node.run(inputs=inputs)
+        self.assertIsInstance(results, list)
+        for result in results:
+            self.assertIsInstance(result, Run)
+
+    def test_run_with_multiple_inputs_as_tuple(self):
+        inputs = {"x": 5, "y": 6}, {"x": 7, "y": 8}
+        results = self.addition_node.run(inputs=inputs)
+        self.assertIsInstance(results, list)
+        for result in results:
+            self.assertIsInstance(result, Run)

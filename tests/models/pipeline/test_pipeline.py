@@ -1,16 +1,18 @@
 from django.test import TestCase
 from django_analyses.models.analysis import Analysis
 from django_analyses.models.analysis_version import AnalysisVersion
+from django_analyses.models.pipeline import Pipeline
+from django_analyses.models.pipeline.node import Node
 from tests.factories.pipeline.node import NodeFactory
 from tests.factories.pipeline.pipe import PipeFactory
 from tests.factories.pipeline.pipeline import PipelineFactory
-from tests.fixtures import ANALYSES
+from tests.fixtures import ANALYSES, PIPELINES
 
 
 class PipelineTestCase(TestCase):
     """
-    Tests for the :class:`~django_analyses.models.pipeline.Pipeline` model.    
-    
+    Tests for the :class:`~django_analyses.models.pipeline.Pipeline` model.
+
     """
 
     @classmethod
@@ -41,10 +43,14 @@ class PipelineTestCase(TestCase):
             destination=cls.power_node,
             base_destination_port=power_base_input,
         )
+        Pipeline.objects.from_list(PIPELINES)
+        cls.pipeline_0 = Pipeline.objects.get(title="Test Pipeline 0")
+        cls.pipeline_1 = Pipeline.objects.get(title="Test Pipeline 1")
 
     def setUp(self):
         """
-        For more information see unittest's :meth:`~unittest.TestCase.setUp` method.
+        For more information see unittest's :meth:`~unittest.TestCase.setUp`
+        method.
 
         """
         pass
@@ -75,6 +81,22 @@ class PipelineTestCase(TestCase):
         self.assertIn(self.addition_node, entry_nodes)
         self.assertIn(self.norm_node, entry_nodes)
 
+    def test_interleaved_pipeline_entry_nodes(self):
+        square_node = Node.objects.get(
+            analysis_version=self.power, configuration={"exponent": 2}
+        )
+        entry_nodes = self.pipeline_1.get_entry_nodes()
+        expected = [self.addition_node, square_node]
+        self.assertEqual(len(entry_nodes), 2)
+        self.assertIn(expected[0], entry_nodes)
+        self.assertIn(expected[1], entry_nodes)
+
+    def test_count_node_runs(self):
+        node = self.pipeline_0.node_set.first()
+        value = self.pipeline_0.count_node_runs(node)
+        expected = 2
+        self.assertEqual(value, expected)
+
     ##############
     # Properties #
     ##############
@@ -90,4 +112,3 @@ class PipelineTestCase(TestCase):
         self.assertQuerysetEqual(
             self.pipeline.entry_nodes, expected, transform=lambda x: x
         )
-

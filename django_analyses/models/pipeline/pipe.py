@@ -88,6 +88,14 @@ class Pipe(models.Model):
     #: ListInput, and *None* indicates the index doesn't matter.
     index = models.PositiveIntegerField(default=None, blank=True, null=True)
 
+    #: If the source node has multiple executions within the pipline, this
+    #: attribute determines the index of the execution that will be used.
+    source_run_index = models.PositiveIntegerField(default=0)
+
+    #: If the destination node has multiple executions within the pipline, this
+    #: attribute determines the index of the execution that will be used.
+    destination_run_index = models.PositiveIntegerField(default=0)
+
     objects = PipeManager()
 
     # A template to generate the string representation of pipe isntances.

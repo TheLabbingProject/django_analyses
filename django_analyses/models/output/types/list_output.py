@@ -22,10 +22,12 @@ class ListOutput(Output):
         return all([type(element) is expected_type for element in value])
 
     def raise_not_list_error(self) -> None:
-        raise ValidationError("ListInput value must be a list instance!")
+        raise ValidationError("ListOutput value must be a list instance!")
 
     def raise_incorrect_type_error(self) -> None:
-        raise ValidationError(f"List elements must be of type {self.expected_type}!")
+        raise ValidationError(
+            f"List elements must be of type {self.expected_type}!"
+        )
 
     def validate(self) -> None:
         if not isinstance(self.value, list):

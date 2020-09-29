@@ -41,13 +41,14 @@ class RunManager(models.Manager):
         # of the associated instances, so in order to compare configurations
         # with model instances, we convert the value to primary key.
         for key, value in kwargs.items():
-            if isinstance(value, models.Model):
+            input_definition = analysis_version.input_definitions.get(key=key)
+            if input_definition.db_value_preprocessing:
+                kwargs[key] = input_definition.get_db_value(value)
+            elif isinstance(value, models.Model):
                 kwargs[key] = value.id
-
         # Update with the analysis version's input specification deafults in
         # order to compare the full configuration.
         configuration = analysis_version.update_input_with_defaults(**kwargs)
-
         # Find a matching run instance (only one should exist) and return it
         # or None.
         matching = [

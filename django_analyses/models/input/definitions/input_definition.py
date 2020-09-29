@@ -6,6 +6,7 @@ from django_analyses.models.managers.input_definition import (
     InputDefinitionManager,
 )
 from django_analyses.models.input.definitions import messages
+from pathlib import Path
 
 
 class InputDefinition(models.Model):
@@ -71,6 +72,7 @@ class InputDefinition(models.Model):
             raise ValidationError(message)
 
     def get_db_value(self, value):
+        path_field = self.db_value_preprocessing == "path"
         if value and self.db_value_preprocessing:
             location = self.db_value_preprocessing
             if isinstance(value, list):
@@ -79,6 +81,16 @@ class InputDefinition(models.Model):
                     for element in value
                 ]
             return self.extract_nested_value(value, location)
+        elif value and path_field:
+            if isinstance(value, Path) or Path(value).is_file():
+                return str(value)
+            else:
+                try:
+                    return str(value.path)
+                except AttributeError:
+                    raise ValueError(
+                        f"Failed to infer path from {value} for {self.key}!"
+                    )
         return value
 
     def get_or_create_input_instance(self, **kwargs) -> Input:

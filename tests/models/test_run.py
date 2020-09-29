@@ -1,9 +1,13 @@
 from django.conf import settings
 from django.test import TestCase
+from django_analyses.models.analysis import Analysis
+from django_analyses.models.analysis_version import AnalysisVersion
 from django_analyses.models.run import Run
 from pathlib import Path
 from tests.factories.input.types.string_input import StringInputFactory
+from tests.factories.pipeline.node import NodeFactory
 from tests.factories.run import RunFactory
+from tests.fixtures import ANALYSES
 
 
 class RunTestCase(TestCase):
@@ -12,10 +16,18 @@ class RunTestCase(TestCase):
 
     """
 
+    @classmethod
+    def setUpTestData(cls):
+        Analysis.objects.from_list(ANALYSES)
+        cls.addition = AnalysisVersion.objects.get(analysis__title="addition")
+        cls.addition_node = NodeFactory(analysis_version=cls.addition)
+        cls.addition_run = cls.addition_node.run(inputs={"x": 1, "y": 1})
+
     def setUp(self):
         """
         Adds the created instances to the tests' contexts.
-        For more information see unittest's :meth:`~unittest.TestCase.setUp` method.
+        For more information see unittest's :meth:`~unittest.TestCase.setUp`
+        method.
 
         """
 
@@ -33,9 +45,7 @@ class RunTestCase(TestCase):
     ###########
 
     def test_string(self):
-        expected = (
-            f"#{self.run.id} {self.run.analysis_version} run from {self.run.created}"
-        )
+        expected = f"#{self.run.id} {self.run.analysis_version} run from {self.run.created}"  # noqa: E501
         value = str(self.run)
         self.assertEqual(value, expected)
 
@@ -45,7 +55,9 @@ class RunTestCase(TestCase):
 
     def test_input_defaults(self):
         value = self.run.input_defaults
-        expected = self.run.analysis_version.input_specification.default_configuration
+        expected = (
+            self.run.analysis_version.input_specification.default_configuration
+        )
         self.assertDictEqual(value, expected)
 
     def test_input_configuration(self):
@@ -58,15 +70,15 @@ class RunTestCase(TestCase):
         value = self.run.input_set
         expected = self.run.base_input_set.select_subclasses()
         self.assertQuerysetEqual(value, expected, transform=lambda x: x)
-        # The 'transform' kwargs was added because of the problem explained here:
-        # https://stackoverflow.com/a/49129560/4416932
+        # The 'transform' kwargs was added because of the problem explained
+        # here: https://stackoverflow.com/a/49129560/4416932
 
     def test_output_set(self):
         value = self.run.output_set
         expected = self.run.base_output_set.select_subclasses()
         self.assertQuerysetEqual(value, expected, transform=lambda x: x)
-        # The 'transform' kwargs was added because of the problem explained here:
-        # https://stackoverflow.com/a/49129560/4416932
+        # The 'transform' kwargs was added because of the problem explained
+        # here: https://stackoverflow.com/a/49129560/4416932
 
     def test_output_configuration(self):
         value = self.run.output_configuration
@@ -97,3 +109,8 @@ class RunTestCase(TestCase):
         self.assertFalse(p.is_dir())
         with self.assertRaises(Run.DoesNotExist):
             Run.objects.get(id=self.run.id)
+
+    def test_get_output(self):
+        result = self.addition_run.get_output("result")
+        self.assertEqual(result, 2)
+
