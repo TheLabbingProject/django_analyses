@@ -2,6 +2,8 @@
 Definition of the :class:`PipelineRunner` class.
 """
 
+import json
+
 from django.db.models import QuerySet
 from django_analyses.models.input.definitions.list_input_definition import (
     ListInputDefinition,
@@ -9,7 +11,6 @@ from django_analyses.models.input.definitions.list_input_definition import (
 from django_analyses.models.pipeline.node import Node
 from django_analyses.models.pipeline.pipe import Pipe
 from django_analyses.models.pipeline.pipeline import Pipeline
-from typing import Any, Dict, List, Union
 from django_analyses.utils.messages import (
     BAD_SOURCE_PORT,
     BAD_USER_INPUT_KEYS,
@@ -19,6 +20,7 @@ from django_analyses.utils.messages import (
     NODE_RUN_FINISHED,
     NODE_RUN_START,
 )
+from typing import Any, Dict, List, Union
 
 
 class PipelineRunner:
@@ -79,6 +81,10 @@ class PipelineRunner:
             node_keys = self.validate_user_input_keys(user_input)
             if node_keys:
                 for node, node_inputs in user_input.items():
+                    # Convert node IDs to nodes.
+                    if isinstance(node, int):
+                        node = Node.objects.get(id=node)
+                    # Standardize as a list of input dictionaries.
                     if isinstance(node_inputs, dict):
                         inputs[node] = [node_inputs]
                     elif isinstance(node_inputs, list):
@@ -86,6 +92,7 @@ class PipelineRunner:
                     else:
                         raise TypeError(BAD_USER_NODE_INPUT_TYPE)
             else:
+                # Handles an input dictionary passed to a single entry node.
                 entry_nodes = self.pipeline.entry_nodes
                 if len(entry_nodes) == 1:
                     inputs = {entry_nodes[0]: [inputs]}
@@ -95,6 +102,8 @@ class PipelineRunner:
                     )
                     raise ValueError(message)
         elif isinstance(user_input, list):
+            # Handles a list of input dictionaries passed to a single entry
+            # node.
             entry_nodes = self.pipeline.entry_nodes
             if len(entry_nodes) == 1:
                 inputs[entry_nodes[0]] = user_input
@@ -125,7 +134,7 @@ class PipelineRunner:
         """
 
         keys = list(user_input.keys())
-        all_nodes = all([isinstance(key, Node) for key in keys])
+        all_nodes = all([isinstance(key, (Node, int)) for key in keys])
         if not all_nodes:
             all_strings = all([isinstance(key, str) for key in keys])
             if all_strings:
@@ -165,9 +174,8 @@ class PipelineRunner:
             try:
                 return user_inputs[node][run_index]
             except IndexError:
-                return {}
-        else:
-            return {}
+                pass
+        return {}
 
     def get_incoming_pipes(self, node: Node, run_index: int) -> QuerySet:
         """
@@ -266,6 +274,107 @@ class PipelineRunner:
                 kwargs[key] = value
         return kwargs
 
+    def generate_user_inputs_string(self, user_inputs: dict) -> str:
+        """
+        Formats the user provided input dictionary as a readable string.
+
+        Parameters
+        ----------
+        user_inputs : dict
+            Standardized user provided inputs
+
+        Returns
+        -------
+        str
+            Formatted user provided input dictionary
+        """
+
+        formatted_user_inputs = {
+            node.id: inputs for node, inputs in user_inputs.items()
+        }
+        return json.dumps(formatted_user_inputs, indent=4, sort_keys=True)
+
+    def report_node_execution_start(
+        self, node: Node, run_index: int, inputs: dict, first: bool = False,
+    ) -> None:
+        """
+        Reports the start of a *node*'s execution.
+
+        Parameters
+        ----------
+        node : Node
+            The executed node
+        run_index : int
+            The index of the node's run in this pipeline
+        inputs : dict
+            The node's input configuration dictionary
+        first : bool, optional
+            Whether this is the first execution of this pipeline, by default
+            False
+        """
+
+        formatted_inputs = json.dumps(inputs, indent=4)
+        message = NODE_RUN_START.format(
+            analysis_version=node.analysis_version,
+            run_index=run_index,
+            inputs=formatted_inputs,
+        )
+        if not first:
+            message = self._RUN_SEP + message
+        print(message, flush=True)
+
+    def report_node_execution_end(self, run) -> None:
+        """
+        Reports the end of a *node*'s execution.
+
+        Parameters
+        ----------
+        run : :class:`~django_analyses.models.run.Run`
+            The created run instance
+        """
+
+        outputs = run.get_results_json()
+        formatted_outputs = json.dumps(outputs, indent=4, sort_keys=True)
+        message = NODE_RUN_FINISHED.format(outputs=formatted_outputs)
+        print(message + self._RUN_SEP)
+
+    def report_node_execution_failure(
+        self, node: Node, user_inputs: dict, node_inputs: dict, exception: str
+    ) -> None:
+        """
+        Reports a failure in a *node*'s execution.
+
+        Parameters
+        ----------
+        node : Node
+            The executed node
+        user_inputs : dict
+            Standardized user provided inputs
+        node_inputs : dict
+            The complete input configuration for this node's execution
+        exception : str
+            The raised exception
+
+        Raises
+        ------
+        RuntimeError
+            [description]
+        """
+
+        formatted_user_inputs = self.generate_user_inputs_string(user_inputs)
+        formatted_node_inputs = json.dumps(
+            node_inputs, indent=4, sort_keys=True
+        )
+        message = FAILED_NODE_RUN.format(
+            node_id=node.id,
+            analysis_version=node.analysis_version,
+            run_index=0,
+            exception=exception,
+            user_inputs=formatted_user_inputs,
+            node_inputs=formatted_node_inputs,
+        )
+        raise RuntimeError(message)
+
     def run_entry_nodes(
         self, user_inputs: Dict[Node, List[Dict[str, Any]]],
     ) -> None:
@@ -281,35 +390,23 @@ class PipelineRunner:
 
         first = True
         for node in self.pipeline.entry_nodes:
+            # Get input configuration.
             node_inputs = self.get_node_user_inputs(user_inputs, node, 0)
+            # Report execution start.
             if not self.quiet:
-                message = NODE_RUN_START.format(
-                    analysis_version=node.analysis_version,
-                    run_index=0,
-                    inputs=node_inputs,
-                )
-                if not first:
-                    message = self._RUN_SEP + message
-                print(message, flush=True)
+                self.report_node_execution_start(node, 0, node_inputs, first)
+            # Execute.
             try:
                 run = node.run(node_inputs)
             except Exception as e:
-                message = FAILED_NODE_RUN.format(
-                    node_id=node.id,
-                    analysis_version=node.analysis_version,
-                    run_index=0,
-                    exception=e,
-                    user_inputs=user_inputs,
-                    node_inputs=node_inputs,
+                # Report exception.
+                self.report_node_execution_failure(
+                    node, user_inputs, node_inputs, e
                 )
-                raise RuntimeError(message)
+            # Report execution end.
             self.runs[node].append(run)
             if not self.quiet:
-                outputs = {
-                    output.key: output.value for output in run.output_set
-                }
-                message = NODE_RUN_FINISHED.format(outputs=outputs)
-                print(message + self._RUN_SEP)
+                self.report_node_execution_end(run)
 
     def has_required_runs(self, node: Node, run_index: int) -> bool:
         """
@@ -362,31 +459,16 @@ class PipelineRunner:
         run_index = len(self.runs[node])
         node_inputs = self.get_node_inputs(node, user_inputs, run_index)
         if not self.quiet:
-            message = NODE_RUN_START.format(
-                analysis_version=node.analysis_version,
-                run_index=run_index,
-                inputs=node_inputs,
-            )
-            print(self._RUN_SEP + message, flush=True)
+            self.report_node_execution_start(node, run_index, node_inputs)
         try:
             run = node.run(node_inputs)
         except Exception as e:
-            message = FAILED_NODE_RUN.format(
-                node_id=node.id,
-                analysis_version=node.analysis_version,
-                run_index=run_index,
-                exception=e,
-                user_inputs=user_inputs,
-                node_inputs=node_inputs,
+            self.report_node_execution_failure(
+                node, user_inputs, node_inputs, e
             )
-            raise RuntimeError(message)
         self.runs[node].append(run)
         if not self.quiet:
-            outputs = outputs = {
-                output.key: output.value for output in run.output_set
-            }
-            message = NODE_RUN_FINISHED.format(outputs=outputs)
-            print(message + self._RUN_SEP)
+            self.report_node_execution_end(run)
 
     def run(self, inputs: dict) -> dict:
         """
@@ -415,6 +497,22 @@ class PipelineRunner:
                 if self.has_required_runs(node, run_index):
                     self.run_node(node, inputs)
         return self.runs
+
+    def get_safe_results(self) -> dict:
+        """
+        Returns a JSON-serializable dictionary of the pipeline's outputs.
+
+        Returns
+        -------
+        dict
+            Results dictionary with node IDs as keys a list of result
+            dictionaries for each run of that node
+        """
+
+        return {
+            node.id: [run.get_results_json() for run in node_runs]
+            for node, node_runs in self.runs.items()
+        }
 
     @property
     def pending_nodes(self) -> list:
