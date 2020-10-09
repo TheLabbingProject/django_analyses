@@ -110,6 +110,23 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
     .. _Nipype: https://nipype.readthedocs.io/en/latest/
     """
 
+    #####################
+    # Execution Options #
+    #####################
+
+    max_parallel = models.PositiveIntegerField(default=4)
+    """
+    Maximal number of parallel executions that may be run using Celery_. This
+    attribute is used in :func:`~django_analyses.tasks.execute_node` to
+    chunk an iterable of node inputs in case it is longer than this value.
+    For more information see Celery's `Chunks documentation`_.
+
+    .. _Celery:
+       https://docs.celeryproject.org/
+    .. _Chunks documentation:
+       https://docs.celeryproject.org/en/stable/userguide/canvas.html#chunks
+    """
+
     objects = AnalysisVersionManager()
 
     class Meta:
