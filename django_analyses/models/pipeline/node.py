@@ -134,7 +134,8 @@ class Node(TimeStampedModel):
             Dict[str, Any], List[Dict[str, Any]], Tuple[Dict[str, Any]]
         ],
         user: User = None,
-    ) -> Union[Run, List[Run]]:
+        return_created: bool = False,
+    ) -> Union[Run, List[Run], Tuple[Run, bool], List[Tuple[Run, bool]]]:
         """
         Run this node (the interface associated with this node's
         :attr:`~django_analyses.models.pipeline.node.Node.analysis_version`)
@@ -146,17 +147,23 @@ class Node(TimeStampedModel):
             Any user-provided inputs to pass to the interface
         user : User, optional
             The user creating this run, by default None
+        return_created : bool
+            Whether to also return a boolean indicating if the run already
+            existed in the database or created, defaults to False
 
         Returns
         -------
-        Union[Run, List[Run]]
+        Union[Run, List[Run], Tuple[Run, bool], List[Tuple[Run, bool]]]
             The created or retreived run instance/s
         """
 
         if isinstance(inputs, dict):
             full_configuration = self.get_full_configuration(inputs)
             return Run.objects.get_or_execute(
-                self.analysis_version, user=user, **full_configuration
+                self.analysis_version,
+                user=user,
+                return_created=return_created,
+                **full_configuration,
             )
         elif isinstance(inputs, (list, tuple)):
             return [
