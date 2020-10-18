@@ -1,6 +1,5 @@
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.contrib.postgres.fields import JSONField
 from django_analyses.models.input.input import Input
 from django_analyses.models.input.types.input_types import InputTypes
 from django_analyses.models.input.utils import ListElementTypes, TYPES_DICT
@@ -8,7 +7,7 @@ from pathlib import Path
 
 
 class ListInput(Input):
-    value = JSONField()
+    value = models.JSONField()
     definition = models.ForeignKey(
         "django_analyses.ListInputDefinition",
         on_delete=models.PROTECT,

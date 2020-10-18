@@ -3,7 +3,6 @@ Definition of the :class:`~django_analyses.models.pipeline.node.Node` class.
 """
 
 from django.contrib.auth import get_user_model
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django_analyses.models.pipeline.messages import BAD_INPUTS_TYPE
 from django_analyses.models.run import Run
@@ -29,7 +28,7 @@ class Node(TimeStampedModel):
     )
 
     #: The configuration of the analysis version ran when executing this node.
-    configuration = JSONField(default=dict)
+    configuration = models.JSONField(default=dict)
 
     class Meta:
         ordering = ("-created",)
