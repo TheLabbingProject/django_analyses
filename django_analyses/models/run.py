@@ -31,6 +31,15 @@ class Run(TimeStampedModel):
         get_user_model(), blank=True, null=True, on_delete=models.SET_NULL,
     )
 
+    #: The :class:`~django_celery_results.models.task_result.TaskResult`
+    #: instance associated with this run.
+    task_result = models.OneToOneField(
+        "django_celery_results.TaskResult",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+
     objects = RunManager()
 
     class Meta:
@@ -170,6 +179,21 @@ class Run(TimeStampedModel):
             inpt.key: self.fix_input_value(inpt)
             for inpt in self.input_set
             if not getattr(inpt.definition, "is_output_directory", False)
+        }
+
+    def get_results_json(self) -> dict:
+        """
+        Returns a JSON serializable dictionary of the results.
+
+        Returns
+        -------
+        dict
+            JSON serializable output dictionary
+        """
+
+        return {
+            output.definition.key: output.json_value
+            for output in self.output_set.all()
         }
 
     @property

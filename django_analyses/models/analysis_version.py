@@ -5,7 +5,6 @@ Definition of the
 """
 
 from django.conf import settings
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django_analyses.models.managers.analysis_version import (
     AnalysisVersionManager,
@@ -82,7 +81,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
     name of the method that will be called (default value is *"run"*).
     """
 
-    fixed_run_method_kwargs = JSONField(default=dict)
+    fixed_run_method_kwargs = models.JSONField(default=dict)
     """
     Any "fixed" keyword arguments that should always be passed to the
     interface's *run* method at execution.
@@ -108,6 +107,23 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
     the appropriate analysis versions.
 
     .. _Nipype: https://nipype.readthedocs.io/en/latest/
+    """
+
+    #####################
+    # Execution Options #
+    #####################
+
+    max_parallel = models.PositiveIntegerField(default=4)
+    """
+    Maximal number of parallel executions that may be run using Celery_. This
+    attribute is used in :func:`~django_analyses.tasks.execute_node` to
+    chunk an iterable of node inputs in case it is longer than this value.
+    For more information see Celery's `Chunks documentation`_.
+
+    .. _Celery:
+       https://docs.celeryproject.org/
+    .. _Chunks documentation:
+       https://docs.celeryproject.org/en/stable/userguide/canvas.html#chunks
     """
 
     objects = AnalysisVersionManager()

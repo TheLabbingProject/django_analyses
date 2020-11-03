@@ -1,5 +1,6 @@
 from django.db import models
 from model_utils.managers import InheritanceManager
+from typing import Any
 
 
 class Output(models.Model):
@@ -31,10 +32,17 @@ class Output(models.Model):
         self.validate()
         super().save(*args, **kwargs)
 
+    def get_json_value(self) -> Any:
+        return self.value.id if self.value_is_foreign_key else self.value
+
     @property
     def key(self) -> str:
         if self.definition:
             return self.definition.key
+
+    @property
+    def json_value(self) -> Any:
+        return self.get_json_value()
 
     @property
     def value_is_foreign_key(self) -> bool:
