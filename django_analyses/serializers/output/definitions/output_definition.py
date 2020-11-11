@@ -7,10 +7,13 @@ from django_analyses.models.output.definitions.output_definition import (
 from django_analyses.models.output.definitions.output_definitions import (
     OutputDefinitions,
 )
-from django_analyses.serializers.output.definitions.file_output_definition import (
+from django_analyses.serializers.output.definitions.file_output_definition import (  # noqa: E501
     FileOutputDefinitionSerializer,
 )
-from django_analyses.serializers.output.definitions.list_output_definition import (
+from django_analyses.serializers.output.definitions.float_output_definition import (  # noqa: E501
+    FloatOutputDefinitionSerializer,
+)
+from django_analyses.serializers.output.definitions.list_output_definition import (  # noqa: E501
     ListOutputDefinitionSerializer,
 )
 from django_analyses.serializers.utils.polymorphic import PolymorphicSerializer
@@ -33,6 +36,7 @@ def get_extra_output_definition_serializers() -> dict:
 SERIALIZERS = {
     OutputDefinitions.FIL.value: FileOutputDefinitionSerializer,
     OutputDefinitions.LST.value: ListOutputDefinitionSerializer,
+    OutputDefinitions.FLT.value: FloatOutputDefinitionSerializer,
     **get_extra_output_definition_serializers(),
 }
 
