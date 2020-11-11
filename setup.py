@@ -32,7 +32,8 @@ setup(
     author="Zvi Baratz",
     author_email="baratzz@pm.me",
     keywords="django research analysis pipeline",
-    install_requires=requirements,
+    install_requires=install_requires,
+    dependency_links=dependency_links,
     extras_require={"dev": dev_requirements},
     classifiers=[
         "Development Status :: 3 - Alpha",
