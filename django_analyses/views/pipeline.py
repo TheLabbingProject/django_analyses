@@ -7,7 +7,7 @@ from rest_framework import viewsets
 
 
 class PipelineViewSet(DefaultsMixin, viewsets.ModelViewSet):
-    queryset = Pipeline.objects.all()
+    queryset = Pipeline.objects.order_by("title")
     filter_class = PipelineFilter
     pagination_class = StandardResultsSetPagination
     serializer_class = PipelineSerializer
