@@ -50,6 +50,8 @@ def handle_node_execution_end(task_result: TaskResult, created: bool) -> None:
     if task_result.status == "SUCCESS" and run_ids:
         if isinstance(run_ids, int):
             associate_run_with_task(run_ids, task_result)
+        if isinstance(run_ids, str):
+            associate_run_with_task(int(run_ids), task_result)
         else:
             for run_id in run_ids:
                 associate_run_with_task(run_id, task_result)
