@@ -1,8 +1,6 @@
 """
-Definition of an
-:class:`~django_analyses.filters.input.input_definition.InputDefinitionFilter`
-for the :class:`~django_analyses.models.input.definitions.InputDefinition`
-model.
+Definition of an :class:`InputDefinitionFilter` for the
+:class:`~django_analyses.models.input.definitions.InputDefinition` model.
 """
 
 from django_analyses.models.input.definitions.input_definition import (
