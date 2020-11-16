@@ -37,18 +37,24 @@ class PolymorphicSerializer(serializers.Serializer):
     def to_representation(self, instance):
         input_type = self.get_type(instance)
         serializer = self.get_serializer(input_type)
-        data = serializer(instance, context=self.context).to_representation(instance)
+        data = serializer(instance, context=self.context).to_representation(
+            instance
+        )
         data["type"] = input_type
         return data
 
     def validate_type_key_exists(self, data: dict) -> None:
         if "type" not in data:
-            raise serializers.ValidationError({"type": "This field is required"})
+            raise serializers.ValidationError(
+                {"type": "This field is required"}
+            )
 
     def to_internal_value(self, data):
         self.validate_type_key_exists(data)
         serializer = self.get_serializer(data["type"])
-        validated_data = serializer(context=self.context).to_internal_value(data)
+        validated_data = serializer(context=self.context).to_internal_value(
+            data
+        )
         validated_data["type"] = data["type"]
         return validated_data
 
@@ -60,4 +66,6 @@ class PolymorphicSerializer(serializers.Serializer):
     def update(self, instance, validated_data):
         serializer = self.get_serializer(validated_data["type"])
         validated_data.pop("type")
-        return serializer(context=self.context).update(instance, validated_data)
+        return serializer(context=self.context).update(
+            instance, validated_data
+        )
