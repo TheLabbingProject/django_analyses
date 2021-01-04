@@ -37,4 +37,10 @@ class RunSerializer(serializers.HyperlinkedModelSerializer):
             "analysis_version",
             "created",
             "modified",
+            "start_time",
+            "end_time",
+            "duration",
         )
+
+    def duration(self, instance: Run):
+        return self.instance.duration
