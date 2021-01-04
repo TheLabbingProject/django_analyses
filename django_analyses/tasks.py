@@ -35,8 +35,16 @@ def execute_node(
         # If a input dictionary is provided, simply run the node and return
         # the ID of the resulting run if created.
         run, created = node.run(inputs=inputs, return_created=True)
-        if created:
+        if created and run.status == "SUCCESS":
             return run.id
+        # In an existing failed run was found, try to rerun.
+        elif run.status == "FAILURE":
+            run.delete()
+            run, created = node.run(inputs=inputs, return_created=True)
+        # If the result of the created run is FAILED, raise exception to
+        # indicate a failed task.
+        if run.status == "FAILURE":
+            raise RuntimeError("Node execution failed.")
     else:
         # If a list of input dictionaries is provided, run in parallel.
         max_parallel = node.analysis_version.max_parallel
