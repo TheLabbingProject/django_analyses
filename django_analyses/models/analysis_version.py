@@ -1,14 +1,11 @@
 """
-Definition of the
-:class:`~django_analyses.models.analysis_version.AnalysisVersion` class.
-
+Definition of the :class:`AnalysisVersion` class.
 """
-
-from django.conf import settings
 from django.db import models
 from django_analyses.models.managers.analysis_version import (
     AnalysisVersionManager,
 )
+from django_analyses.models.utils import get_analysis_version_interface
 from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
 from typing import Any
 
@@ -164,12 +161,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
             No interface could be found for this analysis
         """
 
-        try:
-            return settings.ANALYSIS_INTERFACES[self.analysis.title][
-                self.title
-            ]
-        except KeyError:
-            raise NotImplementedError(f"No interface detected for {self}!")
+        return get_analysis_version_interface(self)
 
     def get_interface_initialization_kwargs(self, **kwargs) -> dict:
         """
@@ -216,11 +208,9 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
             Dictionary of results
         """
 
-        interface = self.get_interface()
-
         # Initialize the interface class
         init_kwargs = self.get_interface_initialization_kwargs(**kwargs)
-        instance = interface(**init_kwargs)
+        instance = self.interface(**init_kwargs)
 
         # Prepare run method kwargs
         run_method_kwargs = {
@@ -343,3 +333,16 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         """
 
         return self.output_specification.output_definitions
+
+    @property
+    def interface(self) -> type:
+        """
+        Returns the associated interface for this instance.
+
+        Returns
+        -------
+        type
+            Analysis interface class
+        """
+
+        return self.get_interface()
