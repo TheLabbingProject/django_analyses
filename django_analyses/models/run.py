@@ -1,17 +1,26 @@
 """
-Definition of the :class:`~django_analyses.models.run.Run` class.
+Definition of the :class:`Run` model.
 
 """
+import datetime
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.utils import timezone
 from django_analyses.models.managers.run import RunManager
 from django_analyses.utils.get_visualizers import get_visualizer
+from django_analyses.utils.choice_enum import ChoiceEnum
 from django_extensions.db.models import TimeStampedModel
 from model_utils.managers import InheritanceQuerySet
 from pathlib import Path
 from typing import Any
+
+
+class RunStatus(ChoiceEnum):
+    STARTED = "Started"
+    SUCCESS = "Success"
+    FAILURE = "Failure"
 
 
 class Run(TimeStampedModel):
@@ -31,6 +40,29 @@ class Run(TimeStampedModel):
     user = models.ForeignKey(
         get_user_model(), blank=True, null=True, on_delete=models.SET_NULL,
     )
+
+    #: The :class:`~django_celery_results.models.task_result.TaskResult`
+    #: instance associated with this run.
+    task_result = models.OneToOneField(
+        "django_celery_results.TaskResult",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
+    )
+
+    #: The status of this run.
+    status = models.CharField(
+        max_length=7, choices=RunStatus.choices(), blank=True, null=True,
+    )
+
+    #: Run start time.
+    start_time = models.DateTimeField(blank=True, null=True)
+
+    #: Run end time.
+    end_time = models.DateTimeField(blank=True, null=True)
+
+    #: Traceback saved in case of run failure.
+    traceback = models.TextField(blank=True, null=True)
 
     objects = RunManager()
 
@@ -170,7 +202,25 @@ class Run(TimeStampedModel):
         return {
             inpt.key: self.fix_input_value(inpt)
             for inpt in self.input_set
-            if not getattr(inpt.definition, "is_output_directory", False)
+            if not (
+                getattr(inpt.definition, "is_output_directory", False)
+                or getattr(inpt.definition, "dynamic_default", False)
+            )
+        }
+
+    def get_results_json(self) -> dict:
+        """
+        Returns a JSON serializable dictionary of the results.
+
+        Returns
+        -------
+        dict
+            JSON serializable output dictionary
+        """
+
+        return {
+            output.definition.key: output.json_value
+            for output in self.output_set.all()
         }
 
     def get_visualizer(self, provider: str = None) -> callable:
@@ -298,3 +348,21 @@ class Run(TimeStampedModel):
         """
 
         return self.get_raw_input_configuration()
+
+    @property
+    def duration(self) -> datetime.timedelta:
+        """
+        Returns the time delta between this instance's :attr:`end_time` and
+        :attr:`start_time`. If :attr:`end_time` isn't set yet returns time
+        since :attr:`start_time`.
+
+        Returns
+        -------
+        datetime.timedelta
+            Run duration
+        """
+
+        if self.start_time and self.end_time:
+            return self.end_time - self.start_time
+        elif self.start_time:
+            return timezone.now() - self.start_time

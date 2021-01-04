@@ -1,25 +1,33 @@
 from django.contrib.auth import get_user_model
-from django_analyses.models.analysis_version import AnalysisVersion
 from django_analyses.models.run import Run
-from django_analyses.serializers.input.input import InputSerializer
-from django_analyses.serializers.output.output import OutputSerializer
+from django_analyses.serializers.analysis_version import (
+    AnalysisVersionSerializer,
+)
+from rest_auth.serializers import UserDetailsSerializer
 from rest_framework import serializers
 
 
 User = get_user_model()
 
 
+class MiniUserSerializer(UserDetailsSerializer):
+    """
+    Minified serializer class for the :class:`User` model.
+    """
+
+    class Meta(UserDetailsSerializer.Meta):
+        fields = (
+            "id",
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+        )
+
+
 class RunSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(view_name="analyses:run-detail")
-    user = serializers.HyperlinkedRelatedField(
-        view_name="accounts:user-detail", queryset=User.objects.all()
-    )
-    analysis_version = serializers.HyperlinkedRelatedField(
-        view_name="analyses:analysisversion-detail",
-        queryset=AnalysisVersion.objects.all(),
-    )
-    input_set = InputSerializer(many=True)
-    output_set = OutputSerializer(many=True)
+    user = MiniUserSerializer()
+    analysis_version = AnalysisVersionSerializer()
 
     class Meta:
         model = Run
@@ -27,10 +35,12 @@ class RunSerializer(serializers.HyperlinkedModelSerializer):
             "id",
             "user",
             "analysis_version",
-            "input_set",
-            "output_set",
             "created",
             "modified",
-            "url",
+            "start_time",
+            "end_time",
+            "duration",
         )
 
+    def duration(self, instance: Run):
+        return self.instance.duration

@@ -1,4 +1,3 @@
-from django.contrib.postgres.fields import JSONField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
@@ -19,7 +18,7 @@ class ListInputDefinition(InputDefinition):
     )
     min_length = models.PositiveIntegerField(blank=True, null=True)
     max_length = models.PositiveIntegerField(blank=True, null=True)
-    default = JSONField(blank=True, null=True)
+    default = models.JSONField(blank=True, null=True)
     as_tuple = models.BooleanField(default=False)
 
     input_class = ListInput

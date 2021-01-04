@@ -5,6 +5,16 @@ with open("README.md", "r") as fh:
 
 with open("requirements.txt") as fh:
     requirements = fh.read().splitlines()
+    install_requires = [
+        requirement
+        for requirement in requirements
+        if not requirement.startswith("git+")
+    ]
+    dependency_links = [
+        requirement
+        for requirement in requirements
+        if requirement.startswith("git+")
+    ]
 
 with open("requirements-dev.txt") as fh:
     dev_requirements = fh.read().splitlines()
@@ -22,7 +32,8 @@ setup(
     author="Zvi Baratz",
     author_email="baratzz@pm.me",
     keywords="django research analysis pipeline",
-    install_requires=requirements,
+    install_requires=install_requires,
+    dependency_links=dependency_links,
     extras_require={"dev": dev_requirements},
     classifiers=[
         "Development Status :: 3 - Alpha",

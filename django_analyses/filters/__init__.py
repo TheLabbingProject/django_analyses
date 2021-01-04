@@ -16,9 +16,18 @@ References
 """
 
 from django_analyses.filters.analysis import AnalysisFilter
+from django_analyses.filters.analysis_version import AnalysisVersionFilter
 from django_analyses.filters.category import CategoryFilter
-from django_analyses.filters.input import InputDefinitionFilter, InputFilter
-from django_analyses.filters.output import OutputDefinitionFilter, OutputFilter
+from django_analyses.filters.input import (
+    InputDefinitionFilter,
+    InputFilter,
+    InputSpecificationFilter,
+)
+from django_analyses.filters.output import (
+    OutputDefinitionFilter,
+    OutputFilter,
+    OutputSpecificationFilter,
+)
 from django_analyses.filters.pipeline import (
     NodeFilter,
     PipeFilter,

@@ -18,6 +18,9 @@ class Pipeline(TitleDescriptionModel, TimeStampedModel):
 
     objects = PipelineManager()
 
+    class Meat:
+        ordering = ("title",)
+
     def __str__(self) -> str:
         """
         Returns the string representation of the instance.

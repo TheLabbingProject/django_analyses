@@ -1,16 +1,16 @@
 """
-Definition of an :class:`AnalysisFilter` for the
-:class:`~django_analyses.models.analysis.Analysis` model.
+Definition of an :class:`AnalysisVersionFilter` for the
+:class:`~django_analyses.models.analysis_version.AnalysisVersion` model.
 """
 
-from django_analyses.models.analysis import Analysis
+from django_analyses.models.analysis_version import AnalysisVersion
 from django_filters import rest_framework as filters
 
 
-class AnalysisFilter(filters.FilterSet):
+class AnalysisVersionFilter(filters.FilterSet):
     """
     Provides useful filtering options for the
-    :class:`~django_analyses.models.analysis.Analysis` model.
+    :class:`~django_analyses.models.analysis_version.AnalysisVersion` model.
 
     """
 
@@ -31,5 +31,5 @@ class AnalysisFilter(filters.FilterSet):
     created = filters.DateTimeFromToRangeFilter("created")
 
     class Meta:
-        model = Analysis
-        fields = "id", "title", "description", "created", "category"
+        model = AnalysisVersion
+        fields = "id", "analysis", "title", "description", "created"

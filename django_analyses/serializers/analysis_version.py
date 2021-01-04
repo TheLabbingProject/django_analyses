@@ -1,21 +1,20 @@
 from django_analyses.models.analysis_version import AnalysisVersion
+from django_analyses.models.input.input_specification import InputSpecification
 from django_analyses.serializers.analysis import AnalysisSerializer
-from django_analyses.serializers.input.input_specification import (
-    InputSpecificationSerializer,
-)
 from django_analyses.serializers.output.output_specification import (
-    OutputSpecificationSerializer,
+    OutputSpecification,
 )
 from rest_framework import serializers
 
 
 class AnalysisVersionSerializer(serializers.HyperlinkedModelSerializer):
-    url = serializers.HyperlinkedIdentityField(
-        view_name="analyses:analysisversion-detail"
-    )
     analysis = AnalysisSerializer()
-    input_specification = InputSpecificationSerializer()
-    output_specification = OutputSpecificationSerializer()
+    input_specification = serializers.PrimaryKeyRelatedField(
+        queryset=InputSpecification.objects.all()
+    )
+    output_specification = serializers.PrimaryKeyRelatedField(
+        queryset=OutputSpecification.objects.all()
+    )
 
     class Meta:
         model = AnalysisVersion
@@ -28,5 +27,4 @@ class AnalysisVersionSerializer(serializers.HyperlinkedModelSerializer):
             "output_specification",
             "created",
             "modified",
-            "url",
         )

@@ -2,9 +2,9 @@
 omit = ../*migrations*
     run_tests.py
     *tests*
-    venv/
     setup.py
-    .tox/
+    venv/**
+    .tox/**
 
 source = .
 branch = True

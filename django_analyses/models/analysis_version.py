@@ -1,15 +1,11 @@
 """
-Definition of the
-:class:`~django_analyses.models.analysis_version.AnalysisVersion` class.
-
+Definition of the :class:`AnalysisVersion` class.
 """
-
-from django.conf import settings
-from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django_analyses.models.managers.analysis_version import (
     AnalysisVersionManager,
 )
+from django_analyses.models.utils import get_analysis_version_interface
 from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
 from typing import Any
 
@@ -82,7 +78,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
     name of the method that will be called (default value is *"run"*).
     """
 
-    fixed_run_method_kwargs = JSONField(default=dict)
+    fixed_run_method_kwargs = models.JSONField(default=dict)
     """
     Any "fixed" keyword arguments that should always be passed to the
     interface's *run* method at execution.
@@ -108,6 +104,23 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
     the appropriate analysis versions.
 
     .. _Nipype: https://nipype.readthedocs.io/en/latest/
+    """
+
+    #####################
+    # Execution Options #
+    #####################
+
+    max_parallel = models.PositiveIntegerField(default=4)
+    """
+    Maximal number of parallel executions that may be run using Celery_. This
+    attribute is used in :func:`~django_analyses.tasks.execute_node` to
+    chunk an iterable of node inputs in case it is longer than this value.
+    For more information see Celery's `Chunks documentation`_.
+
+    .. _Celery:
+       https://docs.celeryproject.org/
+    .. _Chunks documentation:
+       https://docs.celeryproject.org/en/stable/userguide/canvas.html#chunks
     """
 
     objects = AnalysisVersionManager()
@@ -148,12 +161,7 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
             No interface could be found for this analysis
         """
 
-        try:
-            return settings.ANALYSIS_INTERFACES[self.analysis.title][
-                self.title
-            ]
-        except KeyError:
-            raise NotImplementedError(f"No interface detected for {self}!")
+        return get_analysis_version_interface(self)
 
     def get_interface_initialization_kwargs(self, **kwargs) -> dict:
         """
@@ -200,11 +208,9 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
             Dictionary of results
         """
 
-        interface = self.get_interface()
-
         # Initialize the interface class
         init_kwargs = self.get_interface_initialization_kwargs(**kwargs)
-        instance = interface(**init_kwargs)
+        instance = self.interface(**init_kwargs)
 
         # Prepare run method kwargs
         run_method_kwargs = {
@@ -327,3 +333,16 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         """
 
         return self.output_specification.output_definitions
+
+    @property
+    def interface(self) -> type:
+        """
+        Returns the associated interface for this instance.
+
+        Returns
+        -------
+        type
+            Analysis interface class
+        """
+
+        return self.get_interface()

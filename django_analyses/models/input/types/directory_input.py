@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django_analyses.models.input.input import Input
 from django_analyses.models.input.types.input_types import InputTypes
