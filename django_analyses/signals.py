@@ -13,7 +13,7 @@ import json
 import shutil
 
 from django.db.models import Model
-from django.db.models.signals import pre_delete
+from django.db.models.signals import post_save, pre_delete
 from django.dispatch import receiver
 from django_analyses.models.run import Run
 from django_celery_results.models import TaskResult
@@ -45,18 +45,6 @@ def run_pre_delete_receiver(
 STARMAP = "celery.starmap"
 
 
-def handle_node_execution_end(task_result: TaskResult, created: bool) -> None:
-    run_ids = json.loads(task_result.result)
-    if task_result.status == "SUCCESS" and run_ids:
-        if isinstance(run_ids, int):
-            associate_run_with_task(run_ids, task_result)
-        if isinstance(run_ids, str):
-            associate_run_with_task(int(run_ids), task_result)
-        else:
-            for run_id in run_ids:
-                associate_run_with_task(run_id, task_result)
-
-
 def associate_run_with_task(run_id: int, task_result: TaskResult) -> None:
     run = Run.objects.get(id=run_id)
     if run.task_result != task_result:
@@ -64,18 +52,30 @@ def associate_run_with_task(run_id: int, task_result: TaskResult) -> None:
         run.save()
 
 
+def handle_node_execution_end(task_result: TaskResult, created: bool) -> None:
+    run_ids = json.loads(task_result.result)
+    if task_result.status == "SUCCESS" and run_ids:
+        if isinstance(run_ids, int):
+            associate_run_with_task(run_ids, task_result)
+        # if isinstance(run_ids, str):
+        #     associate_run_with_task(int(run_ids), task_result)
+        # else:
+        #     for run_id in run_ids:
+        #         associate_run_with_task(run_id, task_result)
+
+
 POST_TASK_RESULT_HANDLERS = {
     "django_analyses.node-execution": handle_node_execution_end
 }
 
 
-# @receiver(post_save, sender=TaskResult)
-# def task_result_post_save_receiver(
-#     sender: Model, instance: TaskResult, created: bool, **kwargs
-# ) -> None:
-#     handler = POST_TASK_RESULT_HANDLERS.get(instance.task_name)
-#     if handler:
-#         handler(instance, created)
+@receiver(post_save, sender=TaskResult)
+def task_result_post_save_receiver(
+    sender: Model, instance: TaskResult, created: bool, **kwargs
+) -> None:
+    handler = POST_TASK_RESULT_HANDLERS.get(instance.task_name)
+    if handler:
+        handler(instance, created)
 
 
 # TODO: Fix for STARMAP tasks (group/chunk) so that the handler will iterate
