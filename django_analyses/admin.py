@@ -9,9 +9,10 @@ References
 .. _The Django admin site:
    https://docs.djangoproject.com/en/3.0/ref/contrib/admin/
 """
-
+import datetime
 
 from django.contrib import admin
+from django.urls import reverse
 from django_analyses.models.analysis import Analysis
 from django_analyses.models.analysis_version import AnalysisVersion
 from django_analyses.models.input.definitions.input_definition import (
@@ -27,6 +28,8 @@ from django_analyses.models.output.output_specification import (
     OutputSpecification,
 )
 from django_analyses.models.run import Run
+from django.utils.safestring import mark_safe
+from typing import Union
 
 
 class AnalysisVersionInline(admin.TabularInline):
@@ -79,12 +82,69 @@ class RunAdmin(admin.ModelAdmin):
     list_display = (
         "id",
         "analysis_version",
-        "created",
+        "user",
+        "start_time",
+        "end_time",
+        "duration",
+        "_status",
     )
     inlines = (InputInline, OutputInline)
+    fieldsets = (
+        (None, {"fields": ("analysis_version", "user")}),
+        (
+            "Execution",
+            {
+                "fields": (
+                    "start_time",
+                    "end_time",
+                    ("status", "duration"),
+                    "traceback",
+                    "task_result_",
+                ),
+            },
+        ),
+    )
+    readonly_fields = (
+        "analysis_version",
+        "user",
+        "start_time",
+        "end_time",
+        "duration",
+        "status",
+        "task_result_",
+    )
+    list_filter = (
+        "status",
+        "start_time",
+        "analysis_version__analysis",
+        "user",
+    )
 
     class Media:
         css = {"all": ("django_analyses/css/hide_admin_original.css",)}
+
+    def duration(self, instance: Run) -> datetime.timedelta:
+        return instance.duration
+
+    def _status(self, instance: Run) -> Union[str, bool]:
+        if instance.status == "SUCCESS":
+            return True
+        elif instance.status == "FAILURE":
+            return False
+        else:
+            return None
+
+    _status.boolean = True
+
+    def task_result_(self, instance) -> str:
+        if instance.task_result:
+            url = reverse(
+                "admin:django_celery_results_taskresult_change",
+                args=(instance.task_result.id,),
+            )
+            text = instance.task_result.task_id
+            html = f'<a href="{url}">{text}</a>'
+            return mark_safe(html)
 
 
 @admin.register(Input)
