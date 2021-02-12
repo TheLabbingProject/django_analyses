@@ -1,12 +1,12 @@
 """
 Definition of the :class:`Node` class.
 """
-
 from typing import Any, Dict, Iterable, List, Tuple, Union
 
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from django.db.models import QuerySet
 from django_analyses.models.pipeline.messages import BAD_INPUTS_TYPE
 from django_analyses.models.run import Run
 from django_extensions.db.models import TimeStampedModel
@@ -102,7 +102,7 @@ class Node(TimeStampedModel):
                 **self.configuration
             )
 
-    def get_full_configuration(self, inputs: dict) -> dict:
+    def get_full_configuration(self, inputs: dict = None) -> dict:
         """
         Returns a "full" input configuration, combining any provided inputs
         with this node's
@@ -121,6 +121,7 @@ class Node(TimeStampedModel):
             Full configuration to pass to the interface
         """
 
+        inputs = {} if inputs is None else inputs
         defaults = (
             self.analysis_version.input_specification.default_configuration
         )
@@ -315,13 +316,13 @@ class Node(TimeStampedModel):
             Existing node runs
         """
 
-        full_configuration = self.get_full_configuration({})
+        full_configuration = self.get_full_configuration()
         return self.get_run_by_input(full_configuration)
 
     def get_run_by_input(
         self,
         input_specification: Union[Dict[str, Any], Iterable[Dict[str, Any]]],
-    ) -> Union[Run, List[Run]]:
+    ) -> QuerySet:
         if isinstance(input_specification, dict):
             potential_runs = {key: [] for key in input_specification.keys()}
             for key, value in input_specification.items():
@@ -346,11 +347,11 @@ class Node(TimeStampedModel):
             potential_runs = set.intersection(
                 *map(set, potential_runs.values())
             )
-            if len(potential_runs) == 1:
-                return potential_runs.pop()
-            elif potential_runs:
+            if potential_runs:
                 run_ids = [run.id for run in potential_runs]
                 return Run.objects.filter(id__in=run_ids)
+            else:
+                return Run.objects.none()
         elif isinstance(input_specification, Iterable):
             run_ids = [
                 run.id
