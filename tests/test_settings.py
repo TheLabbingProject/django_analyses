@@ -1,14 +1,9 @@
 import os
 
 import environ
-<<<<<<< Updated upstream
-from tests.interfaces import Addition, Division, NormCalculation, Power
-
-=======
 
 from tests.interfaces import Addition, Division, NormCalculation, Power
 
->>>>>>> Stashed changes
 env = environ.Env(
     DB_NAME=(str, "django_analyses"),
     DB_USER=(str, ""),
