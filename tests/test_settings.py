@@ -105,3 +105,7 @@ TIME_FORMAT = "H:i:s"
 
 # Datetime format
 DATETIME_FORMAT = f"{DATE_FORMAT} {TIME_FORMAT}"
+
+# Time zone
+USE_TZ = True
+TIME_ZONE = "Asia/Jerusalem"
