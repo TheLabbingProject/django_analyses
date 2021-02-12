@@ -1,8 +1,14 @@
 import os
 
 import environ
+<<<<<<< Updated upstream
 from tests.interfaces import Addition, Division, NormCalculation, Power
 
+=======
+
+from tests.interfaces import Addition, Division, NormCalculation, Power
+
+>>>>>>> Stashed changes
 env = environ.Env(
     DB_NAME=(str, "django_analyses"),
     DB_USER=(str, ""),
@@ -95,3 +101,12 @@ ANALYSIS_INTERFACES = {
     "norm": {"NumPy:1.18": NormCalculation},
     "power": {"1.0": Power},
 }
+
+# Date format
+DATE_FORMAT = "d/m/Y"
+
+# Time format
+TIME_FORMAT = "H:i:s"
+
+# Datetime format
+DATETIME_FORMAT = f"{DATE_FORMAT} {TIME_FORMAT}"
