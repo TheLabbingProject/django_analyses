@@ -46,7 +46,9 @@ class RunTestCase(TestCase):
     ###########
 
     def test_string(self):
-        expected = f"#{self.run.id} {self.run.analysis_version} run from {self.run.created}"  # noqa: E501
+        created = self.run.created.strftime("%Y-%m-%d %H:%M:%S")
+        version = self.run.analysis_version
+        expected = f"#{self.run.id} {version} run from {created}"
         value = str(self.run)
         self.assertEqual(value, expected)
 
