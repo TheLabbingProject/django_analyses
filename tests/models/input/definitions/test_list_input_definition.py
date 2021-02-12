@@ -1,13 +1,12 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django_analyses.models.input.definitions.input_definitions import \
+    InputDefinitions
+from django_analyses.models.input.definitions.list_input_definition import \
+    ListInputDefinition
 from django_analyses.models.input.types.list_input import ListInput
-from django_analyses.models.input.definitions.input_definitions import InputDefinitions
-from django_analyses.models.input.definitions.list_input_definition import (
-    ListInputDefinition,
-)
-from tests.factories.input.definitions.list_input_definition import (
-    ListInputDefinitionFactory,
-)
+from tests.factories.input.definitions.list_input_definition import \
+    ListInputDefinitionFactory
 
 
 class ListInputDefinitionTestCase(TestCase):

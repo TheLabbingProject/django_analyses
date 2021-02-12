@@ -1,7 +1,6 @@
 from django_analyses.models.analysis import Analysis
-from django_analyses.models.output.output_specification import (
-    OutputSpecification,
-)
+from django_analyses.models.output.output_specification import \
+    OutputSpecification
 from rest_framework import serializers
 
 

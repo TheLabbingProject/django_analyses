@@ -1,8 +1,8 @@
 from django.db import models
-from django_analyses.models.output.definitions.output_definition import OutputDefinition
-from django_analyses.models.output.definitions.output_definitions import (
-    OutputDefinitions,
-)
+from django_analyses.models.output.definitions.output_definition import \
+    OutputDefinition
+from django_analyses.models.output.definitions.output_definitions import \
+    OutputDefinitions
 from django_analyses.models.output.types.file_output import FileOutput
 
 

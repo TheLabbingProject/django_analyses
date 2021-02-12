@@ -3,24 +3,20 @@ Definition of the :class:`PipelineRunner` class.
 """
 
 import json
+from typing import Any, Dict, List, Union
 
 from django.db.models import QuerySet
-from django_analyses.models.input.definitions.list_input_definition import (
-    ListInputDefinition,
-)
+from django_analyses.models.input.definitions.list_input_definition import \
+    ListInputDefinition
 from django_analyses.models.pipeline.node import Node
 from django_analyses.models.pipeline.pipe import Pipe
 from django_analyses.models.pipeline.pipeline import Pipeline
-from django_analyses.utils.messages import (
-    BAD_SOURCE_PORT,
-    BAD_USER_INPUT_KEYS,
-    BAD_USER_NODE_INPUT_TYPE,
-    FAILED_NODE_RUN,
-    MISSING_ENTRY_POINT_INPUTS,
-    NODE_RUN_FINISHED,
-    NODE_RUN_START,
-)
-from typing import Any, Dict, List, Union
+from django_analyses.utils.messages import (BAD_SOURCE_PORT,
+                                            BAD_USER_INPUT_KEYS,
+                                            BAD_USER_NODE_INPUT_TYPE,
+                                            FAILED_NODE_RUN,
+                                            MISSING_ENTRY_POINT_INPUTS,
+                                            NODE_RUN_FINISHED, NODE_RUN_START)
 
 
 class PipelineRunner:

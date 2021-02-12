@@ -1,12 +1,10 @@
 from django.db import models
-from django_analyses.models.output.definitions.output_definition import (
-    OutputDefinition,
-)
-from django_analyses.models.output.types.list_output import ListOutput
 from django_analyses.models.input.utils import ListElementTypes
-from django_analyses.models.output.definitions.output_definitions import (
-    OutputDefinitions,
-)
+from django_analyses.models.output.definitions.output_definition import \
+    OutputDefinition
+from django_analyses.models.output.definitions.output_definitions import \
+    OutputDefinitions
+from django_analyses.models.output.types.list_output import ListOutput
 
 
 class ListOutputDefinition(OutputDefinition):

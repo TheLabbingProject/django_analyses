@@ -1,6 +1,5 @@
-from django_analyses.models.output.definitions.list_output_definition import (
-    ListOutputDefinition,
-)
+from django_analyses.models.output.definitions.list_output_definition import \
+    ListOutputDefinition
 from rest_framework import serializers
 
 

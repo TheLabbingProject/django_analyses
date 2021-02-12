@@ -1,9 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_analyses.models.input.types.input_types import InputTypes
-from tests.factories.input.definitions.float_input_definition import (
-    FloatInputDefinitionFactory,
-)
+from tests.factories.input.definitions.float_input_definition import \
+    FloatInputDefinitionFactory
 from tests.factories.input.types.float_input import FloatInputFactory
 
 

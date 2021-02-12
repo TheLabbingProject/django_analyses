@@ -1,6 +1,5 @@
-from django_analyses.models.input.definitions.boolean_input_definition import (
-    BooleanInputDefinition,
-)
+from django_analyses.models.input.definitions.boolean_input_definition import \
+    BooleanInputDefinition
 from rest_framework import serializers
 
 

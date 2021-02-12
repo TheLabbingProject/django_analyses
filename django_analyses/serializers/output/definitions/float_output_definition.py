@@ -1,6 +1,5 @@
-from django_analyses.models.output.definitions.float_output_definition import (
-    FloatOutputDefinition,
-)
+from django_analyses.models.output.definitions.float_output_definition import \
+    FloatOutputDefinition
 from rest_framework import serializers
 
 

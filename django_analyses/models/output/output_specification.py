@@ -1,7 +1,6 @@
 from django.db import models
-from django_analyses.models.managers.output_specification import (
-    OutputSpecificationManager,
-)
+from django_analyses.models.managers.output_specification import \
+    OutputSpecificationManager
 from django_extensions.db.models import TimeStampedModel
 
 

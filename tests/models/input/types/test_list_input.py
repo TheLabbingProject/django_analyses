@@ -2,9 +2,8 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_analyses.models.input.types.input_types import InputTypes
 from django_analyses.models.input.utils import ListElementTypes
-from tests.factories.input.definitions.list_input_definition import (
-    ListInputDefinitionFactory,
-)
+from tests.factories.input.definitions.list_input_definition import \
+    ListInputDefinitionFactory
 from tests.factories.input.types.list_input import ListInputFactory
 
 

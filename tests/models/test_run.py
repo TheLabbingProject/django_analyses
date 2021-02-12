@@ -1,9 +1,10 @@
+from pathlib import Path
+
 from django.conf import settings
 from django.test import TestCase
 from django_analyses.models.analysis import Analysis
 from django_analyses.models.analysis_version import AnalysisVersion
 from django_analyses.models.run import Run
-from pathlib import Path
 from tests.factories.input.types.string_input import StringInputFactory
 from tests.factories.pipeline.node import NodeFactory
 from tests.factories.run import RunFactory
@@ -45,7 +46,9 @@ class RunTestCase(TestCase):
     ###########
 
     def test_string(self):
-        expected = f"#{self.run.id} {self.run.analysis_version} run from {self.run.created}"  # noqa: E501
+        created = self.run.created.strftime("%Y-%m-%d %H:%M:%S")
+        version = self.run.analysis_version
+        expected = f"#{self.run.id} {version} run from {created}"
         value = str(self.run)
         self.assertEqual(value, expected)
 

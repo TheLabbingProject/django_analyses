@@ -5,10 +5,7 @@ subclasses.
 """
 
 from django_analyses.filters.input.input import InputFilter
-from django_analyses.filters.input.input_definition import (
-    InputDefinitionFilter,
-)
-from django_analyses.filters.input.input_specification import (
-    InputSpecificationFilter,
-)
-
+from django_analyses.filters.input.input_definition import \
+    InputDefinitionFilter
+from django_analyses.filters.input.input_specification import \
+    InputSpecificationFilter

@@ -6,7 +6,7 @@ Definition of the
 from django.db.models import QuerySet
 from django_analyses.models.managers.pipeline import PipelineManager
 from django_analyses.models.pipeline.node import Node
-from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
+from django_extensions.db.models import TimeStampedModel, TitleDescriptionModel
 
 
 class Pipeline(TitleDescriptionModel, TimeStampedModel):

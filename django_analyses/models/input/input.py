@@ -2,10 +2,11 @@
 Definition of the base :class:`Input` model.
 """
 
+from typing import Any
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from model_utils.managers import InheritanceManager
-from typing import Any
 
 
 class Input(models.Model):

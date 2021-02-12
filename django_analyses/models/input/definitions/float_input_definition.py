@@ -1,8 +1,8 @@
 from django.db import models
-from django_analyses.models.input.definitions.input_definitions import InputDefinitions
-from django_analyses.models.input.definitions.number_input_definition import (
-    NumberInputDefinition,
-)
+from django_analyses.models.input.definitions.input_definitions import \
+    InputDefinitions
+from django_analyses.models.input.definitions.number_input_definition import \
+    NumberInputDefinition
 from django_analyses.models.input.types.float_input import FloatInput
 
 

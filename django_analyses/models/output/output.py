@@ -1,6 +1,7 @@
+from typing import Any
+
 from django.db import models
 from model_utils.managers import InheritanceManager
-from typing import Any
 
 
 class Output(models.Model):

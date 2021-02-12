@@ -1,8 +1,8 @@
-import environ
 import os
 
-from tests.interfaces import Addition, Division, NormCalculation, Power
+import environ
 
+from tests.interfaces import Addition, Division, NormCalculation, Power
 
 env = environ.Env(
     DB_NAME=(str, "django_analyses"),
@@ -96,3 +96,16 @@ ANALYSIS_INTERFACES = {
     "norm": {"NumPy:1.18": NormCalculation},
     "power": {"1.0": Power},
 }
+
+# Date format
+DATE_FORMAT = "d/m/Y"
+
+# Time format
+TIME_FORMAT = "H:i:s"
+
+# Datetime format
+DATETIME_FORMAT = f"{DATE_FORMAT} {TIME_FORMAT}"
+
+# Time zone
+USE_TZ = True
+TIME_ZONE = "Asia/Jerusalem"

@@ -1,12 +1,10 @@
 from django_analyses.models.pipeline.node import Node
 from django_analyses.models.pipeline.pipe import Pipe
 from django_analyses.models.pipeline.pipeline import Pipeline
-from django_analyses.serializers.input.definitions.input_definition import (
-    InputDefinitionSerializer,
-)
-from django_analyses.serializers.output.definitions.output_definition import (
-    OutputDefinitionSerializer,
-)
+from django_analyses.serializers.input.definitions.input_definition import \
+    InputDefinitionSerializer
+from django_analyses.serializers.output.definitions.output_definition import \
+    OutputDefinitionSerializer
 from rest_framework import serializers
 
 

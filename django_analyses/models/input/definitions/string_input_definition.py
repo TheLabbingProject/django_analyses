@@ -5,13 +5,11 @@ from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django_analyses.models.input.definitions.input_definition import (
-    InputDefinition,
-)
+from django_analyses.models.input.definitions.input_definition import \
+    InputDefinition
+from django_analyses.models.input.definitions.input_definitions import \
+    InputDefinitions
 from django_analyses.models.input.types.string_input import StringInput
-from django_analyses.models.input.definitions.input_definitions import (
-    InputDefinitions,
-)
 
 
 class StringInputDefinition(InputDefinition):

@@ -1,14 +1,11 @@
 from django.test import TestCase
-from django_analyses.models.output.definitions.float_output_definition import (
-    FloatOutputDefinition,
-)
-from django_analyses.models.output.definitions.output_definitions import (
-    OutputDefinitions,
-)
+from django_analyses.models.output.definitions.float_output_definition import \
+    FloatOutputDefinition
+from django_analyses.models.output.definitions.output_definitions import \
+    OutputDefinitions
 from django_analyses.models.output.types.float_output import FloatOutput
-from tests.factories.output.definitions.float_output_definition import (
-    FloatOutputDefinitionFactory,
-)
+from tests.factories.output.definitions.float_output_definition import \
+    FloatOutputDefinitionFactory
 
 
 class FloatOutputDefinitionTestCase(TestCase):

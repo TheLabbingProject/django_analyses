@@ -4,9 +4,8 @@ Definition of an :class:`OutputSpecificationFilter` for the
 model.
 """
 
-from django_analyses.models.output.output_specification import (
-    OutputSpecification,
-)
+from django_analyses.models.output.output_specification import \
+    OutputSpecification
 from django_filters import rest_framework as filters
 
 

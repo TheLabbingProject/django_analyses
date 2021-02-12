@@ -2,9 +2,8 @@ from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_analyses.models.input.messages import REQUIRED_VALUE_MISSING
-from django_analyses.models.managers.input_specification import (
-    InputSpecificationManager,
-)
+from django_analyses.models.managers.input_specification import \
+    InputSpecificationManager
 from django_extensions.db.models import TimeStampedModel
 
 

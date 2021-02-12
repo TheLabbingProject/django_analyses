@@ -1,14 +1,11 @@
 from django.test import TestCase
-from django_analyses.models.output.definitions.file_output_definition import (
-    FileOutputDefinition,
-)
-from django_analyses.models.output.definitions.output_definitions import (
-    OutputDefinitions,
-)
+from django_analyses.models.output.definitions.file_output_definition import \
+    FileOutputDefinition
+from django_analyses.models.output.definitions.output_definitions import \
+    OutputDefinitions
 from django_analyses.models.output.types.file_output import FileOutput
-from tests.factories.output.definitions.file_output_definition import (
-    FileOutputDefinitionFactory,
-)
+from tests.factories.output.definitions.file_output_definition import \
+    FileOutputDefinitionFactory
 
 
 class FileOutputDefinitionTestCase(TestCase):

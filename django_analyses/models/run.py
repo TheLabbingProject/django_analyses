@@ -3,6 +3,9 @@ Definition of the :class:`Run` model.
 
 """
 import datetime
+import inspect
+from pathlib import Path
+from typing import Any
 
 from django.conf import settings
 from django.contrib.auth import get_user_model
@@ -10,10 +13,9 @@ from django.db import models
 from django.utils import timezone
 from django_analyses.models.managers.run import RunManager
 from django_analyses.utils.choice_enum import ChoiceEnum
+from django_analyses.utils.get_visualizers import get_visualizer
 from django_extensions.db.models import TimeStampedModel
 from model_utils.managers import InheritanceQuerySet
-from pathlib import Path
-from typing import Any
 
 
 class RunStatus(ChoiceEnum):
@@ -79,7 +81,8 @@ class Run(TimeStampedModel):
             String representation of this instance
         """
 
-        return f"#{self.id} {self.analysis_version} run from {self.created}"
+        formatted_time = self.created.strftime("%Y-%m-%d %H:%M:%S")
+        return f"#{self.id} {self.analysis_version} run from {formatted_time}"
 
     def get_input_set(self) -> InheritanceQuerySet:
         """
@@ -108,6 +111,31 @@ class Run(TimeStampedModel):
         """
 
         return self.base_output_set.select_subclasses()
+
+    def get_input(self, key: str) -> Any:
+        """
+        Returns a particular output created in this run according to its
+        definition's
+        :attr:`~django_analyses.models.input.definitions.input_definition.key`
+        field.
+
+        Parameters
+        ----------
+        key : str
+            The desired :class:`~django_analyses.models.input.input.Input`'s
+            associated definition keyword
+
+        Returns
+        -------
+        Any
+            Input value
+        """
+
+        match = [
+            inpt for inpt in self.input_set.all() if inpt.definition.key == key
+        ]
+        if match:
+            return match[0].value
 
     def get_output(self, key: str) -> Any:
         """
@@ -221,6 +249,18 @@ class Run(TimeStampedModel):
             output.definition.key: output.json_value
             for output in self.output_set.all()
         }
+
+    def get_visualizer(self, provider: str = None) -> callable:
+        return get_visualizer(
+            analysis_version=self.analysis_version, provider=provider
+        )
+
+    def visualize(self) -> None:
+        visualizer = self.get_visualizer()
+        if inspect.isclass(visualizer):
+            visualizer = visualizer().visualize(self)
+        else:
+            visualizer(self)
 
     @property
     def path(self) -> Path:

@@ -3,9 +3,8 @@ Definition of an :class:`InputDefinitionFilter` for the
 :class:`~django_analyses.models.input.definitions.InputDefinition` model.
 """
 
-from django_analyses.models.input.definitions.input_definition import (
-    InputDefinition,
-)
+from django_analyses.models.input.definitions.input_definition import \
+    InputDefinition
 from django_filters import rest_framework as filters
 
 

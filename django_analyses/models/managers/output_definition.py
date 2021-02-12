@@ -1,4 +1,5 @@
 from copy import deepcopy
+
 from model_utils.managers import InheritanceManager
 
 

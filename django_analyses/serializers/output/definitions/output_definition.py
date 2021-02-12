@@ -1,21 +1,16 @@
 import importlib
 
 from django.conf import settings
-from django_analyses.models.output.definitions.output_definition import (
-    OutputDefinition,
-)
-from django_analyses.models.output.definitions.output_definitions import (
-    OutputDefinitions,
-)
-from django_analyses.serializers.output.definitions.file_output_definition import (  # noqa: E501
-    FileOutputDefinitionSerializer,
-)
-from django_analyses.serializers.output.definitions.float_output_definition import (  # noqa: E501
-    FloatOutputDefinitionSerializer,
-)
-from django_analyses.serializers.output.definitions.list_output_definition import (  # noqa: E501
-    ListOutputDefinitionSerializer,
-)
+from django_analyses.models.output.definitions.output_definition import \
+    OutputDefinition
+from django_analyses.models.output.definitions.output_definitions import \
+    OutputDefinitions
+from django_analyses.serializers.output.definitions.file_output_definition import \
+    FileOutputDefinitionSerializer  # noqa: E501
+from django_analyses.serializers.output.definitions.float_output_definition import \
+    FloatOutputDefinitionSerializer  # noqa: E501
+from django_analyses.serializers.output.definitions.list_output_definition import \
+    ListOutputDefinitionSerializer  # noqa: E501
 from django_analyses.serializers.utils.polymorphic import PolymorphicSerializer
 from rest_framework.serializers import Serializer
 

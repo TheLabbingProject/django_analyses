@@ -1,15 +1,11 @@
-from django_analyses.models.input.definitions import (
-    BooleanInputDefinition,
-    FileInputDefinition,
-    FloatInputDefinition,
-    IntegerInputDefinition,
-    ListInputDefinition,
-    StringInputDefinition,
-)
-from django_analyses.models.output.definitions import (
-    FileOutputDefinition,
-    FloatOutputDefinition,
-)
+from django_analyses.models.input.definitions import (BooleanInputDefinition,
+                                                      FileInputDefinition,
+                                                      FloatInputDefinition,
+                                                      IntegerInputDefinition,
+                                                      ListInputDefinition,
+                                                      StringInputDefinition)
+from django_analyses.models.output.definitions import (FileOutputDefinition,
+                                                       FloatOutputDefinition)
 
 VERSIONLESS_ANALYSIS = {
     "title": "Test Analysis",

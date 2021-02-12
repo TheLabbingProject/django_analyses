@@ -1,16 +1,16 @@
 """
 Definition of the :class:`InputDefinition` class.
 """
-from django.core.exceptions import ValidationError
-from django.db.models.base import ModelBase
-from django.db import models
-from django_analyses.models.input.input import Input
-from django_analyses.models.managers.input_definition import (
-    InputDefinitionManager,
-)
-from django_analyses.models.input.definitions import messages
 from pathlib import Path
 from typing import Any
+
+from django.core.exceptions import ValidationError
+from django.db import models
+from django.db.models.base import ModelBase
+from django_analyses.models.input.definitions import messages
+from django_analyses.models.input.input import Input
+from django_analyses.models.managers.input_definition import \
+    InputDefinitionManager
 
 
 class InputDefinition(models.Model):

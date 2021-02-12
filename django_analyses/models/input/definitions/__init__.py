@@ -9,10 +9,10 @@ passed to associated
 :class:`~django_analyses.models.analysis_version.AnalysisVersion`.
 """
 
-from .string_input_definition import StringInputDefinition
-from .integer_input_definition import IntegerInputDefinition
-from .float_input_definition import FloatInputDefinition
-from .file_input_definition import FileInputDefinition
-from .directory_input_definition import DirectoryInputDefinition
 from .boolean_input_definition import BooleanInputDefinition
+from .directory_input_definition import DirectoryInputDefinition
+from .file_input_definition import FileInputDefinition
+from .float_input_definition import FloatInputDefinition
+from .integer_input_definition import IntegerInputDefinition
 from .list_input_definition import ListInputDefinition
+from .string_input_definition import StringInputDefinition

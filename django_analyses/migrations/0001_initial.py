@@ -4,7 +4,6 @@ import django.contrib.postgres.fields
 import django.contrib.postgres.fields.jsonb
 import django.db.models.deletion
 import django_extensions.db.fields
-
 from django.conf import settings
 from django.db import migrations, models
 

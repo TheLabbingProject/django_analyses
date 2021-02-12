@@ -3,13 +3,11 @@ Definition of the :class:`~django_analyses.models.pipeline.pipe.Pipe` class.
 """
 
 from django.db import models
-from django_analyses.models.input.definitions.input_definition import (
-    InputDefinition,
-)
+from django_analyses.models.input.definitions.input_definition import \
+    InputDefinition
 from django_analyses.models.managers.pipe import PipeManager
-from django_analyses.models.output.definitions.output_definition import (
-    OutputDefinition,
-)
+from django_analyses.models.output.definitions.output_definition import \
+    OutputDefinition
 
 
 class Pipe(models.Model):

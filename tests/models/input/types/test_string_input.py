@@ -1,11 +1,11 @@
+from pathlib import Path
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_analyses.models.input.types.input_types import InputTypes
-from pathlib import Path
-from tests.factories.input.definitions.string_input_definition import (
-    StringInputDefinitionFactory,
-)
+from tests.factories.input.definitions.string_input_definition import \
+    StringInputDefinitionFactory
 from tests.factories.input.types.string_input import StringInputFactory
 
 

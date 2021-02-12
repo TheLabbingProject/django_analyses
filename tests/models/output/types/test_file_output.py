@@ -1,8 +1,7 @@
 from django.test import TestCase
 from django_analyses.models.output.types.output_types import OutputTypes
-from tests.factories.output.definitions.file_output_definition import (
-    FileOutputDefinitionFactory,
-)
+from tests.factories.output.definitions.file_output_definition import \
+    FileOutputDefinitionFactory
 from tests.factories.output.types.file_output import FileOutputFactory
 
 

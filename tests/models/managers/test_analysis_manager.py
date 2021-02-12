@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django_analyses.models.analysis import Analysis
-from tests.models.managers.fixtures import ANALYSIS_0, ANALYSIS_1, VERSIONLESS_ANALYSIS
+from tests.models.managers.fixtures import (ANALYSIS_0, ANALYSIS_1,
+                                            VERSIONLESS_ANALYSIS)
 
 
 class AnalysisManagerTestCase(TestCase):

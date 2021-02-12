@@ -1,12 +1,14 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from django_analyses.models.output.definitions.output_definition import OutputDefinition
+from django_analyses.models.input.definitions.file_input_definition import \
+    FileInputDefinition
+from django_analyses.models.managers.output_definition import \
+    OutputDefinitionManager
+from django_analyses.models.output.definitions.output_definition import \
+    OutputDefinition
 from django_analyses.models.output.types.file_output import FileOutput
-from django_analyses.models.managers.output_definition import OutputDefinitionManager
-from django_analyses.models.input.definitions.file_input_definition import (
-    FileInputDefinition,
-)
-from tests.factories.output.definitions.output_definition import OutputDefinitionFactory
+from tests.factories.output.definitions.output_definition import \
+    OutputDefinitionFactory
 
 
 class OutputDefinitionTestCase(TestCase):

@@ -1,16 +1,12 @@
 from django.test import TestCase
-from django_analyses.models.input.definitions.float_input_definition import (
-    FloatInputDefinition,
-)
-from django_analyses.models.output.definitions.float_output_definition import (
-    FloatOutputDefinition,
-)
-from tests.factories.input.definitions.float_input_definition import (
-    FloatInputDefinitionFactory,
-)
-from tests.factories.output.definitions.float_output_definition import (
-    FloatOutputDefinitionFactory,
-)
+from django_analyses.models.input.definitions.float_input_definition import \
+    FloatInputDefinition
+from django_analyses.models.output.definitions.float_output_definition import \
+    FloatOutputDefinition
+from tests.factories.input.definitions.float_input_definition import \
+    FloatInputDefinitionFactory
+from tests.factories.output.definitions.float_output_definition import \
+    FloatOutputDefinitionFactory
 from tests.factories.pipeline.pipe import PipeFactory
 
 

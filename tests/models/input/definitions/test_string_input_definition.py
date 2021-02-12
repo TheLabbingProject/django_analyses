@@ -1,13 +1,12 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
+from django_analyses.models.input.definitions.input_definitions import \
+    InputDefinitions
+from django_analyses.models.input.definitions.string_input_definition import \
+    StringInputDefinition
 from django_analyses.models.input.types.string_input import StringInput
-from django_analyses.models.input.definitions.input_definitions import InputDefinitions
-from django_analyses.models.input.definitions.string_input_definition import (
-    StringInputDefinition,
-)
-from tests.factories.input.definitions.string_input_definition import (
-    StringInputDefinitionFactory,
-)
+from tests.factories.input.definitions.string_input_definition import \
+    StringInputDefinitionFactory
 
 
 class StringInputDefinitionTestCase(TestCase):

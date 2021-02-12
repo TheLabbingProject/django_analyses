@@ -5,23 +5,16 @@ keep track of the inputs associated with some
 :class:`~django_analyses.models.run.Run` instance.
 """
 
+from django_analyses.models.input.definitions import (BooleanInputDefinition,
+                                                      DirectoryInputDefinition,
+                                                      FileInputDefinition,
+                                                      FloatInputDefinition,
+                                                      IntegerInputDefinition,
+                                                      ListInputDefinition,
+                                                      StringInputDefinition)
 from django_analyses.models.input.input import Input
-from django_analyses.models.input.definitions import (
-    BooleanInputDefinition,
-    DirectoryInputDefinition,
-    FileInputDefinition,
-    FloatInputDefinition,
-    IntegerInputDefinition,
-    ListInputDefinition,
-    StringInputDefinition,
-)
-from django_analyses.models.input.types import (
-    BooleanInput,
-    DirectoryInput,
-    FileInput,
-    FloatInput,
-    IntegerInput,
-    ListInput,
-    StringInput,
-)
 from django_analyses.models.input.input_specification import InputSpecification
+from django_analyses.models.input.types import (BooleanInput, DirectoryInput,
+                                                FileInput, FloatInput,
+                                                IntegerInput, ListInput,
+                                                StringInput)

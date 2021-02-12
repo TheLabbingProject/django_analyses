@@ -1,10 +1,10 @@
 import math
+from typing import List, Union
 
 from celery import group, shared_task
 from django_analyses.models.pipeline.node import Node
 from django_analyses.models.pipeline.pipeline import Pipeline
 from django_analyses.pipeline_runner import PipelineRunner
-from typing import List, Union
 
 
 @shared_task(name="django_analyses.node-execution")

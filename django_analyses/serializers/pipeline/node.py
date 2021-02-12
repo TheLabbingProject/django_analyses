@@ -1,5 +1,6 @@
 from django_analyses.models.pipeline.node import Node
-from django_analyses.serializers.analysis_version import AnalysisVersionSerializer
+from django_analyses.serializers.analysis_version import \
+    AnalysisVersionSerializer
 from rest_framework import serializers
 
 

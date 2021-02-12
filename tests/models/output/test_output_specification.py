@@ -1,10 +1,9 @@
 from django.db.models import QuerySet
 from django.test import TestCase
-from django_analyses.models.output.definitions.file_output_definition import (
-    FileOutputDefinition,
-)
-
-from tests.factories.output.output_specification import OutputSpecificationFactory
+from django_analyses.models.output.definitions.file_output_definition import \
+    FileOutputDefinition
+from tests.factories.output.output_specification import \
+    OutputSpecificationFactory
 
 
 class OutputSpecificationTestCase(TestCase):
