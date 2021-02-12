@@ -3,9 +3,10 @@ Definition of a custom :class:`~django.db.models.Manager` for the
 :class:`~django_analyses.models.analysis.Analysis` class.
 """
 
+from typing import Dict, Tuple
+
 from django.db import models
 from django_analyses.models.analysis_version import AnalysisVersion
-from typing import Dict, Tuple
 
 
 class AnalysisManager(models.Manager):

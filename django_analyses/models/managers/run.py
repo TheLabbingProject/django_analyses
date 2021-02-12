@@ -10,7 +10,6 @@ from django_analyses.models.analysis_version import AnalysisVersion
 from django_analyses.utils.input_manager import InputManager
 from django_analyses.utils.output_manager import OutputManager
 
-
 User = get_user_model()
 
 

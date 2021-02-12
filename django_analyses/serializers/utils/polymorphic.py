@@ -5,6 +5,7 @@ https://stackoverflow.com/questions/48911345/drf-how-to-serialize-models-inherit
 """
 
 from enum import Enum
+
 from rest_framework import serializers
 
 

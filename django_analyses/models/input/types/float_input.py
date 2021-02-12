@@ -1,6 +1,6 @@
 from django.db import models
-from django_analyses.models.input.types.number_input import NumberInput
 from django_analyses.models.input.types.input_types import InputTypes
+from django_analyses.models.input.types.number_input import NumberInput
 
 
 class FloatInput(NumberInput):

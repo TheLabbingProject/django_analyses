@@ -6,9 +6,8 @@ Definition of a custom :class:`~django.db.models.Manager` for the
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django_analyses.models.input.input_specification import InputSpecification
-from django_analyses.models.output.output_specification import (
-    OutputSpecification,
-)
+from django_analyses.models.output.output_specification import \
+    OutputSpecification
 
 
 class AnalysisVersionManager(models.Manager):

@@ -1,9 +1,8 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
 from django_analyses.models.input.types.input_types import InputTypes
-from tests.factories.input.definitions.integer_input_definition import (
-    IntegerInputDefinitionFactory,
-)
+from tests.factories.input.definitions.integer_input_definition import \
+    IntegerInputDefinitionFactory
 from tests.factories.input.types.integer_input import IntegerInputFactory
 
 

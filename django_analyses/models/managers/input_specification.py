@@ -6,9 +6,8 @@ class.
 
 from django.db import models
 from django.db.models import Count, QuerySet
-from django_analyses.models.input.definitions.input_definition import (
-    InputDefinition,
-)
+from django_analyses.models.input.definitions.input_definition import \
+    InputDefinition
 
 
 class InputSpecificationManager(models.Manager):

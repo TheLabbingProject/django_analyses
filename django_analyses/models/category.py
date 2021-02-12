@@ -3,7 +3,7 @@ Definition of the :class:`~django_analyses.models.category.Category` class.
 """
 
 from django.db import models
-from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
+from django_extensions.db.models import TimeStampedModel, TitleDescriptionModel
 
 
 class Category(TitleDescriptionModel, TimeStampedModel):

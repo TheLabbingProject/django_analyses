@@ -1,8 +1,7 @@
-import environ
 import os
 
+import environ
 from tests.interfaces import Addition, Division, NormCalculation, Power
-
 
 env = environ.Env(
     DB_NAME=(str, "django_analyses"),

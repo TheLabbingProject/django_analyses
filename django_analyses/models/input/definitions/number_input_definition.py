@@ -1,5 +1,6 @@
 from django.core.exceptions import ValidationError
-from django_analyses.models.input.definitions.input_definition import InputDefinition
+from django_analyses.models.input.definitions.input_definition import \
+    InputDefinition
 
 
 class NumberInputDefinition(InputDefinition):

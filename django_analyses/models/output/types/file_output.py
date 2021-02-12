@@ -1,8 +1,9 @@
+from pathlib import Path
+
 from django.db import models
 from django_analyses.models.output.output import Output
 from django_analyses.models.output.types.output_types import OutputTypes
 from django_analyses.models.utils.get_media_root import get_media_root
-from pathlib import Path
 
 
 class FileOutput(Output):

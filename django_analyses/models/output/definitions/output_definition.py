@@ -1,10 +1,10 @@
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.base import ModelBase
-from django_analyses.models.managers.output_definition import OutputDefinitionManager
-from django_analyses.models.output.definitions.messages import (
-    INVALID_OUTPUT_CLASS_DEFINITION,
-)
+from django_analyses.models.managers.output_definition import \
+    OutputDefinitionManager
+from django_analyses.models.output.definitions.messages import \
+    INVALID_OUTPUT_CLASS_DEFINITION
 from django_analyses.models.output.output import Output
 
 

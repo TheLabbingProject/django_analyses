@@ -1,13 +1,15 @@
 """
-Definition of the :class:`~django_analyses.models.pipeline.node.Node` class.
+Definition of the :class:`Node` class.
 """
 
+from typing import Any, Dict, Iterable, List, Tuple, Union
+
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django_analyses.models.pipeline.messages import BAD_INPUTS_TYPE
 from django_analyses.models.run import Run
 from django_extensions.db.models import TimeStampedModel
-from typing import Any, Dict, List, Tuple, Union
 
 User = get_user_model()
 
@@ -313,14 +315,54 @@ class Node(TimeStampedModel):
             Existing node runs
         """
 
-        all_runs = Run.objects.filter(analysis_version=self.analysis_version)
-        runs = [
-            run
-            for run in all_runs
-            if self.check_run_configuration_sameness(run)
-        ]
-        run_ids = [run.id for run in runs]
-        return Run.objects.filter(id__in=run_ids)
+        full_configuration = self.get_full_configuration({})
+        return self.get_run_by_input(full_configuration)
+
+    def get_run_by_input(
+        self,
+        input_specification: Union[Dict[str, Any], Iterable[Dict[str, Any]]],
+    ) -> Union[Run, List[Run]]:
+        if isinstance(input_specification, dict):
+            potential_runs = {key: [] for key in input_specification.keys()}
+            for key, value in input_specification.items():
+                try:
+                    definition = self.analysis_version.input_definitions.get(
+                        key=key
+                    )
+                except ObjectDoesNotExist:
+                    pass
+                else:
+                    try:
+                        matching_input = definition.input_set.filter(
+                            value=value
+                        )
+                    except ObjectDoesNotExist:
+                        pass
+                    else:
+                        matching_runs = list(
+                            set([inpt.run for inpt in matching_input])
+                        )
+                        potential_runs[key] += matching_runs
+            potential_runs = set.intersection(
+                *map(set, potential_runs.values())
+            )
+            if len(potential_runs) == 1:
+                return potential_runs.pop()
+            elif potential_runs:
+                run_ids = [run.id for run in potential_runs]
+                return Run.objects.filter(id__in=run_ids)
+        elif isinstance(input_specification, Iterable):
+            run_ids = [
+                run.id
+                for run in filter(
+                    None,
+                    [
+                        self.get_run_by_input(specification)
+                        for specification in input_specification
+                    ],
+                )
+            ]
+            return Run.objects.filter(id__in=run_ids)
 
     def is_entry_node(self, pipeline) -> bool:
         """

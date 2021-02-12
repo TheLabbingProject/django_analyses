@@ -4,10 +4,10 @@ from django_analyses.models.analysis_version import AnalysisVersion
 from django_analyses.models.pipeline.node import Node
 from django_analyses.models.pipeline.pipeline import Pipeline
 from django_analyses.models.run import Run
+from django_analyses.pipeline_runner import PipelineRunner
 from tests.factories.pipeline.node import NodeFactory
 from tests.factories.pipeline.pipe import PipeFactory
 from tests.factories.pipeline.pipeline import PipelineFactory
-from django_analyses.pipeline_runner import PipelineRunner
 from tests.fixtures import ANALYSES, PIPELINES
 
 

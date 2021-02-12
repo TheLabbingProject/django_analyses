@@ -3,12 +3,10 @@ import importlib
 from django.conf import settings
 from django_analyses.models.output.output import Output
 from django_analyses.models.output.types.output_types import OutputTypes
-from django_analyses.serializers.output.types.file_output import (
-    FileOutputSerializer,
-)
-from django_analyses.serializers.output.types.list_output import (
-    ListOutputSerializer,
-)
+from django_analyses.serializers.output.types.file_output import \
+    FileOutputSerializer
+from django_analyses.serializers.output.types.list_output import \
+    ListOutputSerializer
 from django_analyses.serializers.utils.polymorphic import PolymorphicSerializer
 from rest_framework.serializers import Serializer
 

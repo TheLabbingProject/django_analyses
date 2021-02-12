@@ -10,26 +10,23 @@ References
    https://docs.djangoproject.com/en/3.0/ref/contrib/admin/
 """
 import datetime
+from typing import Union
 
 from django.contrib import admin
 from django.urls import reverse
+from django.utils.safestring import mark_safe
 from django_analyses.models.analysis import Analysis
 from django_analyses.models.analysis_version import AnalysisVersion
-from django_analyses.models.input.definitions.input_definition import (
-    InputDefinition,
-)
+from django_analyses.models.input.definitions.input_definition import \
+    InputDefinition
 from django_analyses.models.input.input import Input
 from django_analyses.models.input.input_specification import InputSpecification
-from django_analyses.models.output.definitions.output_definition import (
-    OutputDefinition,
-)
+from django_analyses.models.output.definitions.output_definition import \
+    OutputDefinition
 from django_analyses.models.output.output import Output
-from django_analyses.models.output.output_specification import (
-    OutputSpecification,
-)
+from django_analyses.models.output.output_specification import \
+    OutputSpecification
 from django_analyses.models.run import Run
-from django.utils.safestring import mark_safe
-from typing import Union
 
 
 class AnalysisVersionInline(admin.TabularInline):

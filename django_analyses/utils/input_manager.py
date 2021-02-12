@@ -2,17 +2,15 @@
 Definition of the :class:`InputManager` class.
 """
 
-from django_analyses.models.input.definitions.directory_input_definition import (  # noqa: E501
-    DirectoryInputDefinition,
-)
-from django_analyses.models.input.definitions.input_definition import (
-    InputDefinition,
-)
-from django_analyses.models.input.definitions.string_input_definition import (
-    StringInputDefinition,
-)
-from django_analyses.models.input.input import Input
 from typing import Any, List, Set, Tuple
+
+from django_analyses.models.input.definitions.directory_input_definition import \
+    DirectoryInputDefinition  # noqa: E501
+from django_analyses.models.input.definitions.input_definition import \
+    InputDefinition
+from django_analyses.models.input.definitions.string_input_definition import \
+    StringInputDefinition
+from django_analyses.models.input.input import Input
 
 BAD_KEY = "Invalid input definition key: {key}"
 

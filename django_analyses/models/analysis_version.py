@@ -1,13 +1,13 @@
 """
 Definition of the :class:`AnalysisVersion` class.
 """
-from django.db import models
-from django_analyses.models.managers.analysis_version import (
-    AnalysisVersionManager,
-)
-from django_analyses.models.utils import get_analysis_version_interface
-from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
 from typing import Any
+
+from django.db import models
+from django_analyses.models.managers.analysis_version import \
+    AnalysisVersionManager
+from django_analyses.models.utils import get_analysis_version_interface
+from django_extensions.db.models import TimeStampedModel, TitleDescriptionModel
 
 
 class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):

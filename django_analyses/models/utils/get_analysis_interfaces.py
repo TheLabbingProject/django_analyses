@@ -3,7 +3,6 @@ Utility functions for analysis version interfaces retrieval.
 """
 from django.conf import settings
 
-
 NO_INTERFACES = (
     "Failed to find ANALYSIS_INTERFACES dictionary in project settings!"
 )

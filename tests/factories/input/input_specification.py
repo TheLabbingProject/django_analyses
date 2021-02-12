@@ -1,25 +1,18 @@
 import factory
-
 from factory.django import DjangoModelFactory
 from tests.factories.analysis import AnalysisFactory
-from tests.factories.input.definitions.boolean_input_definition import (
-    BooleanInputDefinitionFactory,
-)
-from tests.factories.input.definitions.file_input_definition import (
-    FileInputDefinitionFactory,
-)
-from tests.factories.input.definitions.float_input_definition import (
-    FloatInputDefinitionFactory,
-)
-from tests.factories.input.definitions.integer_input_definition import (
-    IntegerInputDefinitionFactory,
-)
-from tests.factories.input.definitions.list_input_definition import (
-    ListInputDefinitionFactory,
-)
-from tests.factories.input.definitions.string_input_definition import (
-    StringInputDefinitionFactory,
-)
+from tests.factories.input.definitions.boolean_input_definition import \
+    BooleanInputDefinitionFactory
+from tests.factories.input.definitions.file_input_definition import \
+    FileInputDefinitionFactory
+from tests.factories.input.definitions.float_input_definition import \
+    FloatInputDefinitionFactory
+from tests.factories.input.definitions.integer_input_definition import \
+    IntegerInputDefinitionFactory
+from tests.factories.input.definitions.list_input_definition import \
+    ListInputDefinitionFactory
+from tests.factories.input.definitions.string_input_definition import \
+    StringInputDefinitionFactory
 
 
 class InputSpecificationFactory(DjangoModelFactory):

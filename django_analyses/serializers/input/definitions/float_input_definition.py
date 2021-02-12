@@ -1,6 +1,5 @@
-from django_analyses.models.input.definitions.float_input_definition import (
-    FloatInputDefinition,
-)
+from django_analyses.models.input.definitions.float_input_definition import \
+    FloatInputDefinition
 from rest_framework import serializers
 
 

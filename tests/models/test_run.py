@@ -1,9 +1,10 @@
+from pathlib import Path
+
 from django.conf import settings
 from django.test import TestCase
 from django_analyses.models.analysis import Analysis
 from django_analyses.models.analysis_version import AnalysisVersion
 from django_analyses.models.run import Run
-from pathlib import Path
 from tests.factories.input.types.string_input import StringInputFactory
 from tests.factories.pipeline.node import NodeFactory
 from tests.factories.run import RunFactory

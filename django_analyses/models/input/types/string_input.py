@@ -1,9 +1,10 @@
+from pathlib import Path
+
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import models
 from django_analyses.models.input.input import Input
 from django_analyses.models.input.types.input_types import InputTypes
-from pathlib import Path
 
 
 class StringInput(Input):

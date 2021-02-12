@@ -1,10 +1,8 @@
 import factory
-
 from factory.django import DjangoModelFactory
-from tests.factories.output.definitions.file_output_definition import (
-    FileOutputDefinitionFactory,
-)
 from tests.factories.analysis import AnalysisFactory
+from tests.factories.output.definitions.file_output_definition import \
+    FileOutputDefinitionFactory
 
 
 class OutputSpecificationFactory(DjangoModelFactory):

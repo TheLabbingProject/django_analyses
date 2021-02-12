@@ -2,14 +2,13 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from tests.factories.analysis import AnalysisFactory
 from tests.factories.analysis_version import AnalysisVersionFactory
-from tests.factories.input.definitions.float_input_definition import (
-    FloatInputDefinitionFactory,
-)
+from tests.factories.input.definitions.float_input_definition import \
+    FloatInputDefinitionFactory
 from tests.factories.input.input_specification import InputSpecificationFactory
-from tests.factories.output.output_specification import OutputSpecificationFactory
-from tests.factories.output.definitions.float_output_definition import (
-    FloatOutputDefinitionFactory,
-)
+from tests.factories.output.definitions.float_output_definition import \
+    FloatOutputDefinitionFactory
+from tests.factories.output.output_specification import \
+    OutputSpecificationFactory
 from tests.interfaces import Power
 
 

@@ -5,9 +5,8 @@ for the :class:`~django_analyses.models.output.definitions.OutputDefinition`
 model.
 """
 
-from django_analyses.models.output.definitions.output_definition import (
-    OutputDefinition,
-)
+from django_analyses.models.output.definitions.output_definition import \
+    OutputDefinition
 from django_filters import rest_framework as filters
 
 

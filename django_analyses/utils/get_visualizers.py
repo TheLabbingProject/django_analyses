@@ -1,3 +1,5 @@
+from typing import Callable
+
 from django.conf import settings
 from django_analyses.models.analysis_version import AnalysisVersion
 from django_analyses.utils import messages
@@ -32,7 +34,7 @@ def get_visualizer(
             message = messages.MISSING_VISUALIZATION_PROVIDER.format(
                 analysis_version=analysis_version, providers=providers,
             )
-        elif isinstance(analysis_version_visualizers, callable):
+        elif isinstance(analysis_version_visualizers, Callable):
             return analysis_version_visualizers
     message = messages.VISUALIZER_NOT_IMPLEMENTED.format(
         analysis_version=analysis_version

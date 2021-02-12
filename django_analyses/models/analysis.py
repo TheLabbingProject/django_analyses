@@ -6,7 +6,7 @@ Definition of the :class:`~django_analyses.models.analysis.Analysis` class.
 from django.db import models
 from django_analyses.models.category import Category
 from django_analyses.models.managers.analysis import AnalysisManager
-from django_extensions.db.models import TitleDescriptionModel, TimeStampedModel
+from django_extensions.db.models import TimeStampedModel, TitleDescriptionModel
 
 
 class Analysis(TitleDescriptionModel, TimeStampedModel):

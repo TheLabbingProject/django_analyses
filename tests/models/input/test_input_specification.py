@@ -1,25 +1,18 @@
 from django.core.exceptions import ValidationError
 from django.db.models import QuerySet
 from django.test import TestCase
-from django_analyses.models.input.definitions.boolean_input_definition import (
-    BooleanInputDefinition,
-)
-from django_analyses.models.input.definitions.file_input_definition import (
-    FileInputDefinition,
-)
-from django_analyses.models.input.definitions.float_input_definition import (
-    FloatInputDefinition,
-)
-from django_analyses.models.input.definitions.integer_input_definition import (
-    IntegerInputDefinition,
-)
-from django_analyses.models.input.definitions.list_input_definition import (
-    ListInputDefinition,
-)
-from django_analyses.models.input.definitions.string_input_definition import (
-    StringInputDefinition,
-)
-
+from django_analyses.models.input.definitions.boolean_input_definition import \
+    BooleanInputDefinition
+from django_analyses.models.input.definitions.file_input_definition import \
+    FileInputDefinition
+from django_analyses.models.input.definitions.float_input_definition import \
+    FloatInputDefinition
+from django_analyses.models.input.definitions.integer_input_definition import \
+    IntegerInputDefinition
+from django_analyses.models.input.definitions.list_input_definition import \
+    ListInputDefinition
+from django_analyses.models.input.definitions.string_input_definition import \
+    StringInputDefinition
 from tests.factories.input.input_specification import InputSpecificationFactory
 
 

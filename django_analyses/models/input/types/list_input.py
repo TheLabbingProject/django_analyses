@@ -1,9 +1,10 @@
+from pathlib import Path
+
 from django.core.exceptions import ValidationError
 from django.db import models
 from django_analyses.models.input.input import Input
 from django_analyses.models.input.types.input_types import InputTypes
-from django_analyses.models.input.utils import ListElementTypes, TYPES_DICT
-from pathlib import Path
+from django_analyses.models.input.utils import TYPES_DICT, ListElementTypes
 
 
 class ListInput(Input):

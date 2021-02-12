@@ -1,12 +1,11 @@
 from django.test import TestCase
-from django_analyses.models.input.definitions.file_input_definition import (
-    FileInputDefinition,
-)
-from django_analyses.models.input.definitions.input_definitions import InputDefinitions
+from django_analyses.models.input.definitions.file_input_definition import \
+    FileInputDefinition
+from django_analyses.models.input.definitions.input_definitions import \
+    InputDefinitions
 from django_analyses.models.input.types.file_input import FileInput
-from tests.factories.input.definitions.file_input_definition import (
-    FileInputDefinitionFactory,
-)
+from tests.factories.input.definitions.file_input_definition import \
+    FileInputDefinitionFactory
 
 
 class FileInputDefinitionTestCase(TestCase):

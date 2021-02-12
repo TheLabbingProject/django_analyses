@@ -1,6 +1,5 @@
-from django_analyses.models.input.definitions.string_input_definition import (
-    StringInputDefinition,
-)
+from django_analyses.models.input.definitions.string_input_definition import \
+    StringInputDefinition
 from rest_framework import serializers
 
 
