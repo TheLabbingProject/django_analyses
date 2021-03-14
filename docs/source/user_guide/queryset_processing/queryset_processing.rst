@@ -9,7 +9,7 @@ Minimal Exmaple
 .. role:: raw-html(raw)
     :format: html
 
-This section details the recommended preocedure for creating an interface to
+This section details the recommended procedure for creating an interface to
 easily run some node in batch over a default or provided queryset of some
 data-representing model.
 
