@@ -16,6 +16,7 @@ Subpackages
 
    django_analyses.filters
    django_analyses.models
+   django_analyses.runner
    django_analyses.serializers
    django_analyses.utils
    django_analyses.views
