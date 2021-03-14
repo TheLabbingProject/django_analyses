@@ -7,3 +7,4 @@ User Guide
 
    analysis_integration/analysis_integration
    pipeline_generation/pipeline_generation
+   queryset_processing/queryset_processing
