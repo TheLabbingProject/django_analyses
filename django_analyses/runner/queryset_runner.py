@@ -140,7 +140,8 @@ class QuerySetRunner:
         log_level : int, optional
             Logging level to use, by default 20 (INFO)
         """
-        message = self.FILTER_QUERYSET_START
+        prefix = "" if self._search else "\n"
+        message = prefix + self.FILTER_QUERYSET_START
         _LOGGER.log(log_level, message)
 
     def get_default_queryset(self, log_level: int = logging.INFO) -> QuerySet:
@@ -493,7 +494,7 @@ class QuerySetRunner:
         queryset = (
             self.get_default_queryset(log_level=log_level)
             if self._search
-            else queryset
+            else self.filter_queryset(queryset)
         )
         existing, pending = self.query_progress(queryset, log_level=log_level)
 
