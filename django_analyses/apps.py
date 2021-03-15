@@ -21,7 +21,7 @@ class DjangoAnalysesConfig(AppConfig):
     * `AppConfig attributes`_
 
     .. _AppConfig attributes:
-    https://docs.djangoproject.com/en/3.0/ref/applications/#configurable-attributes
+       https://docs.djangoproject.com/en/3.0/ref/applications/#configurable-attributes
     """
 
     #: Full Python path to the application.

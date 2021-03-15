@@ -66,18 +66,18 @@ To run the specified node over all ``Scan`` instance in the database:
     Scan Preprocessing v1.0: Batch Execution
 
     🔎 Default execution queryset generation:
-    Querying execution candidates...
-    Filtering queryset...
-    100000 execution candidates found.
+    Querying Scan instances...
+    1000 instances found.
 
     ⚖ Checking execution status for the input queryset:
     Filtering existing runs...
-    5000 instances pending execution.
+    20 existing runs found.
+    980 instances pending execution.
 
     🔀 Generating input specifications:
-    5000 input specifications prepared.
+    980 input specifications prepared.
 
-    🚀Successfully started Scan Preprocessing v1.0 execution over 5000 Scan instances🚀
+    🚀Successfully started Scan Preprocessing v1.0 execution over 980 Scan instances🚀
 
 :class:`~django_analyses.runner.queryset_runner.QuerySetRunner` took care of
 querying all instances of the ``Scan`` model, checking for pending runs,
@@ -96,8 +96,9 @@ method. For example, if we would like to process only scans with
 ``"anatomical"`` in their description:
 
 .. code-block:: python
-    :emphasize-lines: 15, 20-22
+    :emphasize-lines: 16, 20-28
 
+    import logging
     from django.db.models import QuerySet
     from django_analyses.runner import QuerySetRunner
     from myapp.models.scan import Scan
@@ -117,32 +118,39 @@ method. For example, if we would like to process only scans with
         def get_instance_representation(self, instance: Scan) -> str:
             return str(instance.path)
 
-        def filter_queryset(self, queryset: QuerySet) -> QuerySet:
-            queryset = super().filter_queryset(queryset)
-            return queryset.filter(description__icontains="anatomical")
+        def filter_queryset(self,
+            queryset: QuerySet, log_level: int = logging.INFO
+        ) -> QuerySet:
+            queryset = super().filter_queryset(queryset, log_level=log_level)
+            self.log_filter_start(log_level)
+            queryset = queryset.filter(description__icontains="anatomical")
+            self.log_filter_end(n_candidates=queryset.count(), log_level=log_level)
+            return queryset
 
 This time, when we run ``ScanPreprocessingRunner``, we get the result:
 
 .. code-block:: python
-    :emphasize-lines: 7
+    :emphasize-lines: 8-9
 
     >>> runner = ScanPreprocessingRunner()
     >>> runner.run()
     Scan Preprocessing v1.0: Batch Execution
 
     🔎 Default execution queryset generation:
-    Querying execution candidates...
+    Querying Scan instances...
+    1000 instances found.
     Filtering anatomical scans...
-    9000 execution candidates found.
+    500 execution candidates found.
 
     ⚖ Checking execution status for the input queryset:
     Filtering existing runs...
-    600 instances pending execution.
+    20 existing runs found.
+    480 instances pending execution.
 
     🔀 Generating input specifications:
-    600 input specifications prepared.
+    480 input specifications prepared.
 
-    🚀Successfully started Scan Preprocessing v1.0 execution over 5000 Scan instances🚀
+    🚀Successfully started Scan Preprocessing v1.0 execution over 480 Scan instances🚀
 
 .. note::
     * Filtering is applied to provided querysets as well, not just the default.
