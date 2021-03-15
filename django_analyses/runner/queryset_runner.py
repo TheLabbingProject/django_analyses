@@ -30,7 +30,7 @@ class QuerySetRunner:
     """
 
     #: QuerySet model.
-    MODEL: Model = None
+    DATA_MODEL: Model = None
 
     #
     # Analysis Information and Configuration
@@ -159,7 +159,7 @@ class QuerySetRunner:
             Default batch execution data queryset
         """
         self.log_default_query_start(log_level=log_level)
-        queryset = self.MODEL.objects.all()
+        queryset = self.DATA_MODEL.objects.all()
         queryset = self.filter_queryset(queryset)
         self.log_default_query_end(queryset=queryset, log_level=log_level)
         return queryset
@@ -351,9 +351,12 @@ class QuerySetRunner:
         Tuple[QuerySet, QuerySet]
             Existing, Pending
         """
-        # Log start.
-        start_message = self.PENDING_QUERY_START
-        _LOGGER.log(log_level, start_message)
+        self.log_pending_query_start(log_level)
+        queryset = (
+            self.get_default_queryset(log_level=log_level)
+            if queryset is None
+            else queryset
+        )
 
         # Split to existing and pending.
         existing_ids = [
@@ -367,10 +370,10 @@ class QuerySetRunner:
             for instance in queryset
             if instance.id not in existing_ids
         ]
-        # self.MODEL should be used rather than the queryset for the same
+        # self.DATA_MODEL should be used rather than the queryset for the same
         # reason mentioned above.
-        existing = self.MODEL.objects.filter(id__in=existing_ids)
-        pending = self.MODEL.objects.filter(id__in=pending_ids)
+        existing = self.DATA_MODEL.objects.filter(id__in=existing_ids)
+        pending = self.DATA_MODEL.objects.filter(id__in=pending_ids)
 
         # Log end.
         if pending:
@@ -379,6 +382,21 @@ class QuerySetRunner:
             self.log_none_pending(queryset)
 
         return existing, pending
+
+    def log_pending_query_start(self, log_level: int = logging.INFO) -> None:
+        """
+        Logs the beginning of queryset filtering prior to execution.
+
+        Parameters
+        ----------
+        log_level : int, optional
+            Logging level to use, by default 20 (INFO)
+        """
+        queryset_description = "default" if self._search else "input"
+        start_message = self.PENDING_QUERY_START.format(
+            queryset_description=queryset_description
+        )
+        _LOGGER.log(log_level, start_message)
 
     def create_input_specification(self, instance: Model) -> dict:
         """
@@ -399,7 +417,7 @@ class QuerySetRunner:
             return {self.INPUT_KEY: self.get_instance_representation(instance)}
         # Report and skip instances raising an exception.
         except RuntimeError:
-            model_name = self.MODEL.__name__
+            model_name = self.DATA_MODEL.__name__
             message = self.PREPROCESSING_FAILURE.format(
                 model_name=model_name, instance_id=instance.id
             )
@@ -436,7 +454,7 @@ class QuerySetRunner:
         # Report instances that could not be preprocessed.
         n_invalid = inputs.count(None)
         if n_invalid:
-            model_name = self.MODEL.__name__
+            model_name = self.DATA_MODEL.__name__
             message = self.PREPROCESSING_FAILURE_REPORT.format(
                 n_invalid=n_invalid, n_total=len(inputs), model_name=model_name
             )
@@ -494,7 +512,7 @@ class QuerySetRunner:
         queryset = (
             self.get_default_queryset(log_level=log_level)
             if self._search
-            else self.filter_queryset(queryset)
+            else self.filter_queryset(queryset, log_level=log_level)
         )
         existing, pending = self.query_progress(queryset, log_level=log_level)
 
@@ -520,7 +538,7 @@ class QuerySetRunner:
         log_level : int, optional
             Logging level to use, by default 20 (INFO)
         """
-        model_name = self.MODEL.__name__
+        model_name = self.DATA_MODEL.__name__
         start_message = self.EXECUTION_STARTED.format(
             analysis_version=self.analysis_version,
             n_instances=n_instances,
@@ -541,7 +559,7 @@ class QuerySetRunner:
         log_level : int, optional
             Logging level to use, by default 20 (INFO)
         """
-        model_name = self.MODEL.__name__
+        model_name = self.DATA_MODEL.__name__
 
         # In cases where to data queryset was provided by the user:
         # * Handle no pending scans seem to be found in the entire database.

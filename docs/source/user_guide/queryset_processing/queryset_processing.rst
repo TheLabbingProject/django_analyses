@@ -32,7 +32,7 @@ The resulting subclass will look like:
     from myapp.models.scan import Scan
 
     class ScanPreprocessingRunner(QuerySetRunner):
-        MODEL = Scan
+        DATA_MODEL = Scan
         ANALYSIS = "Scan Preprocessing"
         ANALYSIS_VERSION = "1.0"
         ANALYSIS_CONFIGURATION = {
@@ -103,7 +103,7 @@ method. For example, if we would like to process only scans with
     from myapp.models.scan import Scan
 
     class ScanPreprocessingRunner(QuerySetRunner):
-        MODEL = Scan
+        DATA_MODEL = Scan
         ANALYSIS = "Scan Preprocessing"
         ANALYSIS_VERSION = "1.0"
         ANALYSIS_CONFIGURATION = {
