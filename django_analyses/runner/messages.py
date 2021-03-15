@@ -56,7 +56,7 @@ INPUT_QUERY_END = "{n_existing} runs found."
 NONE_PENDING = f"{bcolors.OKGREEN}Congratulations! No pending {{model_name}} instances were detected in the database 👏{bcolors.ENDC}"
 
 #: No pending instances were detected in the provided queryset.
-NONE_PENDING_IN_QUERYSET = f"{bcolors.OKGREEN}All {{n_instances}} provided {{model_name}} have been processed already 👑{bcolors.ENDC}"
+NONE_PENDING_IN_QUERYSET = f"{bcolors.OKGREEN}All {{n_instances}} provided {{model_name}} instances have been processed already 👑{bcolors.ENDC}"
 
 #: No candidates in execution queryset.
 NO_CANDIDATES = f"{bcolors.WARNING}No execution candidates detected in {{model_name}} queryset!{bcolors.ENDC}"
