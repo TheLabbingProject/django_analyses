@@ -30,7 +30,7 @@ class QuerySetRunner:
     """
 
     #: QuerySet model.
-    MODEL: Model = None
+    DATA_MODEL: Model = None
 
     #
     # Analysis Information and Configuration
@@ -62,15 +62,18 @@ class QuerySetRunner:
     #
     # Messages
     #
+    BASE_QUERY_START: str = messages.BASE_QUERY_START
+    BASE_QUERY_END: str = messages.BASE_QUERY_END
     BATCH_RUN_START: str = messages.BATCH_RUN_START
     DEFAULT_QUERYSET_QUERY: str = messages.DEFAULT_QUERYSET_QUERY
-    DEFAULT_QUERYSET_REPORT: str = messages.DEFAULT_QUERYSET_REPORT
     EXECUTION_STARTED: str = messages.EXECUTION_STARTED
     FILTER_QUERYSET_START: str = messages.FILTER_QUERYSET_START
+    FILTER_QUERYSET_END: str = messages.FILTER_QUERYSET_END
     INPUT_GENERATION: str = messages.INPUT_GENERATION
     INPUT_GENERATION_FINISHED: str = messages.INPUT_GENERATION_FINISHED
     INPUT_QUERY_START: str = messages.INPUT_QUERY_START
     INPUT_QUERY_END: str = messages.INPUT_QUERY_END
+    INPUT_QUERYSET_VALIDATION: str = messages.INPUT_QUERYSET_VALIDATION
     NONE_PENDING: str = messages.NONE_PENDING
     NONE_PENDING_IN_QUERYSET: str = messages.NONE_PENDING_IN_QUERYSET
     NO_CANDIDATES: str = messages.NO_CANDIDATES
@@ -110,6 +113,52 @@ class QuerySetRunner:
     is specified.
     """
 
+    def get_base_queryset(self, log_level: int = logging.INFO) -> QuerySet:
+        """
+        Returns the base queryset of the data model's instances.
+
+        Parameters
+        ----------
+        log_level : int, optional
+            Logging level to use, by default 20 (INFO)
+
+        Returns
+        -------
+        QuerySet
+            All data model instances
+        """
+        self.log_base_query_start(log_level)
+        queryset = self.DATA_MODEL.objects.all()
+        self.log_base_query_end(n_instances=queryset.count())
+        return queryset
+
+    def log_base_query_start(self, log_level: int = logging.INFO) -> None:
+        """
+        Logs the generation of the base queryset.
+
+        Parameters
+        ----------
+        log_level : int, optional
+            Logging level to use, by default 20 (INFO)
+        """
+        model_name = self.DATA_MODEL.__name__
+        message = self.BASE_QUERY_START.format(model_name=model_name)
+        _LOGGER.log(log_level, message)
+
+    def log_base_query_end(
+        self, n_instances: int, log_level: int = logging.INFO
+    ) -> None:
+        """
+        Logs the result of querying the base queryset.
+
+        Parameters
+        ----------
+        log_level : int, optional
+            Logging level to use, by default 20 (INFO)
+        """
+        message = self.BASE_QUERY_END.format(n_instances=n_instances)
+        _LOGGER.log(log_level, message)
+
     def filter_queryset(
         self, queryset: QuerySet, log_level: int = logging.INFO
     ) -> QuerySet:
@@ -128,7 +177,6 @@ class QuerySetRunner:
         QuerySet
             Fitered queryset
         """
-        self.log_filter_start(log_level)
         return queryset
 
     def log_filter_start(self, log_level: int = logging.INFO) -> None:
@@ -140,59 +188,24 @@ class QuerySetRunner:
         log_level : int, optional
             Logging level to use, by default 20 (INFO)
         """
-        prefix = "" if self._search else "\n"
-        message = prefix + self.FILTER_QUERYSET_START
+        message = self.FILTER_QUERYSET_START
         _LOGGER.log(log_level, message)
 
-    def get_default_queryset(self, log_level: int = logging.INFO) -> QuerySet:
-        """
-        Returns the default data queryset for batch execution.
-
-        Parameters
-        ----------
-        log_level : int, optional
-            Logging level to use, by default 20 (INFO)
-
-        Returns
-        -------
-        QuerySet
-            Default batch execution data queryset
-        """
-        self.log_default_query_start(log_level=log_level)
-        queryset = self.MODEL.objects.all()
-        queryset = self.filter_queryset(queryset)
-        self.log_default_query_end(queryset=queryset, log_level=log_level)
-        return queryset
-
-    def log_default_query_start(self, log_level: int = logging.INFO) -> None:
-        """
-        Log start of default execution queryset query.
-
-        Parameters
-        ----------
-        log_level : int, optional
-            Logging level to use, by default 20 (INFO)
-        """
-        start_message = self.DEFAULT_QUERYSET_QUERY
-        _LOGGER.log(log_level, start_message)
-
-    def log_default_query_end(
-        self, queryset: QuerySet, log_level: int = logging.INFO
+    def log_filter_end(
+        self, n_candidates: int, log_level: int = logging.INFO
     ) -> None:
         """
-        Log end of default execution queryset query.
+        Logs the result of queryset filtering prior to execution.
 
         Parameters
         ----------
-        queryset : QuerySet
-            Detected execution candidates
+        n_candidates : int
+            Number of execution candidates in queryset after filtering
         log_level : int, optional
             Logging level to use, by default 20 (INFO)
         """
-        end_message = self.DEFAULT_QUERYSET_REPORT.format(
-            n_candidates=queryset.count()
-        )
-        _LOGGER.log(log_level, end_message)
+        message = self.FILTER_QUERYSET_END.format(n_candidates=n_candidates)
+        _LOGGER.log(log_level, message)
 
     def query_analysis(self) -> Analysis:
         """
@@ -333,16 +346,56 @@ class QuerySetRunner:
         else:
             return True
 
+    def evaluate_queryset(
+        self,
+        queryset: QuerySet,
+        apply_filter: bool = True,
+        log_level: int = logging.INFO,
+    ) -> QuerySet:
+        """
+        Evaluates a provided queryset by applying any required filters or
+        generating the default queryset (if ``None``).
+
+        Parameters
+        ----------
+        queryset : QuerySet
+            Provided queryset
+        apply_filter : bool
+            Whether to pass the queryset through :func:`filter_queryset` or not
+        log_level : int, optional
+            Logging level to use, by default 20 (INFO)
+
+        Returns
+        -------
+        QuerySet
+            Evaluated execution queryset
+
+        See Also
+        --------
+        :func:`filter_queryset`
+        """
+        self._search = queryset is None
+        queryset = self.get_base_queryset() if self._search else queryset
+        if apply_filter:
+            return self.filter_queryset(queryset)
+        return queryset
+
     def query_progress(
-        self, queryset: QuerySet = None, log_level: int = logging.INFO,
+        self,
+        queryset: QuerySet = None,
+        apply_filter: bool = True,
+        log_level: int = logging.INFO,
     ) -> Tuple[QuerySet, QuerySet]:
         """
-        Splits *queryset* to instances with and without existing runs.
+        Splits *queryset* to instances with and without existing runs. If no
+        *queryset* is provided, generates the default execution queryset.
 
         Parameters
         ----------
         queryset : QuerySet, optional
             Queryset to split by run status, by default None
+        apply_filter : bool
+            Whether to pass the queryset through :func:`filter_queryset` or not
         log_level : int, optional
             Logging level to use, by default 20 (INFO)
 
@@ -351,9 +404,10 @@ class QuerySetRunner:
         Tuple[QuerySet, QuerySet]
             Existing, Pending
         """
-        # Log start.
-        start_message = self.PENDING_QUERY_START
-        _LOGGER.log(log_level, start_message)
+        queryset = self.evaluate_queryset(
+            queryset, apply_filter=apply_filter, log_level=log_level
+        )
+        self.log_progress_query_start(log_level)
 
         # Split to existing and pending.
         existing_ids = [
@@ -367,18 +421,65 @@ class QuerySetRunner:
             for instance in queryset
             if instance.id not in existing_ids
         ]
-        # self.MODEL should be used rather than the queryset for the same
+        # self.DATA_MODEL should be used rather than the queryset for the same
         # reason mentioned above.
-        existing = self.MODEL.objects.filter(id__in=existing_ids)
-        pending = self.MODEL.objects.filter(id__in=pending_ids)
+        existing = self.DATA_MODEL.objects.filter(id__in=existing_ids)
+        pending = self.DATA_MODEL.objects.filter(id__in=pending_ids)
 
-        # Log end.
-        if pending:
-            self.log_pending(existing, pending)
-        else:
-            self.log_none_pending(queryset)
+        self.log_progress_query_end(
+            queryset, existing, pending, log_level=log_level
+        )
 
         return existing, pending
+
+    def log_progress_query_start(self, log_level: int = logging.INFO) -> None:
+        """
+        Logs the beginning of queryset filtering prior to execution.
+
+        Parameters
+        ----------
+        log_level : int, optional
+            Logging level to use, by default 20 (INFO)
+
+        See Also
+        --------
+        :func:`query_progress`
+        """
+        queryset_description = "default" if self._search else "input"
+        start_message = self.PENDING_QUERY_START.format(
+            queryset_description=queryset_description
+        )
+        _LOGGER.log(log_level, start_message)
+
+    def log_progress_query_end(
+        self,
+        queryset: QuerySet,
+        existing: QuerySet,
+        pending: QuerySet,
+        log_level: int = logging.INFO,
+    ) -> None:
+        """
+        Logs the execution progress query's result.
+
+        Parameters
+        ----------
+        queryset : QuerySet
+            Full execution queryset
+        existing : QuerySet
+            Instances with existing reults
+        pending : QuerySet
+            Instances pending execution
+        log_level : int, optional
+            Logging level to use, by default 20 (INFO)
+
+        See Also
+        --------
+        :func:`query_progress`
+        """
+        if pending.exists():
+            self.log_pending(existing, pending, log_level=log_level)
+        else:
+            self.log_none_pending(queryset, log_level=log_level)
 
     def create_input_specification(self, instance: Model) -> dict:
         """
@@ -394,12 +495,16 @@ class QuerySetRunner:
         -------
         dict
             Input specification dictionary
+
+        See Also
+        --------
+        :func:`create_inputs`
         """
         try:
             return {self.INPUT_KEY: self.get_instance_representation(instance)}
         # Report and skip instances raising an exception.
         except RuntimeError:
-            model_name = self.MODEL.__name__
+            model_name = self.DATA_MODEL.__name__
             message = self.PREPROCESSING_FAILURE.format(
                 model_name=model_name, instance_id=instance.id
             )
@@ -422,6 +527,10 @@ class QuerySetRunner:
         -------
         List[Dict[str, List[str]]]
             Input specifications
+
+        See Also
+        --------
+        :func:`create_input_specification`
         """
         _LOGGER.info(self.INPUT_GENERATION)
         # Generate input specifications.
@@ -436,7 +545,7 @@ class QuerySetRunner:
         # Report instances that could not be preprocessed.
         n_invalid = inputs.count(None)
         if n_invalid:
-            model_name = self.MODEL.__name__
+            model_name = self.DATA_MODEL.__name__
             message = self.PREPROCESSING_FAILURE_REPORT.format(
                 n_invalid=n_invalid, n_total=len(inputs), model_name=model_name
             )
@@ -478,27 +587,18 @@ class QuerySetRunner:
             Logging level to use, by default 20 (INFO)
         dry : bool, optional
             Whether this is a dry run (no execution) or not, by default False
-
-        See Also
-        --------
-        :func:`get_default_queryset`
         """
-        # Log start.
-        start_message = self.BATCH_RUN_START.format(
-            analysis_version=self.analysis_version
+        self.log_run_start(log_level=log_level)
+        queryset_message = self.INPUT_QUERYSET_VALIDATION
+        if queryset is None:
+            queryset_message = self.DEFAULT_QUERYSET_QUERY
+        _LOGGER.log(log_level, queryset_message)
+        queryset = self.evaluate_queryset(
+            queryset, apply_filter=True, log_level=log_level
         )
-        _LOGGER.log(log_level, start_message)
-
-        # Modify/generate queryset.
-        self._search = queryset is None
-        queryset = (
-            self.get_default_queryset(log_level=log_level)
-            if self._search
-            else self.filter_queryset(queryset)
+        existing, pending = self.query_progress(
+            queryset, apply_filter=False, log_level=log_level
         )
-        existing, pending = self.query_progress(queryset, log_level=log_level)
-
-        # Generate input specifications and execute.
         if pending:
             inputs = self.create_inputs(pending, prep_progressbar)
             inputs = inputs[:max_total]
@@ -506,6 +606,24 @@ class QuerySetRunner:
                 if not dry:
                     execute_node.delay(node_id=self.node.id, inputs=inputs)
                 self.log_execution_start(n_instances=len(inputs))
+
+    def log_run_start(self, log_level: int = logging.INFO) -> None:
+        """
+        Logs the beginning of the :func:`run` method's execution.
+
+        Parameters
+        ----------
+        log_level : int, optional
+            Logging level to use, by default 20 (INFO)
+
+        See Also
+        --------
+        :func:`run`
+        """
+        message = self.BATCH_RUN_START.format(
+            analysis_version=self.analysis_version
+        )
+        _LOGGER.log(log_level, message)
 
     def log_execution_start(
         self, n_instances: int, log_level: int = logging.INFO
@@ -519,8 +637,12 @@ class QuerySetRunner:
             Number of instances in the queryset
         log_level : int, optional
             Logging level to use, by default 20 (INFO)
+
+        See Also
+        --------
+        :func:`run`
         """
-        model_name = self.MODEL.__name__
+        model_name = self.DATA_MODEL.__name__
         start_message = self.EXECUTION_STARTED.format(
             analysis_version=self.analysis_version,
             n_instances=n_instances,
@@ -540,8 +662,12 @@ class QuerySetRunner:
             Provided or generated execution queryset
         log_level : int, optional
             Logging level to use, by default 20 (INFO)
+
+        See Also
+        --------
+        :func:`query_progress`
         """
-        model_name = self.MODEL.__name__
+        model_name = self.DATA_MODEL.__name__
 
         # In cases where to data queryset was provided by the user:
         # * Handle no pending scans seem to be found in the entire database.
@@ -571,14 +697,16 @@ class QuerySetRunner:
 
         Parameters
         ----------
-        pending : QuerySet
+        existing : QuerySet
             Instances with existing runs
         pending : QuerySet
             Instances pending execution
         log_level : int, optional
             Logging level to use, by default 20 (INFO)
         """
-        message = self.PENDING_FOUND.format(n_pending=pending.count())
+        message = self.PENDING_FOUND.format(
+            n_existing=existing.count(), n_pending=pending.count()
+        )
         _LOGGER.log(log_level, message)
 
     @property
