@@ -27,17 +27,25 @@ class bcolors:
 #: Batch run start messsage.
 BATCH_RUN_START = f"{bcolors.UNDERLINE}{bcolors.HEADER}{bcolors.BOLD}{{analysis_version}}{bcolors.ENDC}{bcolors.UNDERLINE}{bcolors.HEADER}: Batch Execution{bcolors.ENDC}"
 
-#: Report querying default execution queryset.
-DEFAULT_QUERYSET_QUERY = f"\n🔎 {bcolors.OKBLUE}Default execution queryset generation:\n{bcolors.ENDC}Querying execution candidates..."
+#: Base queryset generation message.
+BASE_QUERY_START = "Querying {model_name} instances..."
 
-#: Report default queryset query result.
-DEFAULT_QUERYSET_REPORT = "{n_candidates} execution candidates found."
+#: Base queryset generation result.
+BASE_QUERY_END = "{n_instances} instances found."
+
+#: Report querying default execution queryset.
+DEFAULT_QUERYSET_QUERY = (
+    f"\n{bcolors.OKBLUE}🔎 Default execution queryset generation:{bcolors.ENDC}"
+)
 
 #: Report the successful creation of an asynchronous execution task.
 EXECUTION_STARTED = f"\n{bcolors.OKGREEN}🚀Successfully started {{analysis_version}} execution over {{n_instances}} {{model_name}} instances🚀{bcolors.ENDC}"
 
 #: Filter queryset start.
 FILTER_QUERYSET_START = "Filtering queryset..."
+
+#: Report filter result.
+FILTER_QUERYSET_END = "{n_candidates} execution candidates found."
 
 #: Reporting starting to generate input specifications for analysis execution.
 INPUT_GENERATION = (
@@ -52,6 +60,10 @@ INPUT_QUERY_START = "Querying existing runs..."
 #: Report number of existing input instances.
 INPUT_QUERY_END = "{n_existing} runs found."
 
+INPUT_QUERYSET_VALIDATION = (
+    f"\n{bcolors.OKBLUE}🔎 Input queryset validation:{bcolors.ENDC}"
+)
+
 #: No pending instances were detected in the database.
 NONE_PENDING = f"{bcolors.OKGREEN}Congratulations! No pending {{model_name}} instances were detected in the database 👏{bcolors.ENDC}"
 
@@ -62,10 +74,10 @@ NONE_PENDING_IN_QUERYSET = f"{bcolors.OKGREEN}All {{n_instances}} provided {{mod
 NO_CANDIDATES = f"{bcolors.WARNING}No execution candidates detected in {{model_name}} queryset!{bcolors.ENDC}"
 
 #: Report pending instances.
-PENDING_FOUND = "{n_pending} instances pending execution."
+PENDING_FOUND = f"{{n_existing}} existing runs found.\n{bcolors.BOLD}{{n_pending}}{bcolors.ENDC} instances pending execution."
 
 #: Report starting a queryset existing/pending split.
-PENDING_QUERY_START = f"\n⚖  {bcolors.OKBLUE}Checking execution status for the {queryset_description} queryset:\n{bcolors.ENDC}Filtering existing runs..."
+PENDING_QUERY_START = f"\n⚖  {bcolors.OKBLUE}Checking execution status for the {{queryset_description}} queryset:\n{bcolors.ENDC}Filtering existing runs..."
 
 #: General input preprocessing failure message.
 PREPROCESSING_FAILURE = f"{bcolors.WARNING}Failed to preprocess {{model_name}} #{{instance_id}}!{bcolors.ENDC}"
