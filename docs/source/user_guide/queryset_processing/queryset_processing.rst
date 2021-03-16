@@ -96,7 +96,7 @@ method. For example, if we would like to process only scans with
 ``"anatomical"`` in their description:
 
 .. code-block:: python
-    :emphasize-lines: 16, 20-28
+    :emphasize-lines: 16, 21-28
 
     import logging
     from django.db.models import QuerySet
