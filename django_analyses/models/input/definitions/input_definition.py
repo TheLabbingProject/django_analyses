@@ -7,10 +7,12 @@ from typing import Any
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.base import ModelBase
+from django_analyses.models import help_text
 from django_analyses.models.input.definitions import messages
 from django_analyses.models.input.input import Input
-from django_analyses.models.managers.input_definition import \
-    InputDefinitionManager
+from django_analyses.models.managers.input_definition import (
+    InputDefinitionManager,
+)
 
 
 class InputDefinition(models.Model):
@@ -36,22 +38,35 @@ class InputDefinition(models.Model):
 
     #: Whether this input definition is a configuration of the analysis
     #: parameters or, e.g., a definition of the input or output of it.
-    is_configuration = models.BooleanField(default=True)
+    is_configuration = models.BooleanField(
+        default=True, help_text=help_text.IS_CONFIGURATION
+    )
 
     #: If the actual input to the analysis class is meant to be some attribute
     #: of given input, the attribute name may be set here.
-    value_attribute = models.CharField(max_length=255, blank=True, null=True)
+    value_attribute = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text=help_text.VALUE_ATTRIBUTE,
+    )
 
     #: If values passed as inputs matching this input definition should be
     #: extracted from some object, this field specifies the name of the
     #: attribute which will be called using :func:`get_db_value`.
     db_value_preprocessing = models.CharField(
-        max_length=255, blank=True, null=True
+        max_length=255,
+        blank=True,
+        null=True,
+        help_text=help_text.DB_VALUE_PREPROCESSING,
+        verbose_name="DB Value Preprocessing",
     )
 
     #: Whether the created inputs instances should be passed to interface's
     #: class at initialization (False) or upon calling the run method (True).
-    run_method_input = models.BooleanField(default=False)
+    run_method_input = models.BooleanField(
+        default=False, help_text=help_text.RUN_METHOD_INPUT
+    )
 
     #: Each definition should override this class attribute in order to allow
     #: for Input instances creation.
