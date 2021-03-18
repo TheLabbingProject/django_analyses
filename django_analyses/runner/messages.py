@@ -77,7 +77,7 @@ NO_CANDIDATES = f"{bcolors.WARNING}No execution candidates detected in {{model_n
 PENDING_FOUND = f"{{n_existing}} existing runs found.\n{bcolors.BOLD}{{n_pending}}{bcolors.ENDC} instances pending execution."
 
 #: Report starting a queryset existing/pending split.
-PENDING_QUERY_START = f"\n⚖  {bcolors.OKBLUE}Checking execution status for the {{queryset_description}} queryset:\n{bcolors.ENDC}Filtering existing runs..."
+PENDING_QUERY_START = f"\n⚖  {bcolors.OKBLUE}Checking execution status for the {{queryset_description}} queryset:\n{bcolors.ENDC}Filtering existing runs...\n(large querysets might take a few moments to be evaluated)"
 
 #: General input preprocessing failure message.
 PREPROCESSING_FAILURE = f"{bcolors.WARNING}Failed to preprocess {{model_name}} #{{instance_id}}!{bcolors.ENDC}"
