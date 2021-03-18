@@ -90,7 +90,19 @@ class QuerySetRunner:
         "desc": "Preparing inputs",
     }
     """
-    A dictionary used for tqdm_ progressbar customization.
+    A dictionary used for tqdm_ progressbar customization during input
+    generation.
+
+    .. _tqdm:
+       https://github.com/tqdm/tqdm
+    """
+    STATUS_QUERY_PROGRESSBAR_KWARGS: dict = {
+        "unit": "instance",
+        "desc": None,
+    }
+    """
+    A dictionary used for tqdm_ progressbar customization during input
+    generation.
 
     .. _tqdm:
        https://github.com/tqdm/tqdm
@@ -385,6 +397,7 @@ class QuerySetRunner:
         queryset: QuerySet = None,
         apply_filter: bool = True,
         log_level: int = logging.INFO,
+        progressbar: bool = True,
     ) -> Tuple[QuerySet, QuerySet]:
         """
         Splits *queryset* to instances with and without existing runs. If no
@@ -398,20 +411,28 @@ class QuerySetRunner:
             Whether to pass the queryset through :func:`filter_queryset` or not
         log_level : int, optional
             Logging level to use, by default 20 (INFO)
+        progressbar : bool, optional
+            Whether to display a progressbar, by default True
 
         Returns
         -------
         Tuple[QuerySet, QuerySet]
             Existing, Pending
         """
+        self.log_progress_query_start(log_level)
+        # Evaluate queryset and prepare for progressbar if used
         queryset = self.evaluate_queryset(
             queryset, apply_filter=apply_filter, log_level=log_level
         )
-        self.log_progress_query_start(log_level)
+        iterable = create_progressbar(
+            queryset,
+            disable=not progressbar,
+            **self.STATUS_QUERY_PROGRESSBAR_KWARGS,
+        )
 
         # Split to existing and pending.
         existing_ids = [
-            instance.id for instance in queryset if self.has_run(instance)
+            instance.id for instance in iterable if self.has_run(instance)
         ]
         # A list comprehension is used here (rather than a query) because the
         # queryset can be a slice, in which case Django will raise an
@@ -537,7 +558,7 @@ class QuerySetRunner:
         iterable = create_progressbar(
             queryset,
             disable=not progressbar,
-            **self.INPUT_GENERATION_PROGRESSBAR_KWARGS
+            **self.INPUT_GENERATION_PROGRESSBAR_KWARGS,
         )
         inputs = [
             self.create_input_specification(instance) for instance in iterable
