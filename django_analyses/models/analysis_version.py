@@ -4,8 +4,10 @@ Definition of the :class:`AnalysisVersion` class.
 from typing import Any
 
 from django.db import models
-from django_analyses.models.managers.analysis_version import \
-    AnalysisVersionManager
+from django_analyses.models import help_text
+from django_analyses.models.managers.analysis_version import (
+    AnalysisVersionManager,
+)
 from django_analyses.models.utils import get_analysis_version_interface
 from django_extensions.db.models import TimeStampedModel, TitleDescriptionModel
 
@@ -70,7 +72,9 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
     # Integration customization #
     #############################
 
-    run_method_key = models.CharField(max_length=100, default="run")
+    run_method_key = models.CharField(
+        max_length=100, default="run", help_text=help_text.RUN_METHOD_KEY
+    )
     """
     Custom *run* method name for the interface.
     Each analysis version is expected to have some class associated with it and
@@ -78,14 +82,19 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
     name of the method that will be called (default value is *"run"*).
     """
 
-    fixed_run_method_kwargs = models.JSONField(default=dict)
+    fixed_run_method_kwargs = models.JSONField(
+        default=dict, help_text=help_text.FIXED_KWARGS
+    )
     """
     Any "fixed" keyword arguments that should always be passed to the
     interface's *run* method at execution.
     """
 
     nested_results_attribute = models.CharField(
-        max_length=100, blank=True, null=True
+        max_length=100,
+        blank=True,
+        null=True,
+        help_text=help_text.NESTED_RESULTS_ATTRIBUTE,
     )
     """
     Analysis interfaces are expected to return a dictionary of the results. In
@@ -110,7 +119,9 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
     # Execution Options #
     #####################
 
-    max_parallel = models.PositiveIntegerField(default=4)
+    max_parallel = models.PositiveIntegerField(
+        default=4, help_text=help_text.MAX_PARALLEL
+    )
     """
     Maximal number of parallel executions that may be run using Celery_. This
     attribute is used in :func:`~django_analyses.tasks.execute_node` to
@@ -127,7 +138,10 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
 
     class Meta:
         unique_together = "analysis", "title"
-        ordering = ("-title",)
+        ordering = (
+            "analysis",
+            "-title",
+        )
 
     def __str__(self) -> str:
         """

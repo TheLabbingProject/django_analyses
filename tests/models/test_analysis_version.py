@@ -2,20 +2,23 @@ from django.core.exceptions import ValidationError
 from django.test import TestCase
 from tests.factories.analysis import AnalysisFactory
 from tests.factories.analysis_version import AnalysisVersionFactory
-from tests.factories.input.definitions.float_input_definition import \
-    FloatInputDefinitionFactory
+from tests.factories.input.definitions.float_input_definition import (
+    FloatInputDefinitionFactory,
+)
 from tests.factories.input.input_specification import InputSpecificationFactory
-from tests.factories.output.definitions.float_output_definition import \
-    FloatOutputDefinitionFactory
-from tests.factories.output.output_specification import \
-    OutputSpecificationFactory
+from tests.factories.output.definitions.float_output_definition import (
+    FloatOutputDefinitionFactory,
+)
+from tests.factories.output.output_specification import (
+    OutputSpecificationFactory,
+)
 from tests.interfaces import Power
 
 
 class AnalysisVersionTestCase(TestCase):
     """
-    Tests for the :class:`~django_analyses.models.analysis_version.AnalysisVersion` model.    
-    
+    Tests for the :class:`~django_analyses.models.analysis_version.AnalysisVersion` model.
+
     """
 
     def setUp(self):
@@ -38,14 +41,19 @@ class AnalysisVersionTestCase(TestCase):
             input_specification=self.addition_input_spec,
         )
 
-        power_base_definition = FloatInputDefinitionFactory(key="base", required=True)
+        power_base_definition = FloatInputDefinitionFactory(
+            key="base", required=True
+        )
         power_exp_definition = FloatInputDefinitionFactory(
             key="exponent", required=True
         )
         self.power_analysis = AnalysisFactory(title="power")
         self.power_input_spec = InputSpecificationFactory(
             analysis=self.power_analysis,
-            base_input_definitions=[power_base_definition, power_exp_definition],
+            base_input_definitions=[
+                power_base_definition,
+                power_exp_definition,
+            ],
         )
         power_results_definition = FloatOutputDefinitionFactory(key="result")
         self.power_output_spec = OutputSpecificationFactory(
@@ -60,7 +68,9 @@ class AnalysisVersionTestCase(TestCase):
         )
 
         self.division_analysis = AnalysisFactory(title="division")
-        dividend_definition = FloatInputDefinitionFactory(key="dividend", required=True)
+        dividend_definition = FloatInputDefinitionFactory(
+            key="dividend", required=True
+        )
         divisor_definition = FloatInputDefinitionFactory(
             key="divisor", required=False, default=2.0
         )
@@ -88,7 +98,8 @@ class AnalysisVersionTestCase(TestCase):
         """
 
         value = self.power_analysis_version._meta.ordering
-        self.assertTupleEqual(value, ("-title",))
+        expected = "analysis", "-title"
+        self.assertTupleEqual(value, expected)
 
     ###########
     # Methods #
@@ -124,7 +135,9 @@ class AnalysisVersionTestCase(TestCase):
         self.assertDictEqual(run, results)
 
     def test_extract_results_with_nested_attribute(self):
-        run = self.division_analysis_version.run_interface(dividend=9.3, divisor=3)
+        run = self.division_analysis_version.run_interface(
+            dividend=9.3, divisor=3
+        )
         results = self.division_analysis_version.extract_results(run)
         self.assertDictEqual(run.results, results)
 
