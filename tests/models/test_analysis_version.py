@@ -17,14 +17,16 @@ from tests.interfaces import Power
 
 class AnalysisVersionTestCase(TestCase):
     """
-    Tests for the :class:`~django_analyses.models.analysis_version.AnalysisVersion` model.
+    Tests for the
+    :class:`~django_analyses.models.analysis_version.AnalysisVersion` model.
 
     """
 
     def setUp(self):
         """
         Adds the created instances to the tests' contexts.
-        For more information see unittest's :meth:`~unittest.TestCase.setUp` method.
+        For more information see unittest's :meth:`~unittest.TestCase.setUp`
+        method.
 
         """
 
@@ -94,7 +96,8 @@ class AnalysisVersionTestCase(TestCase):
         """
         Validate the `ordering`_ of the model.
 
-        .. _ordering: https://docs.djangoproject.com/en/2.2/ref/models/options/#ordering
+        .. _ordering:
+           https://docs.djangoproject.com/en/2.2/ref/models/options/#ordering
         """
 
         value = self.power_analysis_version._meta.ordering
@@ -156,7 +159,7 @@ class AnalysisVersionTestCase(TestCase):
 
     def test_update_input_with_defaults(self):
         inputs = {"dividend": 20}
-        configuration = self.division_analysis_version.update_input_with_defaults(
+        configuration = self.division_analysis_version.update_input_with_defaults(  # noqa: E501
             **inputs
         )
         inputs.update(divisor=2)
@@ -179,12 +182,12 @@ class AnalysisVersionTestCase(TestCase):
         value = self.power_analysis_version.input_definitions
         expected = self.power_input_spec.input_definitions
         self.assertQuerysetEqual(value, expected, transform=lambda x: x)
-        # The 'transform' kwargs was added because of the problem explained here:
+        # 'transform' was added because of the problem explained here:
         # https://stackoverflow.com/a/49129560/4416932
 
     def test_output_definitions(self):
         value = self.power_analysis_version.output_definitions
         expected = self.power_output_spec.output_definitions
         self.assertQuerysetEqual(value, expected, transform=lambda x: x)
-        # The 'transform' kwargs was added because of the problem explained here:
+        # 'transform' was added because of the problem explained here:
         # https://stackoverflow.com/a/49129560/4416932
