@@ -39,4 +39,9 @@ urlpatterns = [
         views.OutputViewSet.as_view({"get": "html_repr"}),
         name="output_html_repr",
     ),
+    path(
+        "analyses/run/<int:session_id>/to_zip/",
+        views.RunViewSet.as_view({"get": "to_zip"}),
+        name="run_to_zip",
+    ),
 ]
