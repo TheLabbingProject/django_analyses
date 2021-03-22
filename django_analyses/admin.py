@@ -10,7 +10,7 @@ References
    https://docs.djangoproject.com/en/3.0/ref/contrib/admin/
 """
 import datetime
-from typing import Union
+from typing import Any, Union
 
 from django.contrib import admin
 from django.urls import reverse
@@ -30,6 +30,7 @@ from django_analyses.models.output.output import Output
 from django_analyses.models.output.output_specification import (
     OutputSpecification,
 )
+from django_analyses.models.output.types.output_types import OutputTypes
 from django_analyses.models.run import Run
 from django_analyses.utils.html import Html
 
@@ -169,7 +170,7 @@ class AnalysisAdmin(admin.ModelAdmin):
 
 class InputInline(admin.TabularInline):
     model = Input
-    readonly_fields = ("definition_link", "input_type", "value")
+    readonly_fields = "id_link", "definition_link", "input_type", "value"
     extra = 0
     can_delete = False
 
@@ -184,16 +185,26 @@ class InputInline(admin.TabularInline):
         text = instance.definition.key
         return Html.admin_link("InputDefinition", pk, text)
 
+    def id_link(self, instance: Input) -> str:
+        return Html.admin_link("Input", instance.id)
+
     def input_type(self, instance: Input) -> str:
         return instance.definition.get_type().value
 
     definition_link.short_description = "Key"
+    id_link.short_description = "ID"
     input_type.short_description = "Type"
 
 
 class OutputInline(admin.TabularInline):
     model = Output
-    readonly_fields = ("definition_link", "output_type", "value_repr")
+    readonly_fields = (
+        "id_link",
+        "definition_link",
+        "output_type",
+        "value",
+        "download",
+    )
     extra = 0
     can_delete = False
 
@@ -203,6 +214,9 @@ class OutputInline(admin.TabularInline):
     def has_add_permission(self, request, obj):
         return False
 
+    def id_link(self, instance: Output) -> str:
+        return Html.admin_link("Output", instance.id)
+
     def definition_link(self, instance: Output) -> str:
         pk = instance.definition.id
         text = instance.definition.key
@@ -211,12 +225,17 @@ class OutputInline(admin.TabularInline):
     def output_type(self, instance: Output) -> str:
         return instance.definition.get_type().value
 
-    def value_repr(self, instance: Output) -> str:
-        url = reverse("analyses:output_html_repr", args=(instance.id,))
-        html = f'<div class="links"><a class="openpop" href={url}>{instance.value}</a></div>'
-        return mark_safe(html)
+    def download(self, instance: Output) -> str:
+        instance = Output.objects.get_subclass(id=instance.id)
+        if instance.get_type() == OutputTypes.FIL:
+            url = reverse("analyses:file_output_download", args=(instance.id,))
+            button = DOWNLOAD_BUTTON.format(
+                url=url, run_id=instance.id, text="Download"
+            )
+            return mark_safe(button)
 
-    definition_link.short_description = "Key"
+    definition_link.short_description = "Definition"
+    id_link.short_description = "ID"
     output_type.short_description = "Type"
 
 
@@ -402,6 +421,13 @@ class RunAdmin(admin.ModelAdmin):
 
 @admin.register(Input)
 class InputAdmin(admin.ModelAdmin):
+    fields = (
+        "analysis_version_link",
+        "definition_link",
+        "run_link",
+        "input_type",
+        "_value",
+    )
     list_display = (
         "analysis_version_link",
         "run_link",
@@ -417,6 +443,7 @@ class InputAdmin(admin.ModelAdmin):
         "definition_link",
         "run_link",
         "input_type",
+        "_value",
     )
 
     def get_queryset(self, request):
@@ -445,20 +472,34 @@ class InputAdmin(admin.ModelAdmin):
     def input_type(self, instance: Input) -> str:
         return instance.definition.get_type().value
 
+    def _value(self, instance: Input) -> Any:
+        instance = Input.objects.get_subclass(id=instance.id)
+        return instance.value
+
     run_link.short_description = "Run"
     analysis_version_link.short_description = "Analysis Version"
     definition_link.short_description = "Definition"
     input_type.short_description = "Type"
+    _value.short_description = "Value"
 
 
 @admin.register(Output)
 class OutputAdmin(admin.ModelAdmin):
+    fields = (
+        "analysis_version_link",
+        "run_link",
+        "definition_link",
+        "output_type",
+        "_value",
+        "download",
+    )
     list_display = (
         "analysis_version_link",
         "run_link",
         "definition_link",
         "output_type",
         "value",
+        "download",
     )
     list_filter = ("run__analysis_version",)
     list_display_links = None
@@ -468,13 +509,33 @@ class OutputAdmin(admin.ModelAdmin):
         "definition_link",
         "run_link",
         "output_type",
+        "_value",
+        "download",
     )
+
+    class Media:
+        js = ("//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js",)
+
+    def change_view(self, *args, **kwargs):
+        instance = Output.objects.get_subclass(id=kwargs["object_id"])
+        kwargs["extra_context"] = kwargs.get("extra_context", {})
+        kwargs["extra_context"]["output_type"] = instance.get_type().value
+        return super().change_view(*args, **kwargs)
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_subclasses()
 
     def analysis_version(self, instance: Output) -> str:
         return str(instance.run.analysis_version)
+
+    def download(self, instance: Output) -> str:
+        instance = Output.objects.get_subclass(id=instance.id)
+        if instance.get_type() == OutputTypes.FIL:
+            url = reverse("analyses:file_output_download", args=(instance.id,))
+            button = DOWNLOAD_BUTTON.format(
+                url=url, run_id=instance.id, text="Download"
+            )
+            return mark_safe(button)
 
     def run_link(self, instance: Output) -> str:
         model_name = instance.run.__class__.__name__
@@ -496,10 +557,15 @@ class OutputAdmin(admin.ModelAdmin):
     def output_type(self, instance: Output) -> str:
         return instance.definition.get_type().value
 
+    def _value(self, instance: Output) -> Any:
+        instance = Output.objects.get_subclass(id=instance.id)
+        return instance.value
+
     run_link.short_description = "Run"
     analysis_version_link.short_description = "Analysis Version"
     definition_link.short_description = "Definition"
     output_type.short_description = "Type"
+    _value.short_description = "Value"
 
 
 @admin.register(InputDefinition)
