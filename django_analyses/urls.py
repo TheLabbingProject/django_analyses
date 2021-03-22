@@ -1,6 +1,7 @@
 from django.urls import include, path
-from django_analyses import views
 from rest_framework import routers
+
+from django_analyses import views
 
 app_name = "django_analyses"
 router = routers.DefaultRouter()
@@ -19,12 +20,23 @@ router.register(r"pipeline", views.PipelineViewSet)
 # be infered.
 router.register(r"input", views.InputViewSet, basename="input")
 router.register(
-    r"input_definition", views.InputDefinitionViewSet, basename="inputdefinition"
+    r"input_definition",
+    views.InputDefinitionViewSet,
+    basename="inputdefinition",
 )
 router.register(r"output", views.OutputViewSet, basename="output")
 router.register(
-    r"output_definition", views.OutputDefinitionViewSet, basename="outputdefinition"
+    r"output_definition",
+    views.OutputDefinitionViewSet,
+    basename="outputdefinition",
 )
 
 
-urlpatterns = [path("analyses/", include(router.urls))]
+urlpatterns = [
+    path("analyses/", include(router.urls)),
+    path(
+        "analyses/run/<int:session_id>/to_zip/",
+        views.RunViewSet.as_view({"get": "to_zip"}),
+        name="run_to_zip",
+    ),
+]
