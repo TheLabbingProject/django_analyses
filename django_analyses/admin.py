@@ -33,6 +33,8 @@ from django_analyses.models.output.output_specification import (
 from django_analyses.models.run import Run
 from django_analyses.utils.html import Html
 
+DOWNLOAD_BUTTON = '<span><a href={url} type="button" class="button" id="run-{run_id}-download-button">{text}</a></span>'  # noqa: E501
+
 
 class AnalysisVersionInline(admin.TabularInline):
     model = AnalysisVersion
@@ -303,6 +305,7 @@ class RunAdmin(admin.ModelAdmin):
         "end_time",
         "duration",
         "_status",
+        "download",
     )
     inlines = (InputInline, OutputInline)
     fieldsets = (
@@ -316,6 +319,7 @@ class RunAdmin(admin.ModelAdmin):
                     ("status", "duration"),
                     "traceback",
                     "task_result_",
+                    "download",
                 ),
             },
         ),
@@ -329,6 +333,7 @@ class RunAdmin(admin.ModelAdmin):
         "duration",
         "status",
         "task_result_",
+        "download",
     )
     list_filter = (
         "status",
@@ -339,6 +344,14 @@ class RunAdmin(admin.ModelAdmin):
 
     class Media:
         css = {"all": ("django_analyses/css/hide_admin_original.css",)}
+
+    def download(self, instance: Run) -> str:
+        if instance.status == "SUCCESS" and instance.path.exists():
+            url = reverse("analyses:run_to_zip", args=(instance.id,))
+            button = DOWNLOAD_BUTTON.format(
+                url=url, run_id=instance.id, text="Download"
+            )
+            return mark_safe(button)
 
     def duration(self, instance: Run) -> datetime.timedelta:
         return instance.duration
