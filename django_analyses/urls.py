@@ -1,6 +1,7 @@
 from django.urls import include, path
-from django_analyses import views
 from rest_framework import routers
+
+from django_analyses import views
 
 app_name = "django_analyses"
 router = routers.DefaultRouter()
@@ -14,17 +15,28 @@ router.register(r"node", views.NodeViewSet)
 router.register(r"pipe", views.PipeViewSet)
 router.register(r"pipeline", views.PipelineViewSet)
 
-# In viewsets of base models basename must be provided because of the `get_queryset`
-# method override. Since the `queryset` attribute is not provided the basename cannot
-# be infered.
+# In viewsets of base models basename must be provided because of the
+# `get_queryset` method override. Since the `queryset` attribute is not
+# provided the basename cannot be infered.
 router.register(r"input", views.InputViewSet, basename="input")
 router.register(
-    r"input_definition", views.InputDefinitionViewSet, basename="inputdefinition"
+    r"input_definition",
+    views.InputDefinitionViewSet,
+    basename="inputdefinition",
 )
 router.register(r"output", views.OutputViewSet, basename="output")
 router.register(
-    r"output_definition", views.OutputDefinitionViewSet, basename="outputdefinition"
+    r"output_definition",
+    views.OutputDefinitionViewSet,
+    basename="outputdefinition",
 )
 
 
-urlpatterns = [path("analyses/", include(router.urls))]
+urlpatterns = [
+    path("analyses/", include(router.urls)),
+    path(
+        "analyses/output/<int:output_id>/html_repr/",
+        views.OutputViewSet.as_view({"get": "html_repr"}),
+        name="output_html_repr",
+    ),
+]

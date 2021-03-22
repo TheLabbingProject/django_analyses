@@ -191,7 +191,7 @@ class InputInline(admin.TabularInline):
 
 class OutputInline(admin.TabularInline):
     model = Output
-    readonly_fields = ("definition_link", "output_type", "value")
+    readonly_fields = ("definition_link", "output_type", "value_repr")
     extra = 0
     can_delete = False
 
@@ -201,13 +201,18 @@ class OutputInline(admin.TabularInline):
     def has_add_permission(self, request, obj):
         return False
 
-    def definition_link(self, instance: Input) -> str:
+    def definition_link(self, instance: Output) -> str:
         pk = instance.definition.id
         text = instance.definition.key
         return Html.admin_link("OutputDefinition", pk, text)
 
-    def output_type(self, instance: Input) -> str:
+    def output_type(self, instance: Output) -> str:
         return instance.definition.get_type().value
+
+    def value_repr(self, instance: Output) -> str:
+        url = reverse("analyses:output_html_repr", args=(instance.id,))
+        html = f'<div class="links"><a class="openpop" href={url}>{instance.value}</a></div>'
+        return mark_safe(html)
 
     definition_link.short_description = "Key"
     output_type.short_description = "Type"
@@ -339,6 +344,7 @@ class RunAdmin(admin.ModelAdmin):
 
     class Media:
         css = {"all": ("django_analyses/css/hide_admin_original.css",)}
+        # js = ("django_analyses/js/",)
 
     def duration(self, instance: Run) -> datetime.timedelta:
         return instance.duration

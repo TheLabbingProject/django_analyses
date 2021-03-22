@@ -4,6 +4,7 @@ from django.db import models
 from django_analyses.models.output.output import Output
 from django_analyses.models.output.types.output_types import OutputTypes
 from django_analyses.models.utils.get_media_root import get_media_root
+from django_analyses.models.utils.html_repr import html_repr
 
 
 class FileOutput(Output):
@@ -35,3 +36,6 @@ class FileOutput(Output):
         if isinstance(self.value, Path):
             self.value = str(self.value.absolute())
         return super().pre_save()
+
+    def _repr_html_(self) -> str:
+        return html_repr(Path(self.value))
