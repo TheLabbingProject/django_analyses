@@ -15,9 +15,9 @@ router.register(r"node", views.NodeViewSet)
 router.register(r"pipe", views.PipeViewSet)
 router.register(r"pipeline", views.PipelineViewSet)
 
-# In viewsets of base models basename must be provided because of the `get_queryset`
-# method override. Since the `queryset` attribute is not provided the basename cannot
-# be infered.
+# In viewsets of base models basename must be provided because of the
+# `get_queryset` method override. Since the `queryset` attribute is not
+# provided the basename cannot be infered.
 router.register(r"input", views.InputViewSet, basename="input")
 router.register(
     r"input_definition",
@@ -35,8 +35,18 @@ router.register(
 urlpatterns = [
     path("analyses/", include(router.urls)),
     path(
+        "analyses/output/<int:output_id>/html_repr/",
+        views.OutputViewSet.as_view({"get": "html_repr"}),
+        name="output_html_repr",
+    ),
+    path(
         "analyses/run/<int:session_id>/to_zip/",
         views.RunViewSet.as_view({"get": "to_zip"}),
         name="run_to_zip",
+    ),
+    path(
+        "analyses/output/<int:session_id>/download/",
+        views.OutputViewSet.as_view({"get": "download"}),
+        name="file_output_download",
     ),
 ]

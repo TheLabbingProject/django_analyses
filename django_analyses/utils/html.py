@@ -9,9 +9,11 @@ from pygments.lexers import JsonLexer
 ADMIN_VIEW_NAMES = {
     "Analysis": "admin:django_analyses_analysis_change",
     "AnalysisVersion": "admin:django_analyses_analysisversion_change",
+    "Input": "admin:django_analyses_input_change",
     "InputDefinition": "admin:django_analyses_inputdefinition_change",
     "InputSpecification": "admin:django_analyses_inputspecification_change",
     "OutputDefinition": "admin:django_analyses_outputdefinition_change",
+    "Output": "admin:django_analyses_output_change",
     "OutputSpecification": "admin:django_analyses_outputspecification_change",
     "User": "admin:accounts_user_change",
     "Run": "admin:django_analyses_run_change",
