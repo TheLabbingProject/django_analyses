@@ -1,12 +1,14 @@
 """
 Definition of the :class:`~django_analyses.models.run.Run` model's manager.
 """
-import datetime
-
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.utils import timezone
 from django_analyses.models.analysis_version import AnalysisVersion
+from django_analyses.models.managers.messages import (
+    INVALID_INPUT_DEFINITION_KEY,
+)
 from django_analyses.utils.input_manager import InputManager
 from django_analyses.utils.output_manager import OutputManager
 
@@ -42,7 +44,15 @@ class RunManager(models.Manager):
         # of the associated instances, so in order to compare configurations
         # with model instances, we convert the value to primary key.
         for key, value in kwargs.items():
-            input_definition = analysis_version.input_definitions.get(key=key)
+            try:
+                input_definition = analysis_version.input_definitions.get(
+                    key=key
+                )
+            except ObjectDoesNotExist:
+                message = INVALID_INPUT_DEFINITION_KEY.format(
+                    analysis_version=analysis_version, key=key
+                )
+                raise ObjectDoesNotExist(message)
             if input_definition.db_value_preprocessing:
                 kwargs[key] = input_definition.get_db_value(value)
             elif isinstance(value, models.Model):
