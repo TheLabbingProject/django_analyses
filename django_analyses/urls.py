@@ -35,9 +35,24 @@ router.register(
 urlpatterns = [
     path("analyses/", include(router.urls)),
     path(
-        "analyses/output/<int:output_id>/html_repr/",
+        "analyses/output/html_repr/<int:output_id>/",
         views.OutputViewSet.as_view({"get": "html_repr"}),
         name="output_html_repr",
+    ),
+    path(
+        "analyses/output/html_repr/<int:output_id>/<int:index>/",
+        views.OutputViewSet.as_view({"get": "html_repr"}),
+        name="output_html_repr",
+    ),
+    path(
+        "analyses/input/html_repr/<int:input_id>/",
+        views.InputViewSet.as_view({"get": "html_repr"}),
+        name="input_html_repr",
+    ),
+    path(
+        "analyses/input/html_repr/<int:input_id>/<int:index>/",
+        views.InputViewSet.as_view({"get": "html_repr"}),
+        name="input_html_repr",
     ),
     path(
         "analyses/run/<int:session_id>/to_zip/",

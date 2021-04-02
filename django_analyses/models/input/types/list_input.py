@@ -5,6 +5,7 @@ from django.db import models
 from django_analyses.models.input.input import Input
 from django_analyses.models.input.types.input_types import InputTypes
 from django_analyses.models.input.utils import TYPES_DICT, ListElementTypes
+from django_analyses.models.utils.html_repr import html_repr
 
 
 class ListInput(Input):
@@ -75,6 +76,18 @@ class ListInput(Input):
         if self.definition.as_tuple:
             return tuple(value)
         return value
+
+    def get_html_repr(self, index: int) -> str:
+        path = Path(self.value[index])
+        return html_repr(path)
+
+    def _repr_html_(self) -> str:
+        try:
+            return "<br>".join(
+                [self.get_html_repr(index) for index in range(len(self.value))]
+            )
+        except TypeError:
+            pass
 
     @property
     def expected_type_definition(self) -> ListElementTypes:

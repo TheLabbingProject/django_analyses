@@ -11,13 +11,11 @@ from django_analyses.models.output.types.list_output import ListOutput
 from django_analyses.serializers.output.output import OutputSerializer
 from django_analyses.views.defaults import DefaultsMixin
 from django_analyses.views.pagination import StandardResultsSetPagination
+from django_analyses.views.utils import CONTENT_DISPOSITION, ZIP_CONTENT_TYPE
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.request import Request
 from rest_framework.response import Response
-
-CONTENT_DISPOSITION = "attachment; filename={name}.zip"
-ZIP_CONTENT_TYPE = "application/x-zip-compressed"
 
 
 class OutputViewSet(DefaultsMixin, viewsets.ModelViewSet):
@@ -29,12 +27,19 @@ class OutputViewSet(DefaultsMixin, viewsets.ModelViewSet):
         return Output.objects.select_subclasses()
 
     @action(detail=True, methods=["GET"])
-    def html_repr(self, request: Request, pk: int = None) -> Response:
-        instance = Output.objects.get_subclass(id=pk)
+    def html_repr(
+        self, request: Request, output_id: int = None, index: int = None
+    ) -> Response:
+        instance = Output.objects.get_subclass(id=output_id)
         content = "No preview available :("
-        if hasattr(instance, "_repr_html_"):
+        html_repr = False
+        has_repr = hasattr(instance, "_repr_html_")
+        has_getter = hasattr(instance, "get_html_repr")
+        if index is None and has_repr:
             html_repr = instance._repr_html_()
-            content = html_repr if html_repr else content
+        elif index is not None and has_getter:
+            html_repr = instance.get_html_repr(index)
+        content = html_repr if html_repr else content
         return JsonResponse({"content": content})
 
     @action(detail=True, methods=["GET"])
