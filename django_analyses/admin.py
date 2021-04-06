@@ -10,11 +10,16 @@ References
    https://docs.djangoproject.com/en/3.0/ref/contrib/admin/
 """
 import datetime
+import json
 from typing import Any, Union
 
 from django.contrib import admin
+from django.db.models import JSONField
+from django.forms import ModelForm, widgets
 from django.urls import reverse
 from django.utils.safestring import mark_safe
+from django_admin_inline_paginator.admin import TabularInlinePaginated
+from nonrelated_inlines.admin import NonrelatedStackedInline
 
 from django_analyses.models.analysis import Analysis
 from django_analyses.models.analysis_version import AnalysisVersion
@@ -23,6 +28,8 @@ from django_analyses.models.input.definitions.input_definition import (
 )
 from django_analyses.models.input.input import Input
 from django_analyses.models.input.input_specification import InputSpecification
+from django_analyses.models.input.types.input_types import InputTypes
+from django_analyses.models.input.utils import ListElementTypes
 from django_analyses.models.output.definitions.output_definition import (
     OutputDefinition,
 )
@@ -30,24 +37,76 @@ from django_analyses.models.output.output import Output
 from django_analyses.models.output.output_specification import (
     OutputSpecification,
 )
+from django_analyses.models.output.types import FileOutput, ListOutput
 from django_analyses.models.output.types.output_types import OutputTypes
+from django_analyses.models.pipeline.node import Node
+from django_analyses.models.pipeline.pipe import Pipe
+from django_analyses.models.pipeline.pipeline import Pipeline
 from django_analyses.models.run import Run
 from django_analyses.utils.html import Html
 
 DOWNLOAD_BUTTON = '<span><a href={url} type="button" class="button" id="run-{run_id}-download-button">{text}</a></span>'  # noqa: E501
+PREVIEW_BUTTON = """
+  <div id="output-preview-div-{index}">
+    <button type="button" class="button output-preview-button" id="output-preview-button-{index}">Preview</button>
+  </div>
+  <script>
+  $("#output-preview-button-{index}").click(function () {{
+    $(this).prop('disabled', true);
+    $(this).innerHTML = "Loading...";
+    $.ajax({{
+        url: "{url}",
+        dataType: 'json',
+        success: function (data) {{
+          document.getElementById('output-preview-div-{index}').innerHTML = data["content"];
+        }},
+      }});
+    }});
+  </script><br>
+"""
+
+
+def custom_titled_filter(title: str):
+    """
+    Copied from SO:
+    https://stackoverflow.com/a/21223908/4416932
+    """
+
+    class Wrapper(admin.FieldListFilter):
+        def __new__(cls, *args, **kwargs):
+            instance = admin.FieldListFilter.create(*args, **kwargs)
+            instance.title = title
+            return instance
+
+    return Wrapper
+
+
+class PrettyJSONWidget(widgets.Textarea):
+    def format_value(self, value):
+        try:
+            value = json.dumps(json.loads(value), indent=2, sort_keys=True)
+            # these lines will try to adjust size of TextArea to fit to content
+            row_lengths = [len(r) for r in value.split("\n")]
+            self.attrs["rows"] = min(max(len(row_lengths) + 2, 10), 30)
+            self.attrs["cols"] = min(max(max(row_lengths) + 2, 40), 120)
+            return value
+        except Exception:
+            return super().format_value(value)
 
 
 class AnalysisVersionInline(admin.TabularInline):
     model = AnalysisVersion
     fields = (
-        "version_link",
+        "id_link",
+        "title",
         "description",
         "input_specification_link",
         "output_specification_link",
         "run_count",
     )
     readonly_fields = (
-        "version_link",
+        "id_link",
+        "title",
         "description",
         "input_specification_link",
         "output_specification_link",
@@ -62,10 +121,10 @@ class AnalysisVersionInline(admin.TabularInline):
     def has_add_permission(self, request, obj):
         return False
 
-    def version_link(self, instance: AnalysisVersion) -> str:
+    def id_link(self, instance: AnalysisVersion) -> str:
+        model_name = instance.__class__.__name__
         pk = instance.id
-        text = instance.title
-        return Html.admin_link("AnalysisVersion", pk, text)
+        return Html.admin_link(model_name, pk)
 
     def input_specification_link(self, instance: AnalysisVersion) -> str:
         model_name = instance.input_specification.__class__.__name__
@@ -80,9 +139,36 @@ class AnalysisVersionInline(admin.TabularInline):
     def run_count(self, instance: AnalysisVersion) -> int:
         return Run.objects.filter(analysis_version=instance).count()
 
+    id_link.short_description = "ID"
     input_specification_link.short_description = "Input Specification"
     output_specification_link.short_description = "Output Specification"
-    version_link.short_description = "Title"
+
+
+class NodeInline(admin.TabularInline):
+    model = Node
+    fields = (
+        "id_link",
+        "configuration",
+    )
+    readonly_fields = (
+        "id_link",
+        "configuration",
+    )
+    extra = 0
+    can_delete = False
+
+    class Media:
+        css = {"all": ("django_analyses/css/hide_admin_original.css",)}
+
+    def has_add_permission(self, request, obj):
+        return False
+
+    def id_link(self, instance: Node) -> str:
+        model_name = instance.__class__.__name__
+        pk = instance.id
+        return Html.admin_link(model_name, pk)
+
+    id_link.short_description = "ID"
 
 
 class AnalysisVersionInputSpecInline(admin.TabularInline):
@@ -160,12 +246,336 @@ class AnalysisVersionOutputSpecInline(admin.TabularInline):
 @admin.register(Analysis)
 class AnalysisAdmin(admin.ModelAdmin):
     fields = "title", "description", "category", "created", "modified"
-    list_display = "title", "description", "run_count", "created", "modified"
-    readonly_fields = ("run_count", "created", "modified")
+    list_display = (
+        "title",
+        "description",
+        "run_count",
+    )
+    readonly_fields = "run_count", "created", "modified"
     inlines = [AnalysisVersionInline]
 
     def run_count(self, instance: Analysis) -> int:
         return Run.objects.filter(analysis_version__analysis=instance).count()
+
+
+class NodeRunInline(TabularInlinePaginated, NonrelatedStackedInline):
+    model = Run
+    fields = (
+        "run_link",
+        "start_time",
+        "end_time",
+        "duration",
+        "_status",
+        "download",
+    )
+    readonly_fields = (
+        "run_link",
+        "start_time",
+        "end_time",
+        "duration",
+        "_status",
+        "download",
+    )
+    can_delete = False
+    extra = 0
+    per_page = 20
+    _form_queryset = None
+
+    class Media:
+        css = {"all": ("django_mri/css/hide_admin_original.css",)}
+
+    def has_add_permission(self, request, instance: Run):
+        return False
+
+    def get_form_queryset(self, instance: Run):
+        if self._form_queryset is None:
+            self._form_queryset = instance.run_set.all()
+        return self._form_queryset
+
+    def run_link(self, instance: Run) -> str:
+        model_name = instance.__class__.__name__
+        pk = instance.id
+        return Html.admin_link(model_name, pk)
+
+    def _status(self, instance: Run) -> bool:
+        if instance.status == "SUCCESS":
+            return True
+        elif instance.status == "FAILURE":
+            return False
+
+    def download(self, instance: Run) -> str:
+        if instance.status == "SUCCESS" and instance.path.exists():
+            url = reverse("analyses:run_to_zip", args=(instance.id,))
+            button = DOWNLOAD_BUTTON.format(
+                url=url, run_id=instance.id, text="ZIP"
+            )
+            return mark_safe(button)
+
+    run_link.short_description = "Run"
+    _status.boolean = True
+
+
+@admin.register(Node)
+class NodeAdmin(admin.ModelAdmin):
+    fields = "analysis_version_link", "configuration"
+    readonly_fields = ("analysis_version_link",)
+    list_display = (
+        "id",
+        "analysis_version_link",
+        "configuration",
+    )
+    list_filter = ("analysis_version__analysis",)
+    search_fields = (
+        "id",
+        "analysis_version__analysis__title",
+        "analysis_version__title",
+        "configuration__has_key",
+    )
+    formfield_overrides = {JSONField: {"widget": PrettyJSONWidget}}
+    inlines = (NodeRunInline,)
+
+    def analysis_version_link(self, instance: Node) -> str:
+        model_name = instance.analysis_version.__class__.__name__
+        pk = instance.analysis_version.id
+        text = str(instance.analysis_version)
+        return Html.admin_link(model_name, pk, text)
+
+    analysis_version_link.short_description = "Analysis Version"
+
+
+@admin.register(Pipe)
+class PipeAdmin(admin.ModelAdmin):
+    fieldsets = (
+        (
+            None,
+            {
+                "fields": [
+                    "pipeline",
+                    "source_analysis_version",
+                    "source_port_key",
+                    "source_node",
+                    "source_configuration",
+                    "destination_analysis_version",
+                    "destination_port_key",
+                    "destination_node",
+                    "destination_configuration",
+                ]
+            },
+        ),
+        (
+            "Configuration",
+            {
+                "fields": [
+                    "index",
+                    "source_run_index",
+                    "destination_run_index",
+                ]
+            },
+        ),
+    )
+    readonly_fields = (
+        "id_link",
+        "pipeline_link",
+        "source_analysis_version",
+        "source_port_key",
+        "source_node",
+        "source_configuration",
+        "destination_analysis_version",
+        "destination_port_key",
+        "destination_node",
+        "destination_configuration",
+    )
+    list_filter = (
+        "pipeline",
+        (
+            "source__analysis_version__analysis",
+            custom_titled_filter("source analysis"),
+        ),
+        (
+            "destination__analysis_version__analysis",
+            custom_titled_filter("destination analysis"),
+        ),
+    )
+    list_display = (
+        "id_link",
+        "pipeline_link",
+        "source_analysis_version",
+        "source_node",
+        "source_port_key",
+        "destination_analysis_version",
+        "destination_node",
+        "destination_port_key",
+    )
+    search_fields = (
+        "id",
+        "pipeline__title",
+        "source__analysis_version__analysis__title",
+        "source__analysis_version__title",
+        "destination__analysis_version__analysis__title",
+        "destination__analysis_version__title",
+    )
+    formfield_overrides = {JSONField: {"widget": PrettyJSONWidget}}
+
+    def id_link(self, instance: Pipe) -> str:
+        return Html.admin_link("Pipe", instance.id)
+
+    def pipeline_link(self, instance: Pipe) -> str:
+        model_name = instance.pipeline.__class__.__name__
+        pk = instance.pipeline.id
+        text = instance.pipeline.title
+        return Html.admin_link(model_name, pk, text)
+
+    def source_node(self, instance: Pipe) -> str:
+        model_name = instance.source.__class__.__name__
+        pk = instance.source.id
+        return Html.admin_link(model_name, pk)
+
+    def source_configuration(self, instance: Pipe) -> str:
+        return instance.source.configuration
+
+    def destination_node(self, instance: Pipe) -> str:
+        model_name = instance.destination.__class__.__name__
+        pk = instance.destination.id
+        return Html.admin_link(model_name, pk)
+
+    def destination_configuration(self, instance: Pipe) -> str:
+        return instance.destination.configuration
+
+    def source_analysis_version(self, instance: Pipe) -> str:
+        version = instance.source.analysis_version
+        model_name = version.__class__.__name__
+        pk = version.id
+        text = str(version)
+        return Html.admin_link(model_name, pk, text)
+
+    def source_port_key(self, instance: Pipe) -> str:
+        definition = instance.source_port
+        pk = definition.id
+        text = definition.key
+        return Html.admin_link("OutputDefinition", pk, text)
+
+    def destination_analysis_version(self, instance: Pipe) -> str:
+        version = instance.destination.analysis_version
+        model_name = version.__class__.__name__
+        pk = version.id
+        text = str(version)
+        return Html.admin_link(model_name, pk, text)
+
+    def destination_port_key(self, instance: Pipe) -> str:
+        definition = instance.destination_port
+        pk = definition.id
+        text = definition.key
+        return Html.admin_link("InputDefinition", pk, text)
+
+    id_link.short_description = "ID"
+    pipeline_link.short_description = "Pipeline"
+    source_port_key.short_description = "Port"
+    destination_port_key.short_description = "Port"
+
+
+class PipeInLine(admin.TabularInline):
+    model = Pipe
+    fields = (
+        "id_link",
+        "source_analysis_version",
+        "source_node",
+        "source_port_key",
+        "destination_analysis_version",
+        "destination_port_key",
+        "destination_node",
+    )
+    readonly_fields = (
+        "id_link",
+        "source_analysis_version",
+        "source_node",
+        "source_port_key",
+        "destination_analysis_version",
+        "destination_port_key",
+        "destination_node",
+    )
+    extra = 0
+    can_delete = False
+
+    class Media:
+        css = {"all": ("django_analyses/css/hide_admin_original.css",)}
+
+    def has_add_permission(self, request, obj):
+        return False
+
+    def id_link(self, instance: Input) -> str:
+        return Html.admin_link("Pipe", instance.id)
+
+    def source_node(self, instance: Pipe) -> str:
+        model_name = instance.source.__class__.__name__
+        pk = instance.source.id
+        return Html.admin_link(model_name, pk)
+
+    def destination_node(self, instance: Pipe) -> str:
+        model_name = instance.destination.__class__.__name__
+        pk = instance.destination.id
+        return Html.admin_link(model_name, pk)
+
+    def source_analysis_version(self, instance: Pipe) -> str:
+        version = instance.source.analysis_version
+        model_name = version.__class__.__name__
+        pk = version.id
+        text = str(version)
+        return Html.admin_link(model_name, pk, text)
+
+    def source_port_key(self, instance: Pipe) -> str:
+        definition = instance.source_port
+        pk = definition.id
+        text = definition.key
+        return Html.admin_link("OutputDefinition", pk, text)
+
+    def destination_analysis_version(self, instance: Pipe) -> str:
+        version = instance.destination.analysis_version
+        model_name = version.__class__.__name__
+        pk = version.id
+        text = str(version)
+        return Html.admin_link(model_name, pk, text)
+
+    def destination_port_key(self, instance: Pipe) -> str:
+        definition = instance.destination_port
+        pk = definition.id
+        text = definition.key
+        return Html.admin_link("InputDefinition", pk, text)
+
+    id_link.short_description = "ID"
+    source_analysis_version.short_description = "Source"
+    source_port_key.short_description = "Port"
+    destination_analysis_version.short_description = "Destination"
+    destination_port_key.short_description = "Port"
+
+    id_link.short_description = "ID"
+
+
+@admin.register(Pipeline)
+class PipelineAdmin(admin.ModelAdmin):
+    fields = "title", "description", "created", "modified"
+    readonly_fields = "created", "modified", "node_count", "pipe_count"
+    list_display = (
+        "id",
+        "title",
+        "description",
+        "node_count",
+        "pipe_count",
+    )
+    search_fields = (
+        "id",
+        "title",
+        "description",
+    )
+    inlines = (PipeInLine,)
+
+    def node_count(self, instance: Pipeline) -> int:
+        return instance.node_set.count()
+
+    def pipe_count(self, instance: Pipeline) -> int:
+        return instance.pipe_set.count()
+
+    node_count.short_description = "# Nodes"
+    pipe_count.short_description = "# Pipes"
 
 
 class InputInline(admin.TabularInline):
@@ -223,16 +633,28 @@ class OutputInline(admin.TabularInline):
         return Html.admin_link("OutputDefinition", pk, text)
 
     def output_type(self, instance: Output) -> str:
-        return instance.definition.get_type().value
+        output_type = instance.definition.get_type().value
+        if output_type == OutputTypes.LST.value:
+            element_type = ListElementTypes[
+                instance.definition.element_type
+            ].value
+            output_type += f"[{element_type}]"
+        return output_type
 
     def download(self, instance: Output) -> str:
         instance = Output.objects.get_subclass(id=instance.id)
-        if instance.get_type() == OutputTypes.FIL:
+        is_file = instance.get_type() == OutputTypes.FIL
+        is_file_list = (
+            instance.get_type() == OutputTypes.LST
+            and instance.definition.element_type == "FIL"
+        )
+        if is_file or is_file_list:
             url = reverse("analyses:file_output_download", args=(instance.id,))
             button = DOWNLOAD_BUTTON.format(
                 url=url, run_id=instance.id, text="Download"
             )
             return mark_safe(button)
+        return ""
 
     definition_link.short_description = "Definition"
     id_link.short_description = "ID"
@@ -251,15 +673,14 @@ class AnalysisVersionAdmin(admin.ModelAdmin):
                     "description",
                     "input_specification_link",
                     "output_specification_link",
-                    "max_parallel",
                 )
             },
         ),
         (
             "Advanced Options",
             {
-                "classes": ("collapse",),
                 "fields": (
+                    "max_parallel",
                     "run_method_key",
                     "nested_results_attribute",
                     "fixed_run_method_kwargs",
@@ -285,6 +706,7 @@ class AnalysisVersionAdmin(admin.ModelAdmin):
         "created",
         "modified",
     )
+    inlines = (NodeInline,)
 
     def name(self, instance) -> str:
         return str(instance)
@@ -333,7 +755,7 @@ class RunAdmin(admin.ModelAdmin):
     )
     inlines = (InputInline, OutputInline)
     fieldsets = (
-        (None, {"fields": ("analysis_version", "user")}),
+        (None, {"fields": ("analysis_version_link", "user", "node")}),
         (
             "Execution",
             {
@@ -342,7 +764,7 @@ class RunAdmin(admin.ModelAdmin):
                     "end_time",
                     ("status", "duration"),
                     "traceback",
-                    "task_result_",
+                    "path",
                     "download",
                 ),
             },
@@ -352,11 +774,12 @@ class RunAdmin(admin.ModelAdmin):
         "analysis_version",
         "analysis_version_link",
         "user_link",
+        "node",
         "start_time",
         "end_time",
         "duration",
         "status",
-        "task_result_",
+        "path",
         "download",
     )
     list_filter = (
@@ -364,6 +787,11 @@ class RunAdmin(admin.ModelAdmin):
         "start_time",
         "analysis_version__analysis",
         "user",
+    )
+    search_fields = (
+        "id",
+        "analysis_version__title",
+        "analysis_version__analysis__title",
     )
 
     class Media:
@@ -374,7 +802,7 @@ class RunAdmin(admin.ModelAdmin):
         if instance.status == "SUCCESS" and instance.path.exists():
             url = reverse("analyses:run_to_zip", args=(instance.id,))
             button = DOWNLOAD_BUTTON.format(
-                url=url, run_id=instance.id, text="Download"
+                url=url, run_id=instance.id, text="ZIP"
             )
             return mark_safe(button)
 
@@ -387,7 +815,16 @@ class RunAdmin(admin.ModelAdmin):
         text = str(instance.analysis_version)
         return Html.admin_link(model_name, pk, text)
 
-    analysis_version_link.short_description = "Analysis Version"
+    def node(self, instance: Run) -> str:
+        nodes = Node.objects.filter(analysis_version=instance.analysis_version)
+        links = []
+        for node in nodes:
+            if node.check_run_configuration_sameness(instance):
+                model_name = node.__class__.__name__
+                pk = node.id
+                links.append(Html.admin_link(model_name, pk))
+        if links:
+            return mark_safe(", ".join(links))
 
     def user_link(self, instance: Run) -> str:
         if instance.user:
@@ -395,8 +832,6 @@ class RunAdmin(admin.ModelAdmin):
             pk = instance.user.id
             text = instance.user.username
             return Html.admin_link(model_name, pk, text)
-
-    user_link.short_description = "User"
 
     def _status(self, instance: Run) -> Union[str, bool]:
         if instance.status == "SUCCESS":
@@ -407,16 +842,8 @@ class RunAdmin(admin.ModelAdmin):
             return None
 
     _status.boolean = True
-
-    def task_result_(self, instance) -> str:
-        if instance.task_result:
-            url = reverse(
-                "admin:django_celery_results_taskresult_change",
-                args=(instance.task_result.id,),
-            )
-            text = instance.task_result.task_id
-            html = f'<a href="{url}">{text}</a>'
-            return mark_safe(html)
+    analysis_version_link.short_description = "Analysis Version"
+    user_link.short_description = "User"
 
 
 @admin.register(Input)
@@ -446,6 +873,21 @@ class InputAdmin(admin.ModelAdmin):
         "_value",
     )
 
+    class Media:
+        js = ("//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js",)
+
+    def change_view(self, *args, **kwargs):
+        instance = Input.objects.get_subclass(id=kwargs["object_id"])
+        is_file = instance.get_type().value == "File"
+        is_file_list = (
+            instance.get_type().value == "List"
+            and instance.definition.element_type == "FIL"
+        )
+        has_preview = is_file or is_file_list
+        kwargs["extra_context"] = kwargs.get("extra_context", {})
+        kwargs["extra_context"]["has_preview"] = has_preview
+        return super().change_view(*args, **kwargs)
+
     def get_queryset(self, request):
         return super().get_queryset(request).select_subclasses()
 
@@ -472,8 +914,32 @@ class InputAdmin(admin.ModelAdmin):
     def input_type(self, instance: Input) -> str:
         return instance.definition.get_type().value
 
-    def _value(self, instance: Input) -> Any:
-        instance = Input.objects.get_subclass(id=instance.id)
+    def check_fileness(self, instance: Input) -> bool:
+        is_file = instance.get_type() == InputTypes.FIL
+        is_file_list = (
+            instance.get_type() == InputTypes.LST
+            and instance.definition.element_type == "FIL"
+        )
+        return is_file or is_file_list
+
+    def _value(self, instance: Input) -> str:
+        fileness = self.check_fileness(instance)
+        if fileness:
+            if isinstance(instance.value, list):
+                links = ""
+                for i, path in enumerate(instance.value):
+                    url = reverse(
+                        "analyses:input_html_repr", args=(instance.id, i)
+                    )
+                    preview_button = PREVIEW_BUTTON.format(index=i, url=url)
+                    link = f"{path} {preview_button}"
+                    links += link
+                return mark_safe(links)
+            else:
+                url = reverse("analyses:input_html_repr", args=(instance.id,))
+                preview_button = PREVIEW_BUTTON.format(index=0, url=url)
+                link = f"{instance.value} {preview_button}"
+                return mark_safe(link)
         return instance.value
 
     run_link.short_description = "Run"
@@ -485,10 +951,11 @@ class InputAdmin(admin.ModelAdmin):
 
 @admin.register(Output)
 class OutputAdmin(admin.ModelAdmin):
+    # form = OutputAdminForm
     fields = (
         "analysis_version_link",
-        "run_link",
         "definition_link",
+        "run_link",
         "output_type",
         "_value",
         "download",
@@ -518,24 +985,40 @@ class OutputAdmin(admin.ModelAdmin):
 
     def change_view(self, *args, **kwargs):
         instance = Output.objects.get_subclass(id=kwargs["object_id"])
+        is_file = instance.get_type().value == "File"
+        is_file_list = (
+            instance.get_type().value == "List"
+            and instance.definition.element_type == "FIL"
+        )
+        has_preview = is_file or is_file_list
         kwargs["extra_context"] = kwargs.get("extra_context", {})
-        kwargs["extra_context"]["output_type"] = instance.get_type().value
+        kwargs["extra_context"]["has_preview"] = has_preview
         return super().change_view(*args, **kwargs)
 
     def get_queryset(self, request):
         return super().get_queryset(request).select_subclasses()
+
+    def check_fileness(self, instance: Output) -> bool:
+        is_file = instance.get_type() == OutputTypes.FIL
+        is_file_list = (
+            instance.get_type() == OutputTypes.LST
+            and instance.definition.element_type == "FIL"
+        )
+        return is_file or is_file_list
 
     def analysis_version(self, instance: Output) -> str:
         return str(instance.run.analysis_version)
 
     def download(self, instance: Output) -> str:
         instance = Output.objects.get_subclass(id=instance.id)
-        if instance.get_type() == OutputTypes.FIL:
+        fileness = self.check_fileness(instance)
+        if fileness:
             url = reverse("analyses:file_output_download", args=(instance.id,))
             button = DOWNLOAD_BUTTON.format(
                 url=url, run_id=instance.id, text="Download"
             )
             return mark_safe(button)
+        return ""
 
     def run_link(self, instance: Output) -> str:
         model_name = instance.run.__class__.__name__
@@ -555,10 +1038,32 @@ class OutputAdmin(admin.ModelAdmin):
         return Html.admin_link("OutputDefinition", pk, text)
 
     def output_type(self, instance: Output) -> str:
-        return instance.definition.get_type().value
+        output_type = instance.definition.get_type().value
+        if output_type == OutputTypes.LST.value:
+            element_type = ListElementTypes[
+                instance.definition.element_type
+            ].value
+            output_type += f"[{element_type}]"
+        return output_type
 
-    def _value(self, instance: Output) -> Any:
-        instance = Output.objects.get_subclass(id=instance.id)
+    def _value(self, instance: Output) -> str:
+        fileness = self.check_fileness(instance)
+        if fileness:
+            if isinstance(instance.value, list):
+                links = ""
+                for i, path in enumerate(instance.value):
+                    url = reverse(
+                        "analyses:output_html_repr", args=(instance.id, i)
+                    )
+                    preview_button = PREVIEW_BUTTON.format(index=i, url=url)
+                    link = f"{path} {preview_button}"
+                    links += link
+                return mark_safe(links)
+            else:
+                url = reverse("analyses:output_html_repr", args=(instance.id,))
+                preview_button = PREVIEW_BUTTON.format(index=0, url=url)
+                link = f"{instance.value} {preview_button}"
+                return mark_safe(link)
         return instance.value
 
     run_link.short_description = "Run"

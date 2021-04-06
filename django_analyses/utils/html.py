@@ -12,10 +12,13 @@ ADMIN_VIEW_NAMES = {
     "Input": "admin:django_analyses_input_change",
     "InputDefinition": "admin:django_analyses_inputdefinition_change",
     "InputSpecification": "admin:django_analyses_inputspecification_change",
+    "Node": "admin:django_analyses_node_change",
     "OutputDefinition": "admin:django_analyses_outputdefinition_change",
     "Output": "admin:django_analyses_output_change",
     "OutputSpecification": "admin:django_analyses_outputspecification_change",
     "User": "admin:accounts_user_change",
+    "Pipe": "admin:django_analyses_pipe_change",
+    "Pipeline": "admin:django_analyses_pipeline_change",
     "Run": "admin:django_analyses_run_change",
 }
 
