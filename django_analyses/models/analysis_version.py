@@ -276,12 +276,17 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         raw_results = self.run_interface(**kwargs)
         return self.extract_results(raw_results)
 
-    def update_input_with_defaults(self, **kwargs) -> dict:
+    def update_input_with_defaults(self, configuration: dict) -> dict:
         """
         Updates a configuration specified as keyword arguments with the
         instance's
         :attr:`~django_analyses.models.analysis_version.AnalysisVersion.input_specification`
         defaults.
+
+        Parameters
+        ----------
+        configuration : dict
+            Input configuration (excluding default values)
 
         Returns
         -------
@@ -289,9 +294,8 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
             Configuration updated with default values
         """
 
-        configuration = self.input_specification.default_configuration.copy()
-        configuration.update(kwargs)
-        return configuration
+        defaults = self.input_specification.default_configuration.copy()
+        return {**defaults, **configuration}
 
     @property
     def nested_results_parts(self) -> list:

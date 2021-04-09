@@ -1,6 +1,8 @@
 """
 Definition of the :class:`~django_analyses.models.run.Run` model's manager.
 """
+from typing import Any, Dict, Iterable, Union
+
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
@@ -22,28 +24,103 @@ class RunManager(models.Manager):
     :class:`~django_analyses.models.pipeline.node.Node` are executed.
     """
 
-    def get_existing(self, analysis_version: AnalysisVersion, **kwargs):
+    def filter_by_configuration(
+        self,
+        analysis_version: AnalysisVersion,
+        configuration: Union[Dict[str, Any], Iterable[Dict[str, Any]]],
+        strict: bool = False,
+    ) -> models.QuerySet:
+        if isinstance(configuration, dict):
+            configuration = analysis_version.update_input_with_defaults(
+                configuration
+            )
+            potential_runs = {key: [] for key in configuration.keys()}
+            key_set = set(configuration.keys())
+            if configuration:
+                for key, value in configuration.items():
+                    try:
+                        definition = analysis_version.input_definitions.get(
+                            key=key
+                        )
+                    except ObjectDoesNotExist:
+                        # If an invalid input definition key was passed, there
+                        # can be no matching runs.
+                        return self.none()
+                    else:
+                        try:
+                            matching_input = definition.input_set.filter(
+                                value=value
+                            )
+                        except ObjectDoesNotExist:
+                            # If no matches were found for any given input
+                            # value, it means no existing runs can exist for
+                            # the entire provided configuration.
+                            return self.none()
+                        else:
+                            matching_runs = list(
+                                set([inpt.run for inpt in matching_input])
+                            )
+                            potential_runs[key] += matching_runs
+                run_set = set.intersection(*map(set, potential_runs.values()))
+            else:
+                run_set = self.all()
+            if strict:
+                run_set = [
+                    run
+                    for run in run_set
+                    if {
+                        inpt.key
+                        for inpt in run.input_set.all()
+                        if inpt.definition.is_configuration
+                    }
+                    == key_set
+                ]
+            run_ids = [run.id for run in run_set]
+            return self.filter(id__in=run_ids)
+        elif isinstance(configuration, Iterable):
+            run_ids = [
+                run.id
+                for run in filter(
+                    None,
+                    [
+                        self.get_run_by_input(specification)
+                        for specification in configuration
+                    ],
+                )
+            ]
+            return self.filter(id__in=run_ids)
+
+    def get_existing(
+        self, analysis_version: AnalysisVersion, configuration: dict
+    ):
         """
-        Returns an existing run instance for the specified analysis version
-        if one with the specified configuration exists, or *None*.
+        Returns an existing run of the provided *analysis_version* with the
+        specified *configuration*.
 
         Parameters
         ----------
         analysis_version : AnalysisVersion
             The desired AnalysisVersion instance for which a run is queried
+        configuration : dict
+            Full input configuration (excluding default values)
 
         Returns
         -------
         Run
-            Existing run instance or *None*
-        """
+            Existing run with the specified *analysis_version* and
+            *configuration*
 
+        Raises
+        ------
+        ObjectDoesNotExist
+            No matching run exists
+        """
         runs = self.filter(analysis_version=analysis_version)
 
         # ForeignKey fields are serialized to the database as the primary keys
         # of the associated instances, so in order to compare configurations
         # with model instances, we convert the value to primary key.
-        for key, value in kwargs.items():
+        for key, value in configuration.items():
             try:
                 input_definition = analysis_version.input_definitions.get(
                     key=key
@@ -54,21 +131,26 @@ class RunManager(models.Manager):
                 )
                 raise ObjectDoesNotExist(message)
             if input_definition.db_value_preprocessing:
-                kwargs[key] = input_definition.get_db_value(value)
+                configuration[key] = input_definition.get_db_value(value)
             elif isinstance(value, models.Model):
-                kwargs[key] = value.id
+                configuration[key] = value.id
         # Update with the analysis version's input specification deafults in
         # order to compare the full configuration.
-        configuration = analysis_version.update_input_with_defaults(**kwargs)
+        configuration = analysis_version.update_input_with_defaults(
+            configuration
+        )
         # Find a matching run instance (only one should exist) and return it
         # or None.
         matching = [
-            run for run in runs if run.input_configuration == configuration
+            run.id for run in runs if run.input_configuration == configuration
         ]
-        return matching[0] if matching else None
+        return self.get(id__in=matching)
 
     def create_and_execute(
-        self, analysis_version: AnalysisVersion, user: User = None, **kwargs
+        self,
+        analysis_version: AnalysisVersion,
+        configuration: dict,
+        user: User = None,
     ):
         """
         Execute *analysis_version* with the provided configuration (keyword
@@ -78,6 +160,8 @@ class RunManager(models.Manager):
         ----------
         analysis_version : AnalysisVersion
             AnalysisVersion to execute
+        configuration : dict
+            Full input configuration (excluding default values)
         user : User, optional
             User who executed the run, by default None
 
@@ -94,7 +178,7 @@ class RunManager(models.Manager):
             start_time=timezone.now(),
         )
         try:
-            input_manager = InputManager(run=run, configuration=kwargs)
+            input_manager = InputManager(run=run, configuration=configuration)
             inputs = input_manager.create_input_instances()
             results = analysis_version.run(**inputs)
             output_manager = OutputManager(run=run, results=results)
@@ -118,9 +202,9 @@ class RunManager(models.Manager):
     def get_or_execute(
         self,
         analysis_version: AnalysisVersion,
+        configuration: dict,
         user: User = None,
         return_created: bool = False,
-        **kwargs,
     ):
         """
         Get or execute a run of *analysis_version* with the provided keyword
@@ -130,6 +214,8 @@ class RunManager(models.Manager):
         ----------
         analysis_version : AnalysisVersion
             AnalysisVersion to retrieve or execute
+        configuration : dict
+            Full input configuration (excluding default values)
         user : User, optional
             User who executed the run, by default None, by default None
         return_created : bool
@@ -142,9 +228,12 @@ class RunManager(models.Manager):
             New or existings run instance
         """
 
-        existing = self.get_existing(analysis_version, **kwargs)
-        if existing:
-            return (existing, False) if return_created else existing
-        else:
-            run = self.create_and_execute(analysis_version, user, **kwargs)
+        try:
+            existing = self.get_existing(analysis_version, configuration)
+        except self.model.DoesNotExist:
+            run = self.create_and_execute(
+                analysis_version, configuration, user
+            )
             return (run, True) if return_created else run
+        else:
+            return (existing, False) if return_created else existing

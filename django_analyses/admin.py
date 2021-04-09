@@ -11,11 +11,11 @@ References
 """
 import datetime
 import json
-from typing import Any, Union
+from typing import Union
 
 from django.contrib import admin
 from django.db.models import JSONField
-from django.forms import ModelForm, widgets
+from django.forms import widgets
 from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django_admin_inline_paginator.admin import TabularInlinePaginated
@@ -37,7 +37,6 @@ from django_analyses.models.output.output import Output
 from django_analyses.models.output.output_specification import (
     OutputSpecification,
 )
-from django_analyses.models.output.types import FileOutput, ListOutput
 from django_analyses.models.output.types.output_types import OutputTypes
 from django_analyses.models.pipeline.node import Node
 from django_analyses.models.pipeline.pipe import Pipe
@@ -48,7 +47,8 @@ from django_analyses.utils.html import Html
 DOWNLOAD_BUTTON = '<span><a href={url} type="button" class="button" id="run-{run_id}-download-button">{text}</a></span>'  # noqa: E501
 PREVIEW_BUTTON = """
   <div id="output-preview-div-{index}">
-    <button type="button" class="button output-preview-button" id="output-preview-button-{index}">Preview</button>
+    <button type="button" class="button output-preview-button" \
+        id="output-preview-button-{index}">Preview</button>
   </div>
   <script>
   $("#output-preview-button-{index}").click(function () {{
@@ -58,7 +58,8 @@ PREVIEW_BUTTON = """
         url: "{url}",
         dataType: 'json',
         success: function (data) {{
-          document.getElementById('output-preview-div-{index}').innerHTML = data["content"];
+          document.getElementById('output-preview-div-{index}').innerHTML = \
+              data["content"];
         }},
       }});
     }});
@@ -755,7 +756,7 @@ class RunAdmin(admin.ModelAdmin):
     )
     inlines = (InputInline, OutputInline)
     fieldsets = (
-        (None, {"fields": ("analysis_version_link", "user", "node")}),
+        (None, {"fields": ("analysis_version_link", "user")}),
         (
             "Execution",
             {
@@ -774,7 +775,6 @@ class RunAdmin(admin.ModelAdmin):
         "analysis_version",
         "analysis_version_link",
         "user_link",
-        "node",
         "start_time",
         "end_time",
         "duration",
@@ -796,7 +796,6 @@ class RunAdmin(admin.ModelAdmin):
 
     class Media:
         css = {"all": ("django_analyses/css/hide_admin_original.css",)}
-        # js = ("django_analyses/js/",)
 
     def download(self, instance: Run) -> str:
         if instance.status == "SUCCESS" and instance.path.exists():
@@ -814,17 +813,6 @@ class RunAdmin(admin.ModelAdmin):
         pk = instance.analysis_version.id
         text = str(instance.analysis_version)
         return Html.admin_link(model_name, pk, text)
-
-    def node(self, instance: Run) -> str:
-        nodes = Node.objects.filter(analysis_version=instance.analysis_version)
-        links = []
-        for node in nodes:
-            if node.check_run_configuration_sameness(instance):
-                model_name = node.__class__.__name__
-                pk = node.id
-                links.append(Html.admin_link(model_name, pk))
-        if links:
-            return mark_safe(", ".join(links))
 
     def user_link(self, instance: Run) -> str:
         if instance.user:

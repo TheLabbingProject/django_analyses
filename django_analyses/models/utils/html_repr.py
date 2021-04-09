@@ -1,8 +1,8 @@
 from pathlib import Path
+from typing import List
 
 import nibabel as nib
 import pandas as pd
-from django_mri.analysis.automation.recon_all import ReconAllStats
 from nilearn.plotting import cm, view_img, view_surf
 
 DEFAULT_NIFTI_SIZE = {"width": 1000, "height": 500}
@@ -86,8 +86,15 @@ def plot_freesurfer_surface(path: Path) -> str:
     ).get_iframe(**DEFAULT_NIFTI_SIZE)
 
 
+def read_col_headers(path: Path) -> List[str]:
+    with open(path, "r") as f:
+        for line in f:
+            if "ColHeaders" in line:
+                return line.strip().split()[2:]
+
+
 def freesurfer_stats_repr(path: Path) -> str:
-    column_names = ReconAllStats.read_col_headers(path)
+    column_names = read_col_headers(path)
     df = pd.read_csv(
         path,
         comment="#",
