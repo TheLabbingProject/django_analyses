@@ -148,59 +148,6 @@ class NodeTestCase(TestCase):
         ]
         self.assertListEqual(requiring_nodes, expected)
 
-    def test_check_configuration_sameness_for_default_value_returns_true(self):
-        same = self.norm_node.check_configuration_sameness("order", None)
-        self.assertTrue(same)
-
-    def test_check_configuration_sameness_for_same_configuration_returns_true(
-        self,
-    ):
-        self.norm_node.configuration = {"order": "inf"}
-        same = self.norm_node.check_configuration_sameness("order", "inf")
-        self.assertTrue(same)
-
-    def test_check_configuration_sameness_for_non_configuration_returns_true(
-        self,
-    ):
-        same = self.norm_node.check_configuration_sameness("x", [1, 2, 3, 4])
-        self.assertTrue(same)
-
-    def test_check_configuration_sameness_for_non_default_when_key_not_configured_returns_false(  # noqa: E501
-        self,
-    ):
-        same = self.norm_node.check_configuration_sameness("order", "-inf")
-        self.assertFalse(same)
-
-    def test_check_configuration_sameness_for_not_same_configuration_returns_false(  # noqa: E501
-        self,
-    ):
-        self.norm_node.configuration = {"order": "inf"}
-        same = self.norm_node.check_configuration_sameness("order", "-inf")
-        self.assertFalse(same)
-
-    def test_check_run_configuration_sameness_for_not_same_configuration_returns_false(  # noqa: E501
-        self,
-    ):
-        run = self.norm_node.run({"x": [1, 2, 3, 4]})
-        another_node = NodeFactory(
-            analysis_version=self.norm, configuration={"order": "-1"}
-        )
-        same = another_node.check_run_configuration_sameness(run)
-        try:
-            self.assertFalse(same)
-        except AssertionError as e:
-            message = str(e)
-            message += f"\nRun input configuration: {run.input_configuration}"
-            message += f"\nNode configuration: {another_node.configuration}"
-            self.fail(message)
-
-    def test_check_run_configuration_sameness_for_same_configuration_returns_true(  # noqa: E501
-        self,
-    ):
-        run = self.norm_node.run({"x": [1, 2, 3, 4]})
-        same = self.norm_node.check_run_configuration_sameness(run)
-        self.assertTrue(same)
-
     def test_get_run_set(self):
         run1 = self.norm_node.run({"x": [1, 2, 3]})
         run2 = self.norm_node.run({"x": [1, 2, 3, 4]})

@@ -2,7 +2,7 @@
 Definition of the :class:`~django_analyses.models.run.Run` model's manager.
 """
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db import models
 from django.utils import timezone
 from django_analyses.models.analysis_version import AnalysisVersion
@@ -22,22 +22,9 @@ class RunManager(models.Manager):
     :class:`~django_analyses.models.pipeline.node.Node` are executed.
     """
 
-    def get_existing(self, analysis_version: AnalysisVersion, **kwargs):
-        """
-        Returns an existing run instance for the specified analysis version
-        if one with the specified configuration exists, or *None*.
-
-        Parameters
-        ----------
-        analysis_version : AnalysisVersion
-            The desired AnalysisVersion instance for which a run is queried
-
-        Returns
-        -------
-        Run
-            Existing run instance or *None*
-        """
-
+    def filter_by_configuration(
+        self, analysis_version: AnalysisVersion, **kwargs
+    ) -> models.QuerySet:
         runs = self.filter(analysis_version=analysis_version)
 
         # ForeignKey fields are serialized to the database as the primary keys
@@ -63,9 +50,33 @@ class RunManager(models.Manager):
         # Find a matching run instance (only one should exist) and return it
         # or None.
         matching = [
-            run for run in runs if run.input_configuration == configuration
+            run.id for run in runs if run.input_configuration == configuration
         ]
-        return matching[0] if matching else None
+        return self.filter(id__in=matching)
+
+    def get_existing(self, analysis_version: AnalysisVersion, **kwargs):
+        """
+        Returns an existing run instance for the specified analysis version
+        if one with the specified configuration exists, or *None*.
+
+        Parameters
+        ----------
+        analysis_version : AnalysisVersion
+            The desired AnalysisVersion instance for which a run is queried
+
+        Returns
+        -------
+        Run
+            Existing run instance or *None*
+        """
+
+        matches = self.filter_by_configuration(analysis_version, **kwargs)
+        if matches.count() > 1:
+            raise MultipleObjectsReturned(
+                f"Multiple ({matches.count()}) runs returned!"
+            )
+        elif matches:
+            return matches.first()
 
     def create_and_execute(
         self, analysis_version: AnalysisVersion, user: User = None, **kwargs

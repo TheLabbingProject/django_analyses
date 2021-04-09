@@ -1,15 +1,10 @@
 """
 Definition of the :class:`Node` class.
 """
-from typing import Any, Dict, Iterable, List, Tuple, Union
+from typing import Any, Dict, List, Tuple, Union
 
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from django.db.models import QuerySet
-from django_analyses.models.input.definitions.input_definition import (
-    InputDefinition,
-)
 from django_analyses.models.pipeline.messages import BAD_INPUTS_TYPE
 from django_analyses.models.run import Run
 from django_extensions.db.models import TimeStampedModel
@@ -245,97 +240,6 @@ class Node(TimeStampedModel):
             "destination", "destination_run_index"
         )
 
-    def get_input_definition(self, key: str) -> InputDefinition:
-        return self.analysis_version.input_definitions.get(key=key)
-
-    def get_default_configuration(self, key: str) -> Any:
-        input_definition = self.get_input_definition(key)
-        return input_definition.default
-
-    def check_configuration_sameness(self, key: str, value: Any) -> bool:
-        """
-        Checks whether the provided configuration *key* and *value* match this
-        node's
-        :attr:`~django_analyses.models.pipeline.node.Node.configuration`.
-        Takes into account default values and returns *True* for any
-        non-configuration inputs (run inputs).
-
-        Parameters
-        ----------
-        key : str
-            The key of the configuration value in question
-        value : Any
-            Configuration value to compare
-
-        Returns
-        -------
-        bool
-            Whether this node's
-            :attr:`~django_analyses.models.pipeline.node.Node.configuration`
-            is equal to provided configuration or not
-        """
-
-        is_same = value == self.configuration.get(key)
-        if not is_same:
-            default_value = self.get_default_configuration(key)
-            if not value == default_value:
-                input_definition = self.get_input_definition(key)
-                return input_definition.is_configuration is False
-        return True
-
-    def check_run_configuration_sameness(self, run: Run) -> bool:
-        """
-        Checks whether the given *run*'s configuration is equivalent to this
-        node's
-        :attr:`~django_analyses.models.pipeline.node.Node.configuration` value.
-
-        Parameters
-        ----------
-        run : Run
-            Some run of this node's analysis version
-
-        Returns
-        -------
-        bool
-            Whether the given run's configuration is equivalent to this node's
-            :attr:`~django_analyses.models.pipeline.node.Node.configuration`
-            value
-
-        See Also
-        --------
-        * :meth:`check_configuration_sameness`
-        """
-
-        # Validate the provided run's input configuration.
-        run_configuration = run.input_configuration
-        configuration_sameness = [
-            self.check_configuration_sameness(key, value)
-            for key, value in run_configuration.items()
-        ]
-        same = all(configuration_sameness)
-        # Handle configurations that are set for the node but are not included
-        # in the provided run's input configuration.
-        exhausted_node_configuration = len(configuration_sameness) == len(
-            self.configuration
-        )
-        if same and not exhausted_node_configuration:
-            missing_node_configurations = {
-                key: value
-                for key, value in self.configuration.items()
-                if key not in run_configuration
-            }
-            # In case the node's configuration includes default values, checks
-            # that the node-specific configuration keys indeed indicate a
-            # difference.
-            missing_are_default = all(
-                [
-                    self.get_default_configuration(key) == value
-                    for key, value in missing_node_configurations.items()
-                ]
-            )
-            return same and missing_are_default
-        return same
-
     def get_run_set(self) -> models.QuerySet:
         """
         Returns all the existing :class:`~django_analyses.models.run.Run`
@@ -349,55 +253,9 @@ class Node(TimeStampedModel):
         """
 
         full_configuration = self.get_full_configuration()
-        return self.get_run_by_input(full_configuration)
-
-    def get_run_by_input(
-        self,
-        input_specification: Union[Dict[str, Any], Iterable[Dict[str, Any]]],
-    ) -> QuerySet:
-        if isinstance(input_specification, dict):
-            potential_runs = {key: [] for key in input_specification.keys()}
-            for key, value in input_specification.items():
-                try:
-                    definition = self.analysis_version.input_definitions.get(
-                        key=key
-                    )
-                except ObjectDoesNotExist:
-                    pass
-                else:
-                    try:
-                        matching_input = definition.input_set.filter(
-                            value=value
-                        )
-                    except ObjectDoesNotExist:
-                        pass
-                    else:
-                        matching_runs = list(
-                            set([inpt.run for inpt in matching_input])
-                        )
-                        potential_runs[key] += matching_runs
-            potential_runs = (
-                set.intersection(*map(set, potential_runs.values()))
-                if any(potential_runs.values())
-                else False
-            )
-            if potential_runs:
-                run_ids = [run.id for run in potential_runs]
-                return Run.objects.filter(id__in=run_ids)
-            else:
-                return Run.objects.none()
-        elif isinstance(input_specification, Iterable):
-            run_ids = [
-                run.id
-                for run in filter(
-                    None,
-                    [
-                        self.get_run_by_input(specification)
-                        for specification in input_specification
-                    ],
-                )
-            ]
-            return Run.objects.filter(id__in=run_ids)
+        return Run.objects.filter_by_configuration(
+            self.analysis_version, **full_configuration
+        )
 
     def is_entry_node(self, pipeline) -> bool:
         """
