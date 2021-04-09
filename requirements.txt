@@ -8,6 +8,7 @@ django-environ~=0.4
 django-extensions~=3.1
 django-filter~=2.4
 django-model-utils~=4.0
+django-nonrelated-inlines~=0.1
 django-rest-auth~=0.9
 matplotlib~=3.3
 nilearn~=0.7
