@@ -344,8 +344,10 @@ class Node(TimeStampedModel):
                             set([inpt.run for inpt in matching_input])
                         )
                         potential_runs[key] += matching_runs
-            potential_runs = set.intersection(
-                *map(set, potential_runs.values())
+            potential_runs = (
+                set.intersection(*map(set, potential_runs.values()))
+                if any(potential_runs.values())
+                else False
             )
             if potential_runs:
                 run_ids = [run.id for run in potential_runs]
