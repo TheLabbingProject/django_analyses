@@ -186,7 +186,12 @@ class NodeTestCase(TestCase):
             analysis_version=self.norm, configuration={"order": "-1"}
         )
         same = another_node.check_run_configuration_sameness(run)
-        self.assertFalse(same)
+        try:
+            self.assertFalse(same)
+        except AssertionError:
+            message = f"\nRun input configuration: {run.input_configuration}"
+            message += f"\nNode configuration: {another_node.configuration}"
+            self.fail(message)
 
     def test_check_run_configuration_sameness_for_same_configuration_returns_true(  # noqa: E501
         self,
