@@ -188,8 +188,9 @@ class NodeTestCase(TestCase):
         same = another_node.check_run_configuration_sameness(run)
         try:
             self.assertFalse(same)
-        except AssertionError:
-            message = f"\nRun input configuration: {run.input_configuration}"
+        except AssertionError as e:
+            message = str(e)
+            message += f"\nRun input configuration: {run.input_configuration}"
             message += f"\nNode configuration: {another_node.configuration}"
             self.fail(message)
 

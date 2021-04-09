@@ -7,6 +7,9 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.db.models import QuerySet
+from django_analyses.models.input.definitions.input_definition import (
+    InputDefinition,
+)
 from django_analyses.models.pipeline.messages import BAD_INPUTS_TYPE
 from django_analyses.models.run import Run
 from django_extensions.db.models import TimeStampedModel
@@ -242,6 +245,13 @@ class Node(TimeStampedModel):
             "destination", "destination_run_index"
         )
 
+    def get_input_definition(self, key: str) -> InputDefinition:
+        return self.analysis_version.input_definitions.get(key=key)
+
+    def get_default_configuration(self, key: str) -> Any:
+        input_definition = self.get_input_definition(key)
+        return input_definition.default
+
     def check_configuration_sameness(self, key: str, value: Any) -> bool:
         """
         Checks whether the provided configuration *key* and *value* match this
@@ -267,14 +277,9 @@ class Node(TimeStampedModel):
 
         is_same = value == self.configuration.get(key)
         if not is_same:
-            input_definition = self.analysis_version.input_definitions.get(
-                key=key
-            )
-            is_default = (
-                value == input_definition.default
-                and self.configuration.get(key) is None
-            )
-            if not is_default:
+            default_value = self.get_default_configuration(key)
+            if not value == default_value:
+                input_definition = self.get_input_definition(key)
                 return input_definition.is_configuration is False
         return True
 
@@ -301,12 +306,35 @@ class Node(TimeStampedModel):
         * :meth:`check_configuration_sameness`
         """
 
-        return all(
-            [
-                self.check_configuration_sameness(key, value)
-                for key, value in run.input_configuration.items()
-            ]
+        # Validate the provided run's input configuration.
+        run_configuration = run.input_configuration
+        configuration_sameness = [
+            self.check_configuration_sameness(key, value)
+            for key, value in run_configuration.items()
+        ]
+        same = all(configuration_sameness)
+        # Handle configurations that are set for the node but are not included
+        # in the provided run's input configuration.
+        exhausted_node_configuration = len(configuration_sameness) == len(
+            self.configuration
         )
+        if same and not exhausted_node_configuration:
+            missing_node_configurations = {
+                key: value
+                for key, value in self.configuration.items()
+                if key not in run_configuration
+            }
+            # In case the node's configuration includes default values, checks
+            # that the node-specific configuration keys indeed indicate a
+            # difference.
+            missing_are_default = all(
+                [
+                    self.get_default_configuration(key) == value
+                    for key, value in missing_node_configurations.items()
+                ]
+            )
+            return same and missing_are_default
+        return same
 
     def get_run_set(self) -> models.QuerySet:
         """
