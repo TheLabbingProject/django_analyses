@@ -160,7 +160,7 @@ class AnalysisVersionTestCase(TestCase):
     def test_update_input_with_defaults(self):
         inputs = {"dividend": 20}
         configuration = self.division_analysis_version.update_input_with_defaults(  # noqa: E501
-            **inputs
+            inputs
         )
         inputs.update(divisor=2)
         self.assertDictEqual(configuration, inputs)

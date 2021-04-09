@@ -161,9 +161,9 @@ class Node(TimeStampedModel):
             full_configuration = self.get_full_configuration(inputs)
             return Run.objects.get_or_execute(
                 self.analysis_version,
+                full_configuration,
                 user=user,
                 return_created=return_created,
-                **full_configuration,
             )
         elif isinstance(inputs, (list, tuple)):
             return [
@@ -252,9 +252,9 @@ class Node(TimeStampedModel):
             Existing node runs
         """
 
-        full_configuration = self.get_full_configuration()
+        node_configuration = self.get_full_configuration()
         return Run.objects.filter_by_configuration(
-            self.analysis_version, **full_configuration
+            self.analysis_version, node_configuration, strict=True
         )
 
     def is_entry_node(self, pipeline) -> bool:
