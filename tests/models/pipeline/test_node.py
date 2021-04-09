@@ -199,7 +199,7 @@ class NodeTestCase(TestCase):
         run1 = self.norm_node.run({"x": [1, 2, 3]})
         run2 = self.norm_node.run({"x": [1, 2, 3, 4]})
         different_node = NodeFactory(
-            analysis_version=self.norm, configuration={"order": -2}
+            analysis_version=self.norm, configuration={"order": "-2"}
         )
         different_node_run = different_node.run({"x": [1, 2, 3]})
         runs = self.norm_node.get_run_set()
