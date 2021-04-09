@@ -1,11 +1,15 @@
-from django_analyses.models.input.definitions.float_input_definition import \
-    FloatInputDefinition
-from django_analyses.models.input.definitions.list_input_definition import \
-    ListInputDefinition
-from django_analyses.models.input.definitions.string_input_definition import \
-    StringInputDefinition
-from django_analyses.models.output.definitions.float_output_definition import \
-    FloatOutputDefinition
+from django_analyses.models.input.definitions.float_input_definition import (
+    FloatInputDefinition,
+)
+from django_analyses.models.input.definitions.list_input_definition import (
+    ListInputDefinition,
+)
+from django_analyses.models.input.definitions.string_input_definition import (
+    StringInputDefinition,
+)
+from django_analyses.models.output.definitions.float_output_definition import (
+    FloatOutputDefinition,
+)
 
 ANALYSES = [
     {
