@@ -266,13 +266,17 @@ class Node(TimeStampedModel):
         """
 
         is_same = value == self.configuration.get(key)
-        input_definition = self.analysis_version.input_definitions.get(key=key)
-        is_default = (
-            value == input_definition.default
-            and self.configuration.get(key) is None
-        )
-        not_configuration = input_definition.is_configuration is False
-        return is_same or is_default or not_configuration
+        if not is_same:
+            input_definition = self.analysis_version.input_definitions.get(
+                key=key
+            )
+            is_default = (
+                value == input_definition.default
+                and self.configuration.get(key) is None
+            )
+            if not is_default:
+                return input_definition.is_configuration is False
+        return True
 
     def check_run_configuration_sameness(self, run: Run) -> bool:
         """
