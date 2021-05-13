@@ -1,7 +1,8 @@
 from django.contrib.auth import get_user_model
 from django_analyses.models.run import Run
-from django_analyses.serializers.analysis_version import \
-    AnalysisVersionSerializer
+from django_analyses.serializers.analysis_version import (
+    AnalysisVersionSerializer,
+)
 from rest_auth.serializers import UserDetailsSerializer
 from rest_framework import serializers
 
@@ -13,14 +14,20 @@ class MiniUserSerializer(UserDetailsSerializer):
     Minified serializer class for the :class:`User` model.
     """
 
+    full_name = serializers.SerializerMethodField()
+
     class Meta(UserDetailsSerializer.Meta):
         fields = (
             "id",
             "username",
             "first_name",
             "last_name",
+            "full_name",
             "email",
         )
+
+    def get_full_name(self, instance: User) -> str:
+        return instance.profile.get_full_name(include_title=False)
 
 
 class RunSerializer(serializers.HyperlinkedModelSerializer):
@@ -38,6 +45,7 @@ class RunSerializer(serializers.HyperlinkedModelSerializer):
             "start_time",
             "end_time",
             "duration",
+            "status",
         )
 
     def duration(self, instance: Run):

@@ -202,23 +202,6 @@ class NodeTestCase(TestCase):
         ]
         self.assertListEqual(requiring_nodes, expected)
 
-    def test_run_set(self):
-        """
-        Tests the :attr:`~django_analyses.models.pipline.node.Node.run_set`
-        property return the expected :class:`~django.db.models.QuerySet`.
-        """
-
-        # Note: map(repr, qs) is required for QuerySet comparison,
-        # see https://stackoverflow.com/a/14189017/4416932.
-        value = self.norm_node.run_set
-        expected = self.norm_node.get_run_set()
-        self.assertQuerysetEqual(value, map(repr, expected))
-        self.norm_node.run({"x": [10, 11, 12, 13]})
-        value = self.norm_node.run_set
-        expected = self.norm_node.get_run_set()
-        self.assertEqual(len(value), 1)
-        self.assertQuerysetEqual(value, map(repr, expected))
-
     def test_run_with_multiple_inputs_as_list(self):
         inputs = [{"x": 1, "y": 2}, {"x": 3, "y": 4}]
         results = self.addition_node.run(inputs=inputs)

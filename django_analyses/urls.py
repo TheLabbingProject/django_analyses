@@ -55,13 +55,18 @@ urlpatterns = [
         name="input_html_repr",
     ),
     path(
-        "analyses/run/<int:session_id>/to_zip/",
+        "analyses/run/<int:run_id>/to_zip/",
         views.RunViewSet.as_view({"get": "to_zip"}),
         name="run_to_zip",
     ),
     path(
-        "analyses/output/<int:session_id>/download/",
+        "analyses/output/<int:output_id>/download/",
         views.OutputViewSet.as_view({"get": "download"}),
         name="file_output_download",
+    ),
+    path(
+        "analyses/input/<int:input_id>/download/",
+        views.OutputViewSet.as_view({"get": "download"}),
+        name="file_input_download",
     ),
 ]

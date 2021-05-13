@@ -94,15 +94,19 @@ def read_col_headers(path: Path) -> List[str]:
 
 
 def freesurfer_stats_repr(path: Path) -> str:
-    column_names = read_col_headers(path)
-    df = pd.read_csv(
-        path,
-        comment="#",
-        delim_whitespace=True,
-        names=column_names,
-        index_col=0,
-    )
-    return df.style.background_gradient()._repr_html_()
+    try:
+        column_names = read_col_headers(path)
+        df = pd.read_csv(
+            path,
+            comment="#",
+            delim_whitespace=True,
+            names=column_names,
+            index_col=0,
+        )
+    except Exception as e:
+        return f"<br>Preview generation failed with the following exception:<br>{e}"
+    else:
+        return df.style.background_gradient()._repr_html_()
 
 
 SUPPORTED_FILE_TYPES = {
