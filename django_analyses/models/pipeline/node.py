@@ -254,7 +254,10 @@ class Node(TimeStampedModel):
 
         node_configuration = self.get_full_configuration()
         return Run.objects.filter_by_configuration(
-            self.analysis_version, node_configuration, strict=True
+            self.analysis_version,
+            node_configuration,
+            strict=True,
+            ignore_non_config=True,
         )
 
     def is_entry_node(self, pipeline) -> bool:
@@ -313,20 +316,20 @@ class Node(TimeStampedModel):
 
         return self.get_requiring_nodes() or None
 
-    @property
-    def run_set(self) -> models.QuerySet:
-        """
-        Returns the queryset of existing runs matching this node's
-        :attr:`~django_analyses.models.pipeline.node.Node.configuration` value.
+    # @property
+    # def run_set(self) -> models.QuerySet:
+    #     """
+    #     Returns the queryset of existing runs matching this node's
+    #     :attr:`~django_analyses.models.pipeline.node.Node.configuration` value.
 
-        Returns
-        -------
-        models.QuerySet
-            Required nodes
+    #     Returns
+    #     -------
+    #     models.QuerySet
+    #         Required nodes
 
-        See Also
-        --------
-        * :meth:`get_run_set`
-        """
+    #     See Also
+    #     --------
+    #     * :meth:`get_run_set`
+    #     """
 
-        return self.get_run_set()
+    #     return self.get_run_set()

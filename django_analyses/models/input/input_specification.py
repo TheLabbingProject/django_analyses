@@ -1,9 +1,14 @@
+"""
+Definition of the :class:`InputSpecification` class.
+"""
+
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_analyses.models.input.messages import REQUIRED_VALUE_MISSING
-from django_analyses.models.managers.input_specification import \
-    InputSpecificationManager
+from django_analyses.models.managers.input_specification import (
+    InputSpecificationManager,
+)
 from django_extensions.db.models import TimeStampedModel
 
 
@@ -28,6 +33,13 @@ class InputSpecification(TimeStampedModel):
             definition.key: definition.default
             for definition in self.input_definitions
             if definition.default is not None
+        }
+
+    def get_configuration_keys(self) -> set:
+        return {
+            definition.key
+            for definition in self.input_definitions
+            if definition.is_configuration
         }
 
     def validate_keys(self, **kwargs) -> None:
@@ -57,3 +69,7 @@ class InputSpecification(TimeStampedModel):
     @property
     def input_definitions(self) -> models.QuerySet:
         return self.base_input_definitions.select_subclasses()
+
+    @property
+    def configuration_keys(self) -> set:
+        return self.get_configuration_keys()

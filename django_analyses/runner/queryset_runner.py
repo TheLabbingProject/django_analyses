@@ -308,7 +308,7 @@ class QuerySetRunner:
         _LOGGER.log(log_level, start_message)
 
         # Query.
-        runs = self.node.run_set.all()
+        runs = self.node.get_run_set().all()
         inputs = self.input_definition.input_set.filter(run__in=runs)
 
         # Log end.

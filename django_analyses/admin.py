@@ -259,61 +259,62 @@ class AnalysisAdmin(admin.ModelAdmin):
         return Run.objects.filter(analysis_version__analysis=instance).count()
 
 
-class NodeRunInline(TabularInlinePaginated, NonrelatedStackedInline):
-    model = Run
-    fields = (
-        "run_link",
-        "start_time",
-        "end_time",
-        "duration",
-        "_status",
-        "download",
-    )
-    readonly_fields = (
-        "run_link",
-        "start_time",
-        "end_time",
-        "duration",
-        "_status",
-        "download",
-    )
-    can_delete = False
-    extra = 0
-    per_page = 20
-    _form_queryset = None
+# class NodeRunInline(TabularInlinePaginated, NonrelatedStackedInline):
+#     model = Run
+#     fields = (
+#         "run_link",
+#         "start_time",
+#         "end_time",
+#         "duration",
+#         "_status",
+#         "download",
+#     )
+#     readonly_fields = (
+#         "run_link",
+#         "start_time",
+#         "end_time",
+#         "duration",
+#         "_status",
+#         "download",
+#     )
+#     can_delete = False
+#     extra = 0
+#     per_page = 20
+#     _form_queryset = None
 
-    class Media:
-        css = {"all": ("django_mri/css/hide_admin_original.css",)}
+#     class Media:
+#         css = {"all": ("django_mri/css/hide_admin_original.css",)}
 
-    def has_add_permission(self, request, instance: Run):
-        return False
+#     def has_add_permission(self, request, instance: Run):
+#         return False
 
-    def get_form_queryset(self, instance: Run):
-        if self._form_queryset is None:
-            self._form_queryset = instance.run_set.all()
-        return self._form_queryset
+#     def get_form_queryset(self, instance: Run):
+#         if self._form_queryset is None:
+#             run_set = instance.get_run_set()
+#             self._form_queryset = run_set.all()
+#         return self._form_queryset
 
-    def run_link(self, instance: Run) -> str:
-        model_name = instance.__class__.__name__
-        pk = instance.id
-        return Html.admin_link(model_name, pk)
+#     def run_link(self, instance: Run) -> str:
+#         model_name = instance.__class__.__name__
+#         pk = instance.id
+#         return Html.admin_link(model_name, pk)
 
-    def _status(self, instance: Run) -> bool:
-        if instance.status == "SUCCESS":
-            return True
-        elif instance.status == "FAILURE":
-            return False
+#     def _status(self, instance: Run) -> bool:
+#         if instance.status == "SUCCESS":
+#             return True
+#         elif instance.status == "FAILURE":
+#             return False
 
-    def download(self, instance: Run) -> str:
-        if instance.status == "SUCCESS" and instance.path.exists():
-            url = reverse("analyses:run_to_zip", args=(instance.id,))
-            button = DOWNLOAD_BUTTON.format(
-                url=url, run_id=instance.id, text="ZIP"
-            )
-            return mark_safe(button)
+#     def download(self, instance: Run) -> str:
+#         if instance.status == "SUCCESS" and instance.path.exists():
+#             url = reverse("analyses:run_to_zip", args=(instance.id,))
+#             button = DOWNLOAD_BUTTON.format(
+#                 url=url, run_id=instance.id, text="ZIP"
+#             )
+#             return mark_safe(button)
 
-    run_link.short_description = "Run"
-    _status.boolean = True
+#     run_link.short_description = "Run"
+#     _status.boolean = True
 
 
 @admin.register(Node)
@@ -333,7 +334,7 @@ class NodeAdmin(admin.ModelAdmin):
         "configuration__has_key",
     )
     formfield_overrides = {JSONField: {"widget": PrettyJSONWidget}}
-    inlines = (NodeRunInline,)
+    # inlines = (NodeRunInline,)
 
     def analysis_version_link(self, instance: Node) -> str:
         model_name = instance.analysis_version.__class__.__name__
@@ -818,7 +819,7 @@ class RunAdmin(admin.ModelAdmin):
         if instance.user:
             model_name = instance.user.__class__.__name__
             pk = instance.user.id
-            text = instance.user.username
+            text = instance.user.get_full_name()
             return Html.admin_link(model_name, pk, text)
 
     def _status(self, instance: Run) -> Union[str, bool]:
@@ -1151,6 +1152,7 @@ class InputDefinitionsInline(admin.TabularInline):
         "input_type",
         "description",
         "required",
+        "is_configuration",
         "default",
     )
     readonly_fields = (
@@ -1159,6 +1161,7 @@ class InputDefinitionsInline(admin.TabularInline):
         "input_type",
         "description",
         "required",
+        "is_configuration",
         "default",
     )
     model = InputDefinition.specification_set.through
@@ -1190,12 +1193,18 @@ class InputDefinitionsInline(admin.TabularInline):
         return instance.inputdefinition.required
 
     def default(self, instance: InputDefinition) -> str:
-        default = instance.inputdefinition.default
-        return "" if default is None else default
+        instance = InputDefinition.objects.get_subclass(
+            id=instance.inputdefinition.id
+        )
+        return "" if instance.default is None else instance.default
+
+    def is_configuration(self, instance: InputDefinition) -> str:
+        return instance.inputdefinition.is_configuration
 
     id_link.short_description = "ID"
     input_type.short_description = "Type"
     required.boolean = True
+    is_configuration.boolean = True
 
 
 @admin.register(InputSpecification)

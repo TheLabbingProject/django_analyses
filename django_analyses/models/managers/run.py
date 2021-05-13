@@ -1,5 +1,5 @@
 """
-Definition of the :class:`~django_analyses.models.run.Run` model's manager.
+Definition of the :class:`RunManager` class.
 """
 from typing import Any, Dict, Iterable, Union
 
@@ -29,15 +29,52 @@ class RunManager(models.Manager):
         analysis_version: AnalysisVersion,
         configuration: Union[Dict[str, Any], Iterable[Dict[str, Any]]],
         strict: bool = False,
+        ignore_non_config: bool = False,
     ) -> models.QuerySet:
+        """
+        Returns a queryset of *analysis_version* runs matching the provided
+        *configuration*.
+
+        Parameters
+        ----------
+        analysis_version : AnalysisVersion
+            Analysis version runs to query
+        configuration : Union[Dict[str, Any], Iterable[Dict[str, Any]]]
+            Configuration options to filter by
+        strict : bool, optional
+            Whether to exclude runs with non-default value configurations not
+            included in the provided *configuration*, by default False
+        ignore_non_config : bool, optional
+            Whether to exclude keys that match definitions for which the
+            :attr:`~django_analyses.models.input.definitions.input_definition.InputDefinition.is_configuration`
+            attribute is set to False, by default False
+
+        Returns
+        -------
+        models.QuerySet
+            Matching runs
+        """
+        # Filter by single configuration dictionary.
         if isinstance(configuration, dict):
-            configuration = analysis_version.update_input_with_defaults(
-                configuration
-            )
-            potential_runs = {key: [] for key in configuration.keys()}
+            if strict:
+                configuration = analysis_version.update_input_with_defaults(
+                    configuration
+                )
+            # Determine queried key set.
             key_set = set(configuration.keys())
+            if ignore_non_config:
+                configuration_keys = (
+                    analysis_version.input_specification.configuration_keys
+                )
+                key_set = key_set.intersection(configuration_keys)
+            # Keep track of runs matching each configuration specification.
+            potential_runs = {key: [] for key in key_set}
+            # In case *strict* is True, keep a reference to the full key set.
             if configuration:
-                for key, value in configuration.items():
+                # Update potential_runs with runs matching each specification
+                # in the provided configuration dictionary.
+                for key in key_set:
+                    value = configuration[key]
                     try:
                         definition = analysis_version.input_definitions.get(
                             key=key
@@ -47,43 +84,38 @@ class RunManager(models.Manager):
                         # can be no matching runs.
                         return self.none()
                     else:
-                        try:
-                            matching_input = definition.input_set.filter(
-                                value=value
-                            )
-                        except ObjectDoesNotExist:
+                        matching_input = definition.input_set.filter(
+                            value=value
+                        )
+                        if matching_input.exists():
+                            matching_runs = [
+                                inpt.run.id for inpt in matching_input
+                            ]
+                            potential_runs[key] += matching_runs
+                        else:
                             # If no matches were found for any given input
                             # value, it means no existing runs can exist for
                             # the entire provided configuration.
                             return self.none()
-                        else:
-                            matching_runs = list(
-                                set([inpt.run for inpt in matching_input])
-                            )
-                            potential_runs[key] += matching_runs
-                run_set = set.intersection(*map(set, potential_runs.values()))
+                # Extract a set of runs satisfying all provided criteria.
+                run_ids = set.intersection(*map(set, potential_runs.values()))
+            # If the configuration dictionary is empty, the full queryset can
+            # be returned automatically.
             else:
-                run_set = self.all()
-            if strict:
-                run_set = [
-                    run
-                    for run in run_set
-                    if {
-                        inpt.key
-                        for inpt in run.input_set.all()
-                        if inpt.definition.is_configuration
-                    }
-                    == key_set
-                ]
-            run_ids = [run.id for run in run_set]
+                run_ids = (
+                    run.id
+                    for run in self.all()
+                    if run.check_null_configuration()
+                )
             return self.filter(id__in=run_ids)
+        # Filter by multiple configuration dictionaries.
         elif isinstance(configuration, Iterable):
             run_ids = [
                 run.id
                 for run in filter(
                     None,
                     [
-                        self.get_run_by_input(specification)
+                        self.filter_by_configuration(specification)
                         for specification in configuration
                     ],
                 )

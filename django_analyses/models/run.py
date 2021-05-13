@@ -164,19 +164,55 @@ class Run(TimeStampedModel):
         if match:
             return match[0].value
 
-    def get_input_configuration(self) -> dict:
+    def get_input_configuration(
+        self,
+        include_non_configuration: bool = True,
+        include_defaults: bool = True,
+    ) -> dict:
         """
-        Returns the full (including defaults) input configuration of this run.
+        Returns the  input configuration of this run.
+
+        Parameters
+        ----------
+        include_non_configuration : bool
+            Whether to include inputs for which the associated definition's
+            :attr:`~django_analyses.models.input.definitions.input_definitions.InputDefinition.is_configuration`
+            attribute is set to False, default is True
+        include_defaults : bool
+            Whether to include default input configuration values, default is
+            True
 
         Returns
         -------
         dict
-            Full input configuration
+            Input configuration
         """
 
         defaults = self.input_defaults.copy()
-        defaults.update(self.raw_input_configuration)
-        return defaults
+        if include_non_configuration and include_defaults:
+            return {**defaults, **self.raw_input_configuration}
+        elif include_non_configuration and not include_defaults:
+            return {
+                key: value
+                for key, value in self.raw_input_configuration.items()
+                if key not in defaults or defaults.get(key) != value
+            }
+        elif not include_non_configuration and include_defaults:
+            full = {**defaults, **self.raw_input_configuration}
+            definitions = self.analysis_version.input_definitions
+            return {
+                key: value
+                for key, value in full.items()
+                if definitions.get(key=key).is_configuration
+            }
+        else:
+            definitions = self.analysis_version.input_definitions
+            return {
+                key: value
+                for key, value in self.raw_input_configuration.items()
+                if (key not in defaults or defaults.get(key) != value)
+                and definitions.get(key=key).is_configuration
+            }
 
     def get_output_configuration(self) -> dict:
         """
@@ -249,6 +285,23 @@ class Run(TimeStampedModel):
             output.definition.key: output.json_value
             for output in self.output_set.all()
         }
+
+    def check_null_configuration(self) -> bool:
+        """
+        Checks whether this run's configuration is equivalent to the input
+        specification's default settings.
+
+        Returns
+        -------
+        bool
+            Whether this run has only default configuration settings
+        """
+        return (
+            self.get_input_configuration(
+                include_defaults=False, include_non_configuration=False
+            )
+            == {}
+        )
 
     def get_visualizer(self, provider: str = None) -> callable:
         return get_visualizer(
