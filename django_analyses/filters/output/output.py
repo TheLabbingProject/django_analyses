@@ -15,6 +15,20 @@ class OutputFilter(filters.FilterSet):
 
     """
 
+    key = filters.CharFilter(
+        lookup_expr="icontains",
+        label="Definition key contains (case-insensitive)",
+        method="filter_key",
+    )
+
     class Meta:
         model = Output
-        fields = ("run",)
+        fields = "run", "key"
+
+    def filter_key(self, queryset, name, value):
+        ids = [
+            output.id
+            for output in queryset.all()
+            if value in output.definition.key
+        ]
+        return queryset.filter(id__in=ids)
