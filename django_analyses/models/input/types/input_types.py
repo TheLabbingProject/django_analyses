@@ -1,7 +1,7 @@
-from enum import Enum
+from pylabber.utils import ChoiceEnum
 
 
-class InputTypes(Enum):
+class InputTypes(ChoiceEnum):
     STR = "String"
     BLN = "Boolean"
     FIL = "File"

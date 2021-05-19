@@ -1,7 +1,7 @@
-from enum import Enum
+from pylabber.utils import ChoiceEnum
 
 
-class OutputTypes(Enum):
+class OutputTypes(ChoiceEnum):
     FIL = "File"
     FLT = "Float"
     LST = "List"
