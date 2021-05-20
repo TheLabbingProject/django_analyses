@@ -1,7 +1,7 @@
-from enum import Enum
+from django_analyses.utils.choice_enum import ChoiceEnum
 
 
-class InputTypes(Enum):
+class InputTypes(ChoiceEnum):
     STR = "String"
     BLN = "Boolean"
     FIL = "File"

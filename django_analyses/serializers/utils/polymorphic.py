@@ -21,8 +21,8 @@ class PolymorphicSerializer(serializers.Serializer):
 
     def get_serializer(self):
         """
-        Return a dict to map class names to their respective serializer classes.
-        To be implemented by all PolymorphicSerializer subclasses.
+        Return a dict to map class names to their respective serializer
+        classes. To be implemented by all PolymorphicSerializer subclasses.
         """
 
         raise NotImplementedError
@@ -41,6 +41,9 @@ class PolymorphicSerializer(serializers.Serializer):
         data = serializer(instance, context=self.context).to_representation(
             instance
         )
+        if input_type == "List":
+            element_type = instance.expected_type_definition.value
+            input_type += f"[{element_type}]"
         data["type"] = input_type
         return data
 

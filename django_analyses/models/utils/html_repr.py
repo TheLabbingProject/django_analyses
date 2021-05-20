@@ -140,4 +140,7 @@ def html_repr(path: Path) -> str:
                 match = key
                 break
     if match is not None:
-        return SUPPORTED_FILE_TYPES[match](path)
+        try:
+            return SUPPORTED_FILE_TYPES[match](path)
+        except ValueError:
+            return "Preview generation failed!"
