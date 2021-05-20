@@ -1,4 +1,4 @@
-from pylabber.utils import ChoiceEnum
+from django_analyses.utils.choice_enum import ChoiceEnum
 
 
 class InputTypes(ChoiceEnum):
