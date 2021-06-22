@@ -510,7 +510,7 @@ class QuerySetRunner:
         Parameters
         ----------
         instance : Model
-            Data instance to be proocessed
+            Data instance to be processed
 
         Returns
         -------
@@ -532,7 +532,10 @@ class QuerySetRunner:
             _LOGGER.warning(message)
 
     def create_inputs(
-        self, queryset: QuerySet, progressbar: bool = True
+        self,
+        queryset: QuerySet,
+        progressbar: bool = True,
+        max_total: int = None,
     ) -> List[Dict[str, List[str]]]:
         """
         Returns a list of dictionary input specifications.
@@ -556,7 +559,7 @@ class QuerySetRunner:
         _LOGGER.info(self.INPUT_GENERATION)
         # Generate input specifications.
         iterable = create_progressbar(
-            queryset,
+            queryset[:max_total],
             disable=not progressbar,
             **self.INPUT_GENERATION_PROGRESSBAR_KWARGS,
         )
@@ -621,7 +624,9 @@ class QuerySetRunner:
             queryset, apply_filter=False, log_level=log_level
         )
         if pending:
-            inputs = self.create_inputs(pending, prep_progressbar)
+            inputs = self.create_inputs(
+                pending, prep_progressbar, max_total=max_total
+            )
             inputs = inputs[:max_total]
             if inputs:
                 if not dry:
