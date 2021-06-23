@@ -22,6 +22,9 @@ jobs:
     steps:
       - checkout
       - python/load-cache
+      - run:
+          name: Upgrade pip
+          command: pip install --upgrade pip setuptools wheel
       - python/install-deps
       - python/save-cache
       - run: pip install tox
