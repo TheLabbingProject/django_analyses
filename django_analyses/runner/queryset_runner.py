@@ -5,12 +5,11 @@ import logging
 from typing import Any, Dict, List, Tuple
 
 from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Model, QuerySet
+from django.db.models import Model, Q, QuerySet
 from django_analyses.models.analysis import Analysis
 from django_analyses.models.analysis_version import AnalysisVersion
-from django_analyses.models.input.definitions.input_definition import (
-    InputDefinition,
-)
+from django_analyses.models.input.definitions.input_definition import \
+    InputDefinition
 from django_analyses.models.pipeline.node import Node
 from django_analyses.runner import messages
 from django_analyses.tasks import execute_node
@@ -57,6 +56,14 @@ class QuerySetRunner:
     instance's
     :class:`~django_analyses.models.input.definitions.input_definition.InputDefinition`
     which will be used to query pending runs and execute them.
+    """
+    BASE_QUERY: Q = None
+    """
+    Query to use when retrieving the base queryset.
+
+    See Also
+    --------
+    * :func:`get_base_queryset`
     """
 
     #
@@ -140,7 +147,10 @@ class QuerySetRunner:
             All data model instances
         """
         self.log_base_query_start(log_level)
-        queryset = self.DATA_MODEL.objects.all()
+        if self.BASE_QUERY is None:
+            queryset = self.DATA_MODEL.objects.all()
+        else:
+            queryset = self.DATA_MODEL.objects.filter(self.BASE_QUERY)
         self.log_base_query_end(n_instances=queryset.count())
         return queryset
 
