@@ -1,7 +1,13 @@
+"""
+Base tasks provided by *django_analyses*.
+"""
 import math
+import warnings
 from typing import List, Union
 
 from celery import group, shared_task
+
+from django_analyses.messages import RUN_EXECUTION_FAILURE
 from django_analyses.models.pipeline.node import Node
 from django_analyses.models.pipeline.pipeline import Pipeline
 from django_analyses.pipeline_runner import PipelineRunner
@@ -27,7 +33,6 @@ def execute_node(
     int, List[int]
         The created :class:`~django_analyses.models.run.Run` instance ID or IDs
     """
-
     node = Node.objects.get(id=node_id)
 
     # Handle single or multiple execution inputs.
@@ -44,7 +49,8 @@ def execute_node(
         # If the result of the created run is FAILED, raise exception to
         # indicate a failed task.
         if run.status == "FAILURE":
-            raise RuntimeError("Node execution failed.")
+            message = RUN_EXECUTION_FAILURE.format(run=run)
+            warnings.warn(message)
     else:
         # If a list of input dictionaries is provided, run in parallel.
         max_parallel = node.analysis_version.max_parallel
