@@ -3,10 +3,12 @@ from pathlib import Path
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from django_analyses.models.input.definitions.input_definition import \
-    InputDefinition
-from django_analyses.models.input.definitions.input_definitions import \
-    InputDefinitions
+from django_analyses.models.input.definitions.input_definition import (
+    InputDefinition,
+)
+from django_analyses.models.input.definitions.input_definitions import (
+    InputDefinitions,
+)
 from django_analyses.models.input.types.list_input import ListInput
 from django_analyses.models.input.utils import TYPES_DICT, ListElementTypes
 
@@ -78,3 +80,7 @@ class ListInputDefinition(InputDefinition):
 
     def get_type(self) -> InputDefinitions:
         return InputDefinitions.LST
+
+    @property
+    def expected_type_definition(self) -> ListElementTypes:
+        return ListElementTypes[self.element_type]
