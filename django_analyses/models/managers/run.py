@@ -202,13 +202,13 @@ class RunManager(models.Manager):
         Run
             Resulting run instance
         """
-
         run = self.create(
             analysis_version=analysis_version,
             user=user,
             status="STARTED",
             start_time=timezone.now(),
         )
+        update_fields = []
         try:
             input_manager = InputManager(run=run, configuration=configuration)
             inputs = input_manager.create_input_instances()
@@ -217,7 +217,7 @@ class RunManager(models.Manager):
             output_manager.create_output_instances()
         except KeyboardInterrupt:
             run.delete()
-            update_fields = []
+            return
         except Exception as e:
             run.status = "FAILURE"
             run.traceback = str(e)
@@ -227,9 +227,8 @@ class RunManager(models.Manager):
             run.status = "SUCCESS"
             run.end_time = timezone.now()
             update_fields = ["status", "end_time"]
-        finally:
-            run.save(update_fields=update_fields)
-            return run
+        run.save(update_fields=update_fields)
+        return run
 
     def get_or_execute(
         self,

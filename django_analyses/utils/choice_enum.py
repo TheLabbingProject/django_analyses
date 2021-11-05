@@ -8,7 +8,6 @@ class ChoiceEnum(Enum):
     """
     A Python `enum <https://docs.python.org/3/library/enum.html>`_ with
     a method to provide choices in the format that Django expects them.
-
     """
 
     @classmethod
