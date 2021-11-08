@@ -2,10 +2,9 @@
 Base tasks provided by *django_analyses*.
 """
 import math
-import warnings
 from typing import List, Union
 
-from celery import group, shared_task
+from celery import group, shared_task  # , states
 
 from django_analyses.messages import RUN_EXECUTION_FAILURE
 from django_analyses.models.pipeline.node import Node
@@ -13,9 +12,9 @@ from django_analyses.models.pipeline.pipeline import Pipeline
 from django_analyses.pipeline_runner import PipelineRunner
 
 
-@shared_task(name="django_analyses.node-execution")
+@shared_task(bind=True, name="django_analyses.node-execution")
 def execute_node(
-    node_id: int, inputs: Union[list, dict]
+    self, node_id: int, inputs: Union[list, dict]
 ) -> Union[int, List[int]]:
     """
     Execute a :class:`~django_analyses.models.pipeline.node.Node` in a
@@ -50,7 +49,9 @@ def execute_node(
         # indicate a failed task.
         if run.status == "FAILURE":
             message = RUN_EXECUTION_FAILURE.format(run=run)
-            warnings.warn(message)
+            raise RuntimeError(message)
+            # This causes an exception (task_id is null):
+            # self.update_state(state=states.FAILURE, meta=message)
     else:
         # If a list of input dictionaries is provided, run in parallel.
         max_parallel = node.analysis_version.max_parallel
