@@ -1,6 +1,5 @@
 """
 Definition of the :class:`Run` model.
-
 """
 import datetime
 import inspect
@@ -12,23 +11,18 @@ from django.contrib.auth import get_user_model
 from django.db import models
 from django.utils import timezone
 from django_analyses.models.managers.run import RunManager
-from django_analyses.utils.choice_enum import ChoiceEnum
+from django_analyses.models.utils.run_status import RunStatus
 from django_analyses.utils.get_visualizers import get_visualizer
 from django_extensions.db.models import TimeStampedModel
 from model_utils.managers import InheritanceQuerySet
 
-
-class RunStatus(ChoiceEnum):
-    STARTED = "Started"
-    SUCCESS = "Success"
-    FAILURE = "Failure"
+User = get_user_model()
 
 
 class Run(TimeStampedModel):
     """
     :class:`~django.db.models.Model` representing a single analysis version's
     run in the database.
-
     """
 
     #: The :class:`~django_analyses.models.analysis_version.AnalysisVersion`
@@ -39,7 +33,7 @@ class Run(TimeStampedModel):
 
     #: The user who created this run.
     user = models.ForeignKey(
-        get_user_model(), blank=True, null=True, on_delete=models.SET_NULL,
+        User, blank=True, null=True, on_delete=models.SET_NULL,
     )
 
     #: The :class:`~django_celery_results.models.task_result.TaskResult`
@@ -80,7 +74,6 @@ class Run(TimeStampedModel):
         str
             String representation of this instance
         """
-
         formatted_time = self.created.strftime("%Y-%m-%d %H:%M:%S")
         return f"#{self.id} {self.analysis_version} run from {formatted_time}"
 
@@ -95,7 +88,6 @@ class Run(TimeStampedModel):
         :class:`~model_utils.managers.InheritanceQuerySet`
             This run's inputs
         """
-
         return self.base_input_set.select_subclasses()
 
     def get_output_set(self) -> InheritanceQuerySet:
@@ -109,7 +101,6 @@ class Run(TimeStampedModel):
         :class:`~model_utils.managers.InheritanceQuerySet`
             This run's outputs
         """
-
         return self.base_output_set.select_subclasses()
 
     def get_input(self, key: str) -> Any:
@@ -130,7 +121,6 @@ class Run(TimeStampedModel):
         Any
             Input value
         """
-
         match = [
             inpt for inpt in self.input_set.all() if inpt.definition.key == key
         ]
@@ -155,7 +145,6 @@ class Run(TimeStampedModel):
         Any
             Output value
         """
-
         match = [
             output
             for output in self.output_set.all()
@@ -187,7 +176,6 @@ class Run(TimeStampedModel):
         dict
             Input configuration
         """
-
         defaults = self.input_defaults.copy()
         if include_non_configuration and include_defaults:
             return {**defaults, **self.raw_input_configuration}
@@ -223,7 +211,6 @@ class Run(TimeStampedModel):
         dict
             Output configuration
         """
-
         return {output.key: output.value for output in self.output_set}
 
     def fix_input_value(self, inpt) -> Any:
@@ -242,7 +229,6 @@ class Run(TimeStampedModel):
         Any
             The "raw" input value
         """
-
         if getattr(inpt.definition, "is_output_path", False):
             return Path(inpt.value).name
         elif isinstance(inpt._meta.get_field("value"), models.ForeignKey):
@@ -261,7 +247,6 @@ class Run(TimeStampedModel):
         dict
             Raw input configuration as provided by the user
         """
-
         return {
             inpt.key: self.fix_input_value(inpt)
             for inpt in self.input_set
@@ -280,7 +265,6 @@ class Run(TimeStampedModel):
         dict
             JSON serializable output dictionary
         """
-
         return {
             output.definition.key: output.json_value
             for output in self.output_set.all()
@@ -328,7 +312,6 @@ class Run(TimeStampedModel):
             `MEDIA_ROOT
             <https://docs.djangoproject.com/en/3.0/ref/settings/#media-root>`_.
         """
-
         path = Path(settings.ANALYSIS_BASE_PATH) / str(self.id)
         return path if path.is_dir() else None
 
@@ -346,7 +329,6 @@ class Run(TimeStampedModel):
         dict
             This analysis version's default input configuration
         """
-
         return self.analysis_version.input_specification.default_configuration
 
     @property
@@ -363,7 +345,6 @@ class Run(TimeStampedModel):
         --------
         * :meth:`get_input_configuration`
         """
-
         return self.get_input_configuration()
 
     @property
@@ -380,7 +361,6 @@ class Run(TimeStampedModel):
         --------
         * :meth:`get_output_configuration`
         """
-
         return self.get_output_configuration()
 
     @property
@@ -398,7 +378,6 @@ class Run(TimeStampedModel):
         --------
         * :meth:`get_input_set`
         """
-
         return self.get_input_set()
 
     @property
@@ -416,7 +395,6 @@ class Run(TimeStampedModel):
         --------
         * :meth:`get_output_set`
         """
-
         return self.get_output_set()
 
     @property
@@ -433,7 +411,6 @@ class Run(TimeStampedModel):
         --------
         * :meth:`get_raw_input_configuration`
         """
-
         return self.get_raw_input_configuration()
 
     @property
@@ -448,7 +425,6 @@ class Run(TimeStampedModel):
         datetime.timedelta
             Run duration
         """
-
         if self.start_time and self.end_time:
             return self.end_time - self.start_time
         elif self.start_time:

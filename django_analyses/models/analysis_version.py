@@ -154,7 +154,6 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         str
             String representation of this instance
         """
-
         return f"{self.analysis.title} v{self.title}"
 
     def get_interface(self) -> object:
@@ -174,7 +173,6 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         NotImplementedError
             No interface could be found for this analysis
         """
-
         return get_analysis_version_interface(self)
 
     def get_interface_initialization_kwargs(self, **kwargs) -> dict:
@@ -187,7 +185,6 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         dict
             Initialization parameters as a keyword arguments dict
         """
-
         return {
             key: value
             for key, value in kwargs.items()
@@ -204,7 +201,6 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         dict
             :meth:`run` method parameters as a keyword arguments dict
         """
-
         return {
             key: value
             for key, value in kwargs.items()
@@ -221,7 +217,6 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         dict
             Dictionary of results
         """
-
         # Initialize the interface class
         init_kwargs = self.get_interface_initialization_kwargs(**kwargs)
         instance = self.interface(**init_kwargs)
@@ -251,7 +246,6 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         dict
             Results dictionary
         """
-
         for nested_attribute in self.nested_results_parts:
             results = getattr(results, nested_attribute)
         return results if isinstance(results, dict) else results()
@@ -271,7 +265,6 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         dict
             Results dictionary
         """
-
         self.input_specification.validate_kwargs(**kwargs)
         raw_results = self.run_interface(**kwargs)
         return self.extract_results(raw_results)
@@ -293,7 +286,6 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         dict
             Configuration updated with default values
         """
-
         defaults = self.input_specification.default_configuration.copy()
         return {**defaults, **configuration}
 
@@ -309,7 +301,6 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         list
             Listed parts of nested result dictionary location
         """
-
         return (
             self.nested_results_attribute.split(".")
             if self.nested_results_attribute
@@ -324,14 +315,12 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         subclasses as defined in its
         :attr:`~django_analyses.models.analysis_version.AnalysisVersion.input_specification`.
 
-
         Returns
         -------
         :class:`~django.db.models.query.QuerySet`
             :class:`~django_analyses.models.input.definitions.input_definition.InputDefinition`
             subclasses
         """
-
         return self.input_specification.input_definitions
 
     @property
@@ -349,7 +338,6 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
             :class:`~django_analyses.models.output.definitions.output_definition.OutputDefinition`
             subclasses
         """
-
         return self.output_specification.output_definitions
 
     @property
@@ -362,5 +350,4 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
         type
             Analysis interface class
         """
-
         return self.get_interface()
