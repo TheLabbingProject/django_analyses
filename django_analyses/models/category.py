@@ -1,7 +1,6 @@
 """
-Definition of the :class:`~django_analyses.models.category.Category` class.
+Definition of the :class:`Category` class.
 """
-
 from django.db import models
 from django_extensions.db.models import TimeStampedModel, TitleDescriptionModel
 
@@ -37,5 +36,4 @@ class Category(TitleDescriptionModel, TimeStampedModel):
         str
             This instance's string representation
         """
-
         return self.title

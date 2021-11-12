@@ -1,6 +1,5 @@
 """
-Definition of the :class:`~django_analyses.models.analysis.Analysis` class.
-
+Definition of the :class:`Analysis` class.
 """
 
 from django.db import models
@@ -13,7 +12,6 @@ class Analysis(TitleDescriptionModel, TimeStampedModel):
     """
     A :class:`~django.db.models.Model` representing a single analysis in the
     database.
-
     """
 
     #: Override TitleDescriptionModel's title field to specify
@@ -42,5 +40,4 @@ class Analysis(TitleDescriptionModel, TimeStampedModel):
         str
             Instance string representation
         """
-
         return self.title
