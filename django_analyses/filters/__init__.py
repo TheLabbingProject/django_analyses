@@ -18,10 +18,21 @@ References
 from django_analyses.filters.analysis import AnalysisFilter
 from django_analyses.filters.analysis_version import AnalysisVersionFilter
 from django_analyses.filters.category import CategoryFilter
-from django_analyses.filters.input import (InputDefinitionFilter, InputFilter,
-                                           InputSpecificationFilter)
-from django_analyses.filters.output import (OutputDefinitionFilter,
-                                            OutputFilter,
-                                            OutputSpecificationFilter)
-from django_analyses.filters.pipeline import (NodeFilter, PipeFilter,
-                                              PipelineFilter)
+from django_analyses.filters.input import (
+    InputDefinitionFilter,
+    InputFilter,
+    InputSpecificationFilter,
+)
+from django_analyses.filters.output import (
+    OutputDefinitionFilter,
+    OutputFilter,
+    OutputSpecificationFilter,
+)
+from django_analyses.filters.pipeline import (
+    NodeFilter,
+    PipeFilter,
+    PipelineFilter,
+)
+from django_analyses.filters.run import RunFilter
+
+# flake8: noqa: E501
