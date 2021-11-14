@@ -22,7 +22,15 @@ class AnalysisVersionFilter(filters.FilterSet):
         lookup_choices=DEFAULT_LOOKUP_CHOICES
     )
     created = filters.DateTimeFromToRangeFilter("created")
+    has_runs = filters.BooleanFilter(
+        field_name="run__isnull",
+        method="filter_has_runs",
+        label="Has existing runs:",
+    )
 
     class Meta:
         model = AnalysisVersion
         fields = "id", "analysis", "title", "description", "created"
+
+    def filter_has_runs(self, queryset, name, value):
+        return queryset.filter(**{name: not value}).distinct()
