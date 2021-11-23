@@ -9,6 +9,7 @@ from django_analyses.models.managers.analysis_version import (
     AnalysisVersionManager,
 )
 from django_analyses.models.utils import get_analysis_version_interface
+from django_analyses.models.utils.json_field import DefaultJSONField
 from django_extensions.db.models import TimeStampedModel, TitleDescriptionModel
 
 
@@ -82,8 +83,8 @@ class AnalysisVersion(TitleDescriptionModel, TimeStampedModel):
     name of the method that will be called (default value is *"run"*).
     """
 
-    fixed_run_method_kwargs = models.JSONField(
-        default=dict, help_text=help_text.FIXED_KWARGS
+    fixed_run_method_kwargs = DefaultJSONField(
+        default=dict, help_text=help_text.FIXED_KWARGS, blank=True,
     )
     """
     Any "fixed" keyword arguments that should always be passed to the

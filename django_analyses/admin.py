@@ -18,8 +18,6 @@ from django.db.models import JSONField
 from django.forms import widgets
 from django.urls import reverse
 from django.utils.safestring import mark_safe
-from django_admin_inline_paginator.admin import TabularInlinePaginated
-from nonrelated_inlines.admin import NonrelatedStackedInline
 
 from django_analyses.models.analysis import Analysis
 from django_analyses.models.analysis_version import AnalysisVersion
