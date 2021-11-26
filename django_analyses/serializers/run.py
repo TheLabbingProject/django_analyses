@@ -46,6 +46,7 @@ class RunSerializer(serializers.HyperlinkedModelSerializer):
             "end_time",
             "duration",
             "status",
+            "traceback",
         )
 
     def duration(self, instance: Run):
