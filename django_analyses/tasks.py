@@ -4,7 +4,7 @@ Base tasks provided by *django_analyses*.
 import math
 from typing import List, Union
 
-from celery import group, shared_task  # , states
+from celery import group, shared_task
 
 from django_analyses.messages import RUN_EXECUTION_FAILURE
 from django_analyses.models.pipeline.node import Node
@@ -14,7 +14,7 @@ from django_analyses.pipeline_runner import PipelineRunner
 
 @shared_task(bind=True, name="django_analyses.node-execution")
 def execute_node(
-    self, node_id: int, inputs: Union[list, dict]
+    self, node_id: int, inputs: Union[list, dict], autoretry: bool = False
 ) -> Union[int, List[int]]:
     """
     Execute a :class:`~django_analyses.models.pipeline.node.Node` in a
@@ -43,8 +43,9 @@ def execute_node(
             return run.id
         # In an existing failed run was found, try to rerun.
         elif run.status == "FAILURE":
-            run.delete()
-            run, created = node.run(inputs=inputs, return_created=True)
+            if autoretry:
+                run.delete()
+                run, created = node.run(inputs=inputs, return_created=True)
         # If the result of the created run is FAILED, raise exception to
         # indicate a failed task.
         if run.status == "FAILURE":
