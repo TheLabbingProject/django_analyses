@@ -12,6 +12,7 @@ from django.db import models
 from django.utils import timezone
 from django_analyses.models.managers.run import RunManager
 from django_analyses.models.utils.run_status import RunStatus
+from django_analyses.utils import get_output_parser
 from django_analyses.utils.get_visualizers import get_visualizer
 from django_extensions.db.models import TimeStampedModel
 from model_utils.managers import InheritanceQuerySet
@@ -299,6 +300,18 @@ class Run(TimeStampedModel):
         else:
             visualizer(self)
 
+    def get_output_parser(self) -> object:
+        return get_output_parser(
+            self.analysis_version.analysis.title, self.analysis_version.title
+        )
+
+    def parse_output(self):
+        output_parser = self.output_parser(self.path)
+        try:
+            return output_parser.parse()
+        except (TypeError, AttributeError):
+            pass
+
     @property
     def path(self) -> Path:
         """
@@ -429,3 +442,7 @@ class Run(TimeStampedModel):
             return self.end_time - self.start_time
         elif self.start_time:
             return timezone.now() - self.start_time
+
+    @property
+    def output_parser(self) -> object:
+        return self.get_output_parser()
