@@ -4,6 +4,7 @@ Definition of the :class:`InputDefinition` class.
 from pathlib import Path
 from typing import Any
 
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.db.models.base import ModelBase
@@ -68,6 +69,16 @@ class InputDefinition(models.Model):
         default=False, help_text=help_text.RUN_METHOD_INPUT
     )
 
+    #: If this input's value references the value of a field in the database,
+    #: this references the field's model.
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE, blank=True, null=True
+    )
+
+    #: If this input's value references the value of a field in the database,
+    #: this references the field's name within the :att:`content_type` model.
+    field_name = models.CharField(max_length=255, blank=True, null=True)
+
     #: Each definition should override this class attribute in order to allow
     #: for Input instances creation.
     input_class = None
@@ -86,7 +97,6 @@ class InputDefinition(models.Model):
         str
             String representation of this instance
         """
-
         try:
             input_type = self.input_class.__name__.replace("Input", "")
         except AttributeError:
@@ -110,7 +120,6 @@ class InputDefinition(models.Model):
         Any
             Nested attribute value
         """
-
         parts = location.split(".")
         for part in parts:
             obj = getattr(obj, part)
@@ -125,7 +134,6 @@ class InputDefinition(models.Model):
         ValidationError
             Invalid :attr:`input_class` definition
         """
-
         input_base_name = f"{Input.__module__}.{Input.__name__}"
         not_model = not isinstance(self.input_class, ModelBase)
         base = getattr(self.input_class, "__base__", None)
@@ -159,7 +167,6 @@ class InputDefinition(models.Model):
         ValueError
             Value extraction failure
         """
-
         path_field = self.db_value_preprocessing == "path"
         if value and self.db_value_preprocessing:
             location = self.db_value_preprocessing
@@ -191,7 +198,6 @@ class InputDefinition(models.Model):
         Input
             Created instance
         """
-
         kwargs["value"] = self.get_db_value(kwargs.get("value"))
         try:
             return self.input_class.objects.get_or_create(
@@ -207,22 +213,16 @@ class InputDefinition(models.Model):
         This method should be overridden by subclasses that require some kind
         of custom validation.
         """
-
-        pass
+        if self.content_type:
+            Model = self.content_type.model_class()
+            field_name = self.field_name or "id"
+            # Raise FieldDoesNotExist if field name is invalid.
+            Model._meta.get_field(field_name)
 
     def save(self, *args, **kwargs):
         """
         Overrides the model's :meth:`~django.db.models.Model.save` method to
         provide custom functionality.
-
-        Hint
-        ----
-        For more information, see Django's documentation on `overriding model
-        methods`_.
-
-        .. _overriding model methods:
-           https://docs.djangoproject.com/en/3.0/topics/db/models/#overriding-model-methods
         """
-
         self.validate()
         super().save(*args, **kwargs)

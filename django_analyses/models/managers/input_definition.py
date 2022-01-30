@@ -35,7 +35,7 @@ class InputDefinitionManager(InheritanceManager):
         ~django_analyses.models.input.definitions.input_definition.InputDefinition
             Created input definition
         """
-
+        # TODO: Enable content_type and field_name specification.
         definition_model = definition.pop("type")
         try:
             return definition_model.objects.get(key=key, **definition)
@@ -59,7 +59,6 @@ class InputDefinitionManager(InheritanceManager):
         list
             Created input definitions
         """
-
         return [
             self.from_dict(key, definition)
             for key, definition in deepcopy(specification).items()

@@ -81,6 +81,12 @@ class ListInput(Input):
         path = Path(self.value[index])
         return html_repr(path)
 
+    def query_related_instance(self) -> models.QuerySet:
+        if self.definition.content_type:
+            Model = self.definition.content_type.model_class()
+            field_name = self.definition.field_name or "id"
+            return Model.objects.filter(**{f"{field_name}__in": self.value})
+
     def _repr_html_(self) -> str:
         try:
             return "<br>".join(

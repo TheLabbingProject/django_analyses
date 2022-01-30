@@ -1,7 +1,6 @@
 """
 Definition of the base :class:`Input` model.
 """
-
 from typing import Any
 
 from django.core.exceptions import ValidationError
@@ -100,7 +99,6 @@ class Input(models.Model):
 
         within your custom function.
         """
-
         if self.definition.required and self.value is None:
             self.raise_required_error()
 
@@ -108,16 +106,7 @@ class Input(models.Model):
         """
         Overrides the model's :meth:`~django.db.models.Model.save` method to
         provide custom functionality.
-
-        Hint
-        ----
-        For more information, see Django's documentation on `overriding model
-        methods`_.
-
-        .. _overriding model methods:
-           https://docs.djangoproject.com/en/3.0/topics/db/models/#overriding-model-methods
         """
-
         self.pre_save()
         self.validate()
         super().save(*args, **kwargs)
@@ -134,12 +123,27 @@ class Input(models.Model):
         Any
             Input value as expected by the interface
         """
-
         value = self.value
         if self.definition.value_attribute:
             location = self.definition.value_attribute
             return self.definition.extract_nested_value(value, location)
         return value
+
+    def query_related_instance(self) -> Any:
+        """
+        If this input's definition points to a related model's field, returns
+        the related instance (i.e. the instance in which the field's value is
+        this input's value).
+
+        Returns
+        -------
+        Any
+            related instance
+        """
+        if self.definition.content_type:
+            Model = self.definition.content_type.model_class()
+            field_name = self.definition.field_name or "id"
+            return Model.objects.get(**{field_name: self.value})
 
     @property
     def key(self) -> str:
@@ -151,7 +155,6 @@ class Input(models.Model):
         str
             Input definition key
         """
-
         if self.definition:
             return self.definition.key
 
@@ -165,7 +168,6 @@ class Input(models.Model):
         Any
             Input value as expected by the interface
         """
-
         return self.get_argument_value()
 
     @property
@@ -179,6 +181,5 @@ class Input(models.Model):
         bool
             :attr:`value` is foreign key or not
         """
-
         value_field = self._meta.get_field("value")
         return isinstance(value_field, models.ForeignKey)
