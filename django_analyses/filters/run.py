@@ -5,13 +5,13 @@ Definition of a :class:`RunFilter` class for the
 from typing import List
 
 from django.db.models import QuerySet
+from django_analyses.filters.utils import NumberInFilter
 from django_analyses.models.analysis import Analysis
 from django_analyses.models.analysis_version import AnalysisVersion
 from django_analyses.models.run import Run
 from django_analyses.models.utils import get_subject_model
 from django_analyses.models.utils.run_status import RunStatus
 from django_filters import rest_framework as filters
-from pylabber.utils.filters import NumberInFilter
 
 ANALYSES_WITH_RUNS = Analysis.objects.filter(
     version_set__run__isnull=False
