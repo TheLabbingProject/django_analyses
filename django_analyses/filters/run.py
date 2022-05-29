@@ -2,6 +2,8 @@
 Definition of a :class:`RunFilter` class for the
 :class:`~django_analyses.models.run.Run` model.
 """
+from typing import List
+
 from django.db.models import QuerySet
 from django_analyses.models.analysis import Analysis
 from django_analyses.models.analysis_version import AnalysisVersion
@@ -9,6 +11,7 @@ from django_analyses.models.run import Run
 from django_analyses.models.utils import get_subject_model
 from django_analyses.models.utils.run_status import RunStatus
 from django_filters import rest_framework as filters
+from pylabber.utils.filters import NumberInFilter
 
 ANALYSES_WITH_RUNS = Analysis.objects.filter(
     version_set__run__isnull=False
@@ -25,6 +28,7 @@ class RunFilter(filters.FilterSet):
     :class:`~django_analyses.models.run.Run` model.
     """
 
+    id_in = NumberInFilter(method="filter_by_id", label="ID in")
     analysis = filters.ModelMultipleChoiceFilter(
         "analysis_version__analysis", queryset=ANALYSES_WITH_RUNS,
     )
@@ -52,3 +56,8 @@ class RunFilter(filters.FilterSet):
             pass
         else:
             return subject.query_run_set()
+
+    def filter_by_id(
+        self, queryset: QuerySet, name: str, value: List[int]
+    ) -> QuerySet:
+        return queryset.filter(id__in=value)
